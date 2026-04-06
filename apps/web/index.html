@@ -1,0 +1,1642 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sustenta Futuro — Automatización RPA e IA</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:           #07070F;
+      --bg-1:         #0D0D1A;
+      --bg-card:      rgba(255,255,255,0.03);
+      --bg-card-h:    rgba(255,255,255,0.055);
+      --border:       rgba(255,255,255,0.07);
+      --border-h:     rgba(255,255,255,0.16);
+      --text:         #ECECF1;
+      --text-muted:   rgba(236,236,241,0.5);
+      --text-subtle:  rgba(236,236,241,0.28);
+      --green:        #2ECC71;
+      --green-dark:   #1B4D3E;
+      --orange:       #E67E22;
+      --orange-dim:   rgba(230,126,34,0.18);
+      --orange-hover: #CF6D17;
+
+      --ease-out:    cubic-bezier(0.23, 1, 0.32, 1);
+      --ease-io:     cubic-bezier(0.77, 0, 0.175, 1);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    h1,h2,h3,h4 { font-family: 'Montserrat', sans-serif; }
+
+    :focus-visible {
+      outline: 2px solid var(--orange);
+      outline-offset: 3px;
+      border-radius: 4px;
+    }
+
+    /* ─────────────────── NAV ─────────────────── */
+    .nav-wrap {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 200;
+      display: flex;
+      justify-content: center;
+      padding: 1.25rem 5%;
+      pointer-events: none;
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 1100px;
+      padding: 0.6rem 0.6rem 0.6rem 1.25rem;
+      background: rgba(13,13,26,0.75);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      pointer-events: all;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      text-decoration: none;
+    }
+
+    nav img.logo {
+      height: 32px;
+      object-fit: contain;
+    }
+
+    .nav-brand-text {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.92rem;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -0.01em;
+      line-height: 1;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: var(--text-muted);
+      font-weight: 500;
+      font-size: 0.85rem;
+      font-family: 'Montserrat', sans-serif;
+      padding: 0.45rem 0.9rem;
+      border-radius: 100px;
+      transition: color 180ms ease, background 180ms ease;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .nav-links a:hover {
+        color: var(--text);
+        background: rgba(255,255,255,0.06);
+      }
+    }
+
+    .nav-cta {
+      background: var(--orange) !important;
+      color: #fff !important;
+      font-weight: 700 !important;
+      padding: 0.55rem 1.25rem !important;
+      transition: background 180ms ease, transform 160ms var(--ease-out) !important;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .nav-cta:hover { background: var(--orange-hover) !important; }
+    }
+
+    .nav-cta:active { transform: scale(0.96); }
+
+    /* ─────────────────── HERO ─────────────────── */
+    #hero {
+      position: relative;
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      padding: 8rem 5% 5rem;
+      overflow: hidden;
+    }
+
+    /* Prism canvas */
+    #prism-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* orb glows */
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+      filter: blur(80px);
+    }
+
+    .orb-green {
+      width: 700px; height: 700px;
+      top: -200px; left: -150px;
+      background: radial-gradient(circle, rgba(27,77,62,0.55) 0%, transparent 65%);
+    }
+
+    .orb-orange {
+      width: 500px; height: 500px;
+      bottom: -100px; right: 10%;
+      background: radial-gradient(circle, rgba(230,126,34,0.2) 0%, transparent 65%);
+    }
+
+    .orb-blue {
+      width: 400px; height: 400px;
+      top: 30%; right: 30%;
+      background: radial-gradient(circle, rgba(44,62,80,0.4) 0%, transparent 65%);
+    }
+
+    /* dot grid */
+    #hero::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(255,255,255,0.07) 1px, transparent 1px);
+      background-size: 28px 28px;
+      pointer-events: none;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+    }
+
+    /* hero-inner and hero-content overridden below in HERO CENTERED block */
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(46,204,113,0.08);
+      color: var(--green);
+      border: 1px solid rgba(46,204,113,0.2);
+      border-radius: 100px;
+      padding: 0.35rem 0.9rem;
+      font-size: 0.73rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 2rem;
+      font-family: 'Montserrat', sans-serif;
+      animation: fadeUp 600ms var(--ease-out) both 100ms;
+    }
+
+    .hero-badge-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    #hero h1 {
+      font-size: clamp(2.6rem, 5.5vw, 4.2rem);
+      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.5rem;
+      animation: fadeUp 600ms var(--ease-out) both 200ms;
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, var(--green) 0%, var(--orange) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    #hero p {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      line-height: 1.75;
+      max-width: 480px;
+      margin-bottom: 2.5rem;
+      animation: fadeUp 600ms var(--ease-out) both 320ms;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      animation: fadeUp 600ms var(--ease-out) both 420ms;
+    }
+
+    /* ─────────────────── HERO CENTERED ─────────────────── */
+    .hero-inner {
+      position: relative;
+      z-index: 3;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      max-width: 860px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .hero-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    #hero h1 {
+      font-size: clamp(3rem, 6.5vw, 5.2rem);
+    }
+
+    #hero p {
+      text-align: center;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* ─────────────────── FLOATING STATS ─────────────────── */
+    .hero-float-stat {
+      position: absolute;
+      z-index: 4;
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 0.9rem 1.25rem;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      pointer-events: none;
+      will-change: transform;
+    }
+
+    .hfs-num {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: var(--text);
+      letter-spacing: -0.04em;
+      line-height: 1;
+    }
+
+    .hfs-num em { font-style: normal; color: var(--orange); }
+
+    .hfs-label {
+      font-size: 0.7rem;
+      color: var(--text-subtle);
+      white-space: nowrap;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .hfs-1 { top: 28%; left: 2%; }
+    .hfs-2 { top: 52%; right: 2%; }
+    .hfs-3 { bottom: 18%; left: 6%; }
+
+    @media (max-width: 1024px) {
+      .hero-float-stat { display: none; }
+    }
+
+    /* ─────────────────── BUTTONS ─────────────────── */
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: var(--orange);
+      color: #fff;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      padding: 0.8rem 1.8rem;
+      border-radius: 100px;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: background 180ms ease, transform 160ms var(--ease-out), box-shadow 180ms ease;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .btn-primary:hover {
+        background: var(--orange-hover);
+        box-shadow: 0 0 24px rgba(230,126,34,0.35);
+      }
+    }
+    .btn-primary:active { transform: scale(0.97); }
+
+    .btn-secondary {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: rgba(255,255,255,0.06);
+      color: var(--text-muted);
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 600;
+      font-size: 0.9rem;
+      padding: 0.8rem 1.8rem;
+      border-radius: 100px;
+      text-decoration: none;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: background 180ms ease, color 180ms ease, border-color 180ms ease, transform 160ms var(--ease-out);
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .btn-secondary:hover {
+        background: rgba(255,255,255,0.1);
+        color: var(--text);
+        border-color: var(--border-h);
+      }
+    }
+    .btn-secondary:active { transform: scale(0.97); }
+
+    /* ─────────────────── LAYOUT HELPERS ─────────────────── */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 5%;
+    }
+
+    section { padding: 6rem 0; }
+
+    .section-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--orange);
+      margin-bottom: 1rem;
+    }
+
+    .section-label::before {
+      content: '';
+      display: block;
+      width: 18px; height: 1.5px;
+      background: var(--orange);
+      border-radius: 2px;
+    }
+
+    .section-title {
+      font-size: clamp(1.8rem, 3vw, 2.6rem);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.025em;
+      margin-bottom: 1rem;
+      color: var(--text);
+    }
+
+    .section-sub {
+      font-size: 1rem;
+      color: var(--text-muted);
+      max-width: 480px;
+      line-height: 1.75;
+      margin-bottom: 3.5rem;
+    }
+
+    /* ─────────────────── METRICS ─────────────────── */
+    #metricas {
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-1);
+    }
+
+    #metricas .container {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+    }
+
+    .metrica {
+      padding: 2.8rem 2rem;
+      text-align: center;
+      border-right: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+    .metrica:last-child { border-right: none; }
+
+    .metrica::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 50%;
+      transform: translateX(-50%) scaleX(0);
+      width: 32px; height: 2px;
+      background: linear-gradient(90deg, var(--green), var(--orange));
+      border-radius: 2px;
+      transition: transform 300ms var(--ease-out);
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .metrica:hover::after { transform: translateX(-50%) scaleX(1); }
+    }
+
+    .metrica-num {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 2.8rem;
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -0.04em;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, var(--text) 0%, var(--text-muted) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .metrica-num .accent { -webkit-text-fill-color: var(--orange); color: var(--orange); }
+
+    .metrica p {
+      font-size: 0.82rem;
+      color: var(--text-subtle);
+      line-height: 1.4;
+    }
+
+    /* ─────────────────── BENTO / SERVICIOS ─────────────────── */
+    #servicios { padding: 6rem 0; }
+
+    .bento-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      perspective: 1200px;
+      transform-style: preserve-3d;
+    }
+
+    .bento-card {
+      background: var(--bg-1);
+      padding: 2.2rem;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      transition: background 250ms var(--ease-out);
+    }
+
+    .bento-card:nth-child(1) { grid-column: span 2; }
+    .bento-card:nth-child(4) { grid-column: span 2; }
+
+    @media (hover: hover) and (pointer: fine) {
+      .bento-card:hover { background: var(--bg-card-h); }
+    }
+
+    /* glow on hover */
+    .bento-card::before {
+      content: '';
+      position: absolute;
+      width: 200px; height: 200px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(27,77,62,0.25) 0%, transparent 70%);
+      top: -60px; left: -60px;
+      opacity: 0;
+      transition: opacity 300ms ease;
+      pointer-events: none;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .bento-card:hover::before { opacity: 1; }
+    }
+
+    .bento-icon {
+      width: 44px; height: 44px;
+      border-radius: 10px;
+      background: rgba(46,204,113,0.08);
+      border: 1px solid rgba(46,204,113,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .bento-icon svg {
+      width: 20px; height: 20px;
+      color: var(--green);
+      stroke: currentColor; fill: none;
+      stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    .bento-card h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.6rem;
+      letter-spacing: -0.01em;
+    }
+
+    .bento-card p {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      line-height: 1.65;
+      max-width: 360px;
+    }
+
+    .bento-stat {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-top: 1.4rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--green);
+      background: rgba(46,204,113,0.07);
+      border: 1px solid rgba(46,204,113,0.15);
+      padding: 0.3rem 0.8rem;
+      border-radius: 100px;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    /* large card extra content */
+    .bento-card.large .bento-extra {
+      margin-top: 1.5rem;
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .bento-kpi {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .bento-kpi .kpi-num {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: var(--text);
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+
+    .bento-kpi .kpi-num span { color: var(--orange); }
+
+    .bento-kpi .kpi-label {
+      font-size: 0.75rem;
+      color: var(--text-subtle);
+      margin-top: 0.2rem;
+    }
+
+    /* ─────────────────── DIFERENCIADORES ─────────────────── */
+    #diferenciadores { background: var(--bg-1); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+
+    .dif-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem 3rem;
+    }
+
+    .dif-item { display: flex; gap: 1rem; }
+
+    .dif-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--text-subtle);
+      flex-shrink: 0;
+      padding-top: 3px;
+    }
+
+    .dif-item h4 {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.35rem;
+      letter-spacing: -0.01em;
+    }
+
+    .dif-item p { font-size: 0.84rem; color: var(--text-muted); line-height: 1.6; }
+
+    /* ─────────────────── PROCESO ─────────────────── */
+    #proceso { background: var(--bg); }
+
+    .proceso-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    .paso {
+      padding: 2rem 1.8rem;
+      background: var(--bg-1);
+      position: relative;
+      transition: background 250ms var(--ease-out);
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .paso:hover { background: var(--bg-card-h); }
+    }
+
+    .paso-index {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--text-subtle);
+      margin-bottom: 1.2rem;
+    }
+
+    .paso-circle {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 1.2rem;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: var(--text-subtle);
+    }
+
+    .paso:first-child .paso-circle {
+      border-color: var(--orange);
+      color: var(--orange);
+      background: rgba(230,126,34,0.08);
+    }
+
+    .paso h4 { font-size: 0.9rem; font-weight: 700; color: var(--text); margin-bottom: 0.5rem; }
+    .paso p  { font-size: 0.82rem; color: var(--text-muted); line-height: 1.55; }
+
+    /* ─────────────────── CONTACTO ─────────────────── */
+    #contacto { background: var(--bg); }
+
+    .contacto-inner {
+      display: grid;
+      grid-template-columns: 1fr 1.15fr;
+      gap: 4rem;
+      align-items: start;
+    }
+
+    .contacto-left .section-title { margin-bottom: 0.75rem; }
+
+    .contact-benefits {
+      margin-top: 2.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+    }
+
+    .cb-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    .cb-check {
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: rgba(46,204,113,0.08);
+      border: 1px solid rgba(46,204,113,0.2);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .cb-check svg {
+      width: 10px; height: 10px;
+      color: var(--green);
+      stroke: currentColor; fill: none;
+      stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    /* form card */
+    .form-card {
+      background: var(--bg-1);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2.5rem;
+    }
+
+    .form-card h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.3rem;
+    }
+
+    .form-sub {
+      font-size: 0.83rem;
+      color: var(--text-subtle);
+      margin-bottom: 1.8rem;
+    }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; }
+
+    .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+
+    .form-group label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      padding: 0.72rem 0.95rem;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.875rem;
+      color: var(--text);
+      min-height: 44px;
+      transition: border-color 180ms ease, box-shadow 180ms ease;
+      -webkit-appearance: none;
+    }
+
+    .form-group input::placeholder,
+    .form-group textarea::placeholder { color: var(--text-subtle); }
+
+    .form-group select { color: var(--text-muted); }
+    .form-group select option { background: #0D0D1A; color: var(--text); }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: rgba(46,204,113,0.4);
+      box-shadow: 0 0 0 3px rgba(46,204,113,0.07);
+    }
+
+    .form-group textarea { resize: vertical; min-height: 96px; }
+
+    .form-submit {
+      width: 100%;
+      display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+      background: var(--orange);
+      color: #fff;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      padding: 0.9rem;
+      border-radius: 100px;
+      border: none;
+      cursor: pointer;
+      margin-top: 0.6rem;
+      transition: background 180ms ease, transform 160ms var(--ease-out), box-shadow 180ms ease;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .form-submit:hover {
+        background: var(--orange-hover);
+        box-shadow: 0 0 28px rgba(230,126,34,0.3);
+      }
+    }
+
+    .form-submit:active { transform: scale(0.97); }
+
+    .form-submit svg {
+      width: 15px; height: 15px;
+      stroke: currentColor; fill: none;
+      stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round;
+      transition: transform 180ms var(--ease-out);
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .form-submit:hover svg { transform: translateX(3px); }
+    }
+
+    .form-disclaimer { font-size: 0.72rem; color: var(--text-subtle); text-align: center; margin-top: 0.75rem; line-height: 1.5; }
+
+    /* ─────────────────── FOOTER ─────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 3rem 0 2.5rem;
+    }
+
+    .footer-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 2rem;
+      flex-wrap: wrap;
+      margin-bottom: 2.5rem;
+      padding-bottom: 2.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .footer-brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      margin-bottom: 0.9rem;
+    }
+
+    footer img.logo-footer {
+      height: 28px;
+      object-fit: contain;
+      display: block;
+      margin-bottom: 0.8rem;
+    }
+
+    .footer-brand p { font-size: 0.82rem; color: var(--text-subtle); line-height: 1.6; max-width: 280px; }
+
+    .footer-links { display: flex; flex-direction: column; gap: 0.5rem; }
+    .footer-links-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-subtle);
+      margin-bottom: 0.4rem;
+    }
+
+    .footer-links a {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 150ms ease;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .footer-links a:hover { color: var(--text); }
+    }
+
+    .footer-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.76rem;
+      color: var(--text-subtle);
+    }
+
+    /* ─────────────────── REVEAL ANIMATIONS ─────────────────── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(18px);
+      transition: opacity 500ms var(--ease-out), transform 500ms var(--ease-out);
+    }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    .bento-card.reveal:nth-child(1) { transition-delay: 0ms; }
+    .bento-card.reveal:nth-child(2) { transition-delay: 70ms; }
+    .bento-card.reveal:nth-child(3) { transition-delay: 70ms; }
+    .bento-card.reveal:nth-child(4) { transition-delay: 140ms; }
+
+    .dif-item.reveal:nth-child(1) { transition-delay: 0ms; }
+    .dif-item.reveal:nth-child(2) { transition-delay: 50ms; }
+    .dif-item.reveal:nth-child(3) { transition-delay: 100ms; }
+    .dif-item.reveal:nth-child(4) { transition-delay: 150ms; }
+    .dif-item.reveal:nth-child(5) { transition-delay: 200ms; }
+    .dif-item.reveal:nth-child(6) { transition-delay: 250ms; }
+
+    .paso.reveal:nth-child(1) { transition-delay: 0ms; }
+    .paso.reveal:nth-child(2) { transition-delay: 80ms; }
+    .paso.reveal:nth-child(3) { transition-delay: 160ms; }
+    .paso.reveal:nth-child(4) { transition-delay: 240ms; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .reveal, [class*="-anim"] {
+        animation: none !important;
+        transition: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+      }
+    }
+
+    /* ─────────────────── RESPONSIVE ─────────────────── */
+    @media (max-width: 1024px) {
+      .contacto-inner { grid-template-columns: 1fr; gap: 2.5rem; }
+      .dif-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .hero-inner { max-width: 100%; }
+      #metricas .container { grid-template-columns: repeat(2, 1fr); }
+      .metrica:nth-child(2) { border-right: none; }
+      .bento-grid { grid-template-columns: 1fr; }
+      .bento-card:nth-child(1), .bento-card:nth-child(4) { grid-column: span 1; }
+      .proceso-grid { grid-template-columns: repeat(2, 1fr); }
+      .dif-grid { grid-template-columns: 1fr; }
+      .footer-inner { flex-direction: column; }
+      .footer-bottom { flex-direction: column; gap: 0.5rem; text-align: center; }
+      .btn-secondary { display: none; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 480px) {
+      .proceso-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <div class="nav-wrap">
+    <nav role="navigation" aria-label="Navegación principal">
+      <a class="nav-brand" href="#hero" aria-label="Sustenta Futuro — inicio">
+        <img class="logo" src="logo.png" alt="" aria-hidden="true" />
+        <span class="nav-brand-text">SUSTENTA FUTURO</span>
+      </a>
+      <div class="nav-links">
+        <a href="#servicios">Servicios</a>
+        <a href="#proceso">Proceso</a>
+        <a href="#contacto">Contacto</a>
+        <a href="#contacto" class="nav-cta">Solicitar Demo</a>
+      </div>
+    </nav>
+  </div>
+
+  <!-- HERO -->
+  <section id="hero">
+    <canvas id="prism-canvas" aria-hidden="true"></canvas>
+    <div class="orb orb-green"></div>
+    <div class="orb orb-orange"></div>
+    <div class="orb orb-blue"></div>
+
+    <!-- Floating stats (desktop only) -->
+    <div class="hero-float-stat hfs-1" aria-hidden="true">
+      <span class="hfs-num">80<em>%</em></span>
+      <span class="hfs-label">reducción de costos</span>
+    </div>
+    <div class="hero-float-stat hfs-2" aria-hidden="true">
+      <span class="hfs-num">247<em>+</em></span>
+      <span class="hfs-label">documentos / día</span>
+    </div>
+    <div class="hero-float-stat hfs-3" aria-hidden="true">
+      <span class="hfs-num">&lt;1<em>%</em></span>
+      <span class="hfs-label">tasa de error</span>
+    </div>
+
+    <div class="hero-inner">
+      <div class="hero-content">
+        <span class="hero-badge">
+          <span class="hero-badge-dot"></span>
+          RPA &amp; Inteligencia Artificial · Santiago, Chile
+        </span>
+
+        <h1>
+          Potencia tu operación.<br />
+          <span class="gradient-text">Libera tu talento.</span>
+        </h1>
+
+        <p>
+          Automatizamos los procesos repetitivos de tu empresa con RPA e IA para que tu equipo se enfoque en lo que realmente importa. Resultados medibles desde el primer mes.
+        </p>
+
+        <div class="hero-actions">
+          <a href="#contacto" class="btn-primary">
+            Solicitar Demo Gratis
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+          <a href="#servicios" class="btn-secondary">Ver servicios</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MÉTRICAS -->
+  <div id="metricas">
+    <div class="container">
+      <div class="metrica reveal">
+        <div class="metrica-num" data-target="80" data-suffix="%">0%</div>
+        <p>reducción de costos operativos</p>
+      </div>
+      <div class="metrica reveal">
+        <div class="metrica-num" data-target="1" data-prefix="<" data-suffix="%">&lt;1%</div>
+        <p>tasa de error en procesos</p>
+      </div>
+      <div class="metrica reveal">
+        <div class="metrica-num" data-target="250" data-suffix="+">0+</div>
+        <p>documentos diarios procesados</p>
+      </div>
+      <div class="metrica reveal">
+        <div class="metrica-num" data-target="99" data-suffix="%">0%</div>
+        <p>uptime con soporte &lt;4 horas</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- BENTO / SERVICIOS -->
+  <section id="servicios">
+    <div class="container">
+      <span class="section-label reveal">Servicios</span>
+      <h2 class="section-title reveal">Soluciones para empresas<br />que no se conforman</h2>
+      <p class="section-sub reveal">Desde automatización de flujos hasta IA aplicada. Todo medible, todo a la medida.</p>
+
+      <div class="bento-grid">
+
+        <!-- RPA — large -->
+        <div class="bento-card large reveal" tabindex="0">
+          <div class="bento-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/><circle cx="9" cy="14" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="14" r="1" fill="currentColor" stroke="none"/><path d="M9 17h6"/><path d="M2 13h2M20 13h2"/></svg>
+          </div>
+          <h3>Automatización RPA</h3>
+          <p>Eliminamos tareas manuales repetitivas con robots de software que trabajan 24/7, con integración nativa a Buk, AFC y SII.</p>
+          <div class="bento-extra">
+            <div class="bento-kpi">
+              <span class="kpi-num">41h<span>→</span>8h</span>
+              <span class="kpi-label">por ciclo de proceso</span>
+            </div>
+            <div class="bento-kpi">
+              <span class="kpi-num">&lt;1<span>%</span></span>
+              <span class="kpi-label">tasa de error</span>
+            </div>
+          </div>
+          <span class="bento-stat">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+            ROI medible desde el mes 1
+          </span>
+        </div>
+
+        <!-- AI -->
+        <div class="bento-card reveal" tabindex="0">
+          <div class="bento-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+          </div>
+          <h3>Inteligencia Artificial</h3>
+          <p>Chatbots, OCR avanzado y modelos predictivos adaptados a tu industria y datos propios.</p>
+          <span class="bento-stat">Decisiones en tiempo real</span>
+        </div>
+
+        <!-- Dev -->
+        <div class="bento-card reveal" tabindex="0">
+          <div class="bento-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          </div>
+          <h3>Desarrollo de Software</h3>
+          <p>Apps web, APIs REST y dashboards en tiempo real con Python y JavaScript.</p>
+          <span class="bento-stat">Stack moderno y escalable</span>
+        </div>
+
+        <!-- Consultoría — large -->
+        <div class="bento-card large reveal" tabindex="0">
+          <div class="bento-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>
+          </div>
+          <h3>Consultoría TI</h3>
+          <p>Diagnóstico, arquitectura tecnológica y capacitación de equipos para liderar la transformación digital con estrategia clara.</p>
+          <span class="bento-stat">Visión + Ejecución</span>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- DIFERENCIADORES -->
+  <section id="diferenciadores">
+    <div class="container">
+      <span class="section-label reveal">Por qué elegirnos</span>
+      <h2 class="section-title reveal">Sin letra chica.<br />Sin riesgo de entrada.</h2>
+      <p class="section-sub reveal">Demostramos valor antes de cualquier contrato.</p>
+
+      <div class="dif-grid">
+        <div class="dif-item reveal">
+          <span class="dif-num">01</span>
+          <div>
+            <h4>Piloto gratuito sin compromiso</h4>
+            <p>Implementamos una prueba real en tu entorno. Tú evalúas los resultados y decides si seguimos.</p>
+          </div>
+        </div>
+        <div class="dif-item reveal">
+          <span class="dif-num">02</span>
+          <div>
+            <h4>Transparencia total</h4>
+            <p>Especificaciones detalladas, métricas visibles y reportes claros en cada etapa del proyecto.</p>
+          </div>
+        </div>
+        <div class="dif-item reveal">
+          <span class="dif-num">03</span>
+          <div>
+            <h4>SLA 99% uptime</h4>
+            <p>Soporte continuo con tiempo de respuesta menor a 4 horas ante cualquier incidencia.</p>
+          </div>
+        </div>
+        <div class="dif-item reveal">
+          <span class="dif-num">04</span>
+          <div>
+            <h4>Actualizaciones incluidas</h4>
+            <p>Sin costos ocultos. Mejoras y actualizaciones durante toda la relación comercial.</p>
+          </div>
+        </div>
+        <div class="dif-item reveal">
+          <span class="dif-num">05</span>
+          <div>
+            <h4>Cumplimiento Ley 19.628</h4>
+            <p>Tratamos tus datos con los más altos estándares de privacidad y seguridad del mercado chileno.</p>
+          </div>
+        </div>
+        <div class="dif-item reveal">
+          <span class="dif-num">06</span>
+          <div>
+            <h4>Equipo local, visión regional</h4>
+            <p>Presencia en Santiago con visión de escalar a toda Sudamérica. Entendemos el ecosistema local.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROCESO -->
+  <section id="proceso">
+    <div class="container">
+      <span class="section-label reveal">Cómo trabajamos</span>
+      <h2 class="section-title reveal">De la idea al resultado<br />en semanas</h2>
+      <p class="section-sub reveal">Un proceso probado para implementar sin fricción ni sorpresas.</p>
+
+      <div class="proceso-grid">
+        <div class="paso reveal">
+          <div class="paso-index">step_01</div>
+          <div class="paso-circle">01</div>
+          <h4>Diagnóstico</h4>
+          <p>Analizamos tus procesos e identificamos los de mayor impacto para automatizar primero.</p>
+        </div>
+        <div class="paso reveal">
+          <div class="paso-index">step_02</div>
+          <div class="paso-circle">02</div>
+          <h4>Diseño</h4>
+          <p>Especificaciones técnicas claras con métricas de éxito definidas antes de escribir una línea de código.</p>
+        </div>
+        <div class="paso reveal">
+          <div class="paso-index">step_03</div>
+          <div class="paso-circle">03</div>
+          <h4>Piloto</h4>
+          <p>Versión inicial en tu entorno real. Sin riesgo, sin compromiso. Tú validas los resultados.</p>
+        </div>
+        <div class="paso reveal">
+          <div class="paso-index">step_04</div>
+          <div class="paso-circle">04</div>
+          <h4>Despliegue</h4>
+          <p>Producción, capacitación del equipo y soporte continuo desde el primer día de operación.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACTO -->
+  <section id="contacto">
+    <div class="container">
+      <div class="contacto-inner">
+
+        <div class="contacto-left reveal">
+          <span class="section-label">Agenda tu demo</span>
+          <h2 class="section-title">¿Listo para<br />automatizar?</h2>
+          <p class="section-sub" style="margin-bottom: 0;">Primera consulta sin costo. Te respondemos en menos de 24 horas hábiles.</p>
+
+          <div class="contact-benefits">
+            <div class="cb-item">
+              <div class="cb-check" aria-hidden="true"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+              Diagnóstico gratuito de tus procesos actuales
+            </div>
+            <div class="cb-item">
+              <div class="cb-check" aria-hidden="true"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+              Estimación de ahorro real en tiempo y costos
+            </div>
+            <div class="cb-item">
+              <div class="cb-check" aria-hidden="true"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+              Demo en vivo adaptada a tu industria
+            </div>
+            <div class="cb-item">
+              <div class="cb-check" aria-hidden="true"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+              Propuesta técnica sin compromiso de contratación
+            </div>
+          </div>
+        </div>
+
+        <div class="form-card reveal">
+          <h3>Cuéntanos sobre tu empresa</h3>
+          <p class="form-sub">Completá el formulario y te contactamos pronto.</p>
+
+          <form id="lead-form" onsubmit="handleSubmit(event)" novalidate>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="full_name">Nombre completo *</label>
+                <input type="text" id="full_name" name="full_name" placeholder="Juan Pérez" required autocomplete="name" />
+              </div>
+              <div class="form-group">
+                <label for="email">Email corporativo *</label>
+                <input type="email" id="email" name="email" placeholder="juan@empresa.cl" required autocomplete="email" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="phone">Teléfono</label>
+                <input type="tel" id="phone" name="phone" placeholder="+56 9 1234 5678" autocomplete="tel" />
+              </div>
+              <div class="form-group">
+                <label for="company">Empresa *</label>
+                <input type="text" id="company" name="company" placeholder="Mi Empresa SpA" required autocomplete="organization" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="service_interest">Servicio de interés *</label>
+              <select id="service_interest" name="service_interest" required>
+                <option value="" disabled selected>Selecciona un servicio</option>
+                <option value="rpa">Automatización RPA</option>
+                <option value="ia">Inteligencia Artificial</option>
+                <option value="dev">Desarrollo de Software</option>
+                <option value="consultoria">Consultoría TI</option>
+                <option value="multiple">Varios servicios</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="estimated_budget">Presupuesto estimado</label>
+              <select id="estimated_budget" name="estimated_budget">
+                <option value="" disabled selected>Selecciona un rango</option>
+                <option value="menos_500k">Menos de $500.000 CLP</option>
+                <option value="500k_2m">$500.000 – $2.000.000 CLP</option>
+                <option value="2m_5m">$2.000.000 – $5.000.000 CLP</option>
+                <option value="mas_5m">Más de $5.000.000 CLP</option>
+                <option value="por_definir">Por definir</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="message">¿Qué proceso quieres automatizar?</label>
+              <textarea id="message" name="message" placeholder="Describe brevemente el proceso o problema..."></textarea>
+            </div>
+            <button type="submit" class="form-submit">
+              Solicitar Demo Gratis
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+            <p class="form-disclaimer">Tus datos están protegidos bajo la Ley 19.628. No los compartimos con terceros.</p>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <div class="footer-brand-wrap">
+            <img class="logo-footer" src="logo.png" alt="" aria-hidden="true" />
+            <span style="font-family:'Montserrat',sans-serif;font-weight:800;font-size:0.88rem;color:rgba(236,236,241,0.7);letter-spacing:-0.01em;">SUSTENTA FUTURO</span>
+          </div>
+          <p>Ingeniería de mañana para la empresa de hoy.<br />Santiago, Chile — Visión Sudamérica.</p>
+        </div>
+        <div class="footer-links">
+          <p class="footer-links-title">Contacto</p>
+          <a href="mailto:contacto@sustentafuturo.com">contacto@sustentafuturo.com</a>
+          <a href="tel:+56942441395">+56 9 4244 1395</a>
+          <a href="#">Santiago, Chile</a>
+        </div>
+        <div class="footer-links">
+          <p class="footer-links-title">Empresa</p>
+          <a href="#servicios">Servicios</a>
+          <a href="#proceso">Proceso</a>
+          <a href="#contacto">Contacto</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 Sustenta Futuro SpA. Todos los derechos reservados.</span>
+        <span>Privacidad · Términos</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // ── IntersectionObserver: reveal + counter ──
+    const revealObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('visible');
+        revealObserver.unobserve(entry.target);
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+    document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+    // ── Animated counters ──
+    const counterObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        const el = entry.target;
+        const target  = parseInt(el.dataset.target);
+        const suffix  = el.dataset.suffix  || '';
+        const prefix  = el.dataset.prefix  || '';
+        const duration = 1400;
+        const start    = performance.now();
+
+        function tick(now) {
+          const progress = Math.min((now - start) / duration, 1);
+          const eased = 1 - Math.pow(1 - progress, 3);
+          const val = Math.round(target * eased);
+          el.textContent = prefix + val + suffix;
+          if (progress < 1) requestAnimationFrame(tick);
+        }
+
+        requestAnimationFrame(tick);
+        counterObserver.unobserve(el);
+      });
+    }, { threshold: 0.5 });
+
+    document.querySelectorAll('.metrica-num[data-target]').forEach(el => {
+      // skip the "<1%" one — keep static
+      if (el.dataset.prefix === '<') return;
+      counterObserver.observe(el);
+    });
+
+    // ── GSAP scroll animations (loaded via CDN below) ──
+    window.addEventListener('load', () => { initPrism(); initGSAP(); });
+
+    // ── Form submit ──
+    function handleSubmit(e) {
+      e.preventDefault();
+      const form = e.target;
+      const btn  = form.querySelector('.form-submit');
+
+      btn.disabled = true;
+      btn.style.opacity = '0.7';
+      btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="animation:spin .8s linear infinite"><path d="M21 12a9 9 0 1 1-6.22-8.56"/></svg> Enviando...`;
+
+      const data = {
+        full_name:        form.full_name.value,
+        email:            form.email.value,
+        phone:            form.phone.value,
+        company:          form.company.value,
+        service_interest: form.service_interest.value,
+        estimated_budget: form.estimated_budget.value,
+        message:          form.message.value,
+        source:           'landing_page'
+      };
+
+      // TODO: conectar con FastAPI POST /leads
+      console.log('Lead:', data);
+
+      setTimeout(() => {
+        btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> ¡Listo! Te contactamos pronto`;
+        btn.style.background = '#1B4D3E';
+        btn.style.opacity    = '1';
+        form.reset();
+      }, 1200);
+    }
+  </script>
+
+  <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+
+  <!-- Prism refraction canvas -->
+  <script>
+  function initPrism() {
+    const canvas = document.getElementById('prism-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let W, H, t = 0;
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const RAYS = [
+      [255,  45,  45],
+      [255, 140,  10],
+      [255, 235,   5],
+      [ 40, 225,  70],
+      [ 25, 140, 255],
+      [100,  40, 255],
+      [175,  20, 255],
+    ];
+
+    // Use window dimensions — canvas.offsetWidth is 0 before first layout
+    function resize() {
+      W = canvas.width  = window.innerWidth;
+      H = canvas.height = canvas.parentElement
+        ? canvas.parentElement.offsetHeight || window.innerHeight
+        : window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+    // Second call after layout is guaranteed
+    setTimeout(resize, 100);
+
+    function rot(cx, cy, ang, x, y) {
+      const c = Math.cos(ang), s = Math.sin(ang);
+      return { x: cx + x * c - y * s, y: cy + x * s + y * c };
+    }
+
+    function line(x1, y1, x2, y2, r, g, b, w, blur) {
+      ctx.save();
+      ctx.shadowBlur  = blur;
+      ctx.shadowColor = `rgba(${r},${g},${b},0.95)`;
+      ctx.strokeStyle = `rgba(${r},${g},${b},1)`;
+      ctx.lineWidth   = w;
+      ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function glow(x, y, r, col) {
+      ctx.save();
+      ctx.shadowBlur = 40; ctx.shadowColor = col;
+      const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+      g.addColorStop(0, col); g.addColorStop(1, col.replace(/[\d.]+\)$/, '0)'));
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
+    }
+
+    // Lerped scroll value for smooth prism reaction
+    let scrollLerp = 0;
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+      t += 0.012;
+
+      // Smooth scroll tracking (lerp toward real scrollY)
+      const heroH = H || window.innerHeight;
+      const rawScroll = Math.min(window.scrollY / heroH, 1);
+      scrollLerp += (rawScroll - scrollLerp) * 0.06;
+
+      const cx  = W * 0.55;
+      const cy  = H * 0.50;
+      const R   = Math.min(W * 0.18, H * 0.34, 210);
+
+      // Time-based breathing: ±8° (clearly visible, ~10s cycle)
+      const breathe = Math.sin(t * 0.65) * 0.14;
+      // Scroll-based spin: full 360° as hero scrolls out
+      const scrollSpin = scrollLerp * Math.PI * 2;
+      const tlt = breathe + scrollSpin;
+
+      // Scroll-based vertical drift: prism rises as you scroll
+      const fy = Math.sin(t * 0.32) * R * 0.04 - scrollLerp * H * 0.18;
+      // Scroll-based scale: shrinks slightly as it exits
+      const sc = 1 - scrollLerp * 0.35;
+
+      // Equilateral triangle, apex → RIGHT (Pink Floyd), scroll-scaled
+      const Sr = R * sc;
+      const A = rot(cx, cy + fy, tlt, -Sr * 0.5, -Sr * 0.866);
+      const B = rot(cx, cy + fy, tlt, -Sr * 0.5,  Sr * 0.866);
+      const C = rot(cx, cy + fy, tlt,  Sr,         0);
+
+      // Entry: AB face, slightly above centre
+      const E = rot(cx, cy + fy, tlt, -Sr * 0.5, -Sr * 0.10);
+      // Exit: BC face at 38% from B→C
+      const tb = 0.38;
+      const X  = { x: B.x + tb*(C.x-B.x), y: B.y + tb*(C.y-B.y) };
+
+      // ── White incoming beam ──
+      line(0, E.y, E.x, E.y, 255, 255, 255, 3, 28);
+
+      // ── Prism glass ──
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(A.x,A.y); ctx.lineTo(B.x,B.y); ctx.lineTo(C.x,C.y);
+      ctx.closePath();
+      const fill = ctx.createLinearGradient(A.x, A.y, C.x, C.y);
+      fill.addColorStop(0,   'rgba(160,210,255,0.06)');
+      fill.addColorStop(0.5, 'rgba(205,232,255,0.13)');
+      fill.addColorStop(1,   'rgba(160,210,255,0.05)');
+      ctx.fillStyle  = fill;
+      ctx.fill();
+      ctx.shadowBlur  = 22;
+      ctx.shadowColor = 'rgba(185,225,255,1)';
+      ctx.strokeStyle = 'rgba(220,242,255,0.92)';
+      ctx.lineWidth   = 2.2;
+      ctx.stroke();
+      ctx.restore();
+
+      // ── Internal beam (clipped) ──
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(A.x,A.y); ctx.lineTo(B.x,B.y); ctx.lineTo(C.x,C.y);
+      ctx.closePath(); ctx.clip();
+      const ig = ctx.createLinearGradient(E.x, E.y, X.x, X.y);
+      ig.addColorStop(0,   'rgba(255,255,255,0.38)');
+      ig.addColorStop(0.5, 'rgba(210,225,255,0.18)');
+      ig.addColorStop(1,   'rgba(255,210,230,0.08)');
+      ctx.strokeStyle = ig;
+      ctx.lineWidth   = 7;
+      ctx.shadowBlur  = 18;
+      ctx.shadowColor = 'rgba(255,255,255,0.7)';
+      ctx.beginPath(); ctx.moveTo(E.x,E.y); ctx.lineTo(X.x,X.y); ctx.stroke();
+      ctx.restore();
+
+      // ── Rainbow exit beams ──
+      const aMin = -0.08;  // red: nearly horizontal
+      const aMax =  0.56;  // violet: ~32° below horizontal
+      const bLen = W * 0.55;
+
+      RAYS.forEach(([r,g,b], i) => {
+        const frac    = i / (RAYS.length - 1);
+        const shimmer = Math.sin(t * 1.6 + i * 0.55) * 0.012;
+        const ang     = aMin + frac * (aMax - aMin) + shimmer;
+        const ex2 = X.x + Math.cos(ang) * bLen;
+        const ey2 = X.y + Math.sin(ang) * bLen;
+
+        // Pulse brightness per beam
+        const pulse = 0.88 + Math.sin(t * 2.2 + i * 0.8) * 0.12;
+
+        const bg = ctx.createLinearGradient(X.x, X.y, ex2, ey2);
+        bg.addColorStop(0,   `rgba(${r},${g},${b},${pulse})`);
+        bg.addColorStop(0.4, `rgba(${r},${g},${b},${(pulse*0.65).toFixed(2)})`);
+        bg.addColorStop(1,   `rgba(${r},${g},${b},0)`);
+
+        ctx.save();
+        ctx.shadowBlur  = 26;
+        ctx.shadowColor = `rgba(${r},${g},${b},0.85)`;
+        ctx.strokeStyle = bg;
+        ctx.lineWidth   = 3;
+        ctx.beginPath(); ctx.moveTo(X.x,X.y); ctx.lineTo(ex2,ey2); ctx.stroke();
+        ctx.restore();
+      });
+
+      // ── Glow dots ──
+      glow(E.x, E.y, 12, 'rgba(255,255,255,0.95)');
+      glow(X.x, X.y, 16, 'rgba(230,210,255,0.95)');
+
+      requestAnimationFrame(draw);
+    }
+
+    draw();
+  }
+  </script>
+
+  <!-- GSAP + ScrollTrigger -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script>
+  function initGSAP() {
+    if (typeof gsap === 'undefined') return;
+    gsap.registerPlugin(ScrollTrigger);
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    // ── Hero content entrance (no .reveal conflict — hero els have no .reveal class) ──
+    const heroEls = [
+      document.querySelector('.hero-badge'),
+      document.querySelector('#hero h1'),
+      document.querySelector('#hero > .hero-inner p'),
+      document.querySelector('.hero-actions'),
+    ].filter(Boolean);
+    if (heroEls.length) {
+      gsap.from(heroEls, {
+        y: 32, opacity: 0, duration: 1,
+        stagger: 0.13, ease: 'power3.out', delay: 0.2
+      });
+    }
+
+    // ── Orb parallax on scroll ──
+    document.querySelectorAll('.orb').forEach((orb, i) => {
+      const speed = [-0.15, 0.10, -0.08][i] ?? -0.06;
+      gsap.to(orb, {
+        yPercent: speed * 100, ease: 'none',
+        scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: true }
+      });
+    });
+
+    // ── Floating stat pills drift ──
+    document.querySelectorAll('.hero-float-stat').forEach((pill, i) => {
+      const [x, y] = [[-12,-8],[10,14],[-8,12]][i] || [0,8];
+      gsap.to(pill, {
+        x, y, ease: 'none',
+        scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: 1.2 }
+      });
+    });
+
+    // ── Bento card 3D mouse tilt ──
+    // NOTE: .reveal/.bento-card opacity is controlled by IntersectionObserver CSS system.
+    // GSAP only handles the mouse-tilt transform here — no opacity conflict.
+    document.querySelectorAll('.bento-card').forEach(card => {
+      card.addEventListener('mousemove', e => {
+        const r  = card.getBoundingClientRect();
+        const rx = ((e.clientY - r.top  - r.height / 2) / r.height) * -9;
+        const ry = ((e.clientX - r.left - r.width  / 2) / r.width ) *  9;
+        gsap.to(card, { rotateX: rx, rotateY: ry, transformPerspective: 900,
+          scale: 1.025, duration: 0.35, ease: 'power2.out' });
+      });
+      card.addEventListener('mouseleave', () => {
+        gsap.to(card, { rotateX: 0, rotateY: 0, scale: 1,
+          duration: 0.65, ease: 'power3.out' });
+      });
+    });
+  }
+  </script>
+
+</body>
+</html>

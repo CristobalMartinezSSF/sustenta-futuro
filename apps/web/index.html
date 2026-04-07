@@ -9,8 +9,8 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:           #07070F;
-      --bg-1:         #0D0D1A;
+      --bg:           #0A0F0D;
+      --bg-1:         #0D1209;
       --bg-card:      rgba(255,255,255,0.03);
       --bg-card-h:    rgba(255,255,255,0.055);
       --border:       rgba(255,255,255,0.07);
@@ -26,6 +26,13 @@
 
       --ease-out:    cubic-bezier(0.23, 1, 0.32, 1);
       --ease-io:     cubic-bezier(0.77, 0, 0.175, 1);
+
+      --glass-bg:       rgba(13,18,9,0.52);
+      --glass-bg-hover: rgba(13,18,9,0.68);
+      --glass-border:   rgba(46,204,113,0.11);
+      --glass-border-h: rgba(46,204,113,0.22);
+      --glass-glow:     rgba(46,204,113,0.06);
+      --glass-blur:     blur(18px) saturate(1.5);
     }
 
     html { scroll-behavior: smooth; }
@@ -64,12 +71,13 @@
       width: 100%;
       max-width: 1100px;
       padding: 0.6rem 0.6rem 0.6rem 1.25rem;
-      background: rgba(13,13,26,0.75);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid var(--border);
+      background: var(--glass-bg);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--glass-border);
       border-radius: 100px;
       pointer-events: all;
+      box-shadow: inset 0 1px 0 var(--glass-glow), 0 4px 24px rgba(0,0,0,0.3);
     }
 
     .nav-brand {
@@ -160,9 +168,9 @@
     }
 
     .orb-green {
-      width: 700px; height: 700px;
-      top: -200px; left: -150px;
-      background: radial-gradient(circle, rgba(27,77,62,0.55) 0%, transparent 65%);
+      width: 800px; height: 800px;
+      top: -220px; left: -180px;
+      background: radial-gradient(circle, rgba(27,77,62,0.72) 0%, transparent 65%);
     }
 
     .orb-orange {
@@ -174,7 +182,7 @@
     .orb-blue {
       width: 400px; height: 400px;
       top: 30%; right: 30%;
-      background: radial-gradient(circle, rgba(44,62,80,0.4) 0%, transparent 65%);
+      background: radial-gradient(circle, rgba(27,77,62,0.22) 0%, transparent 65%);
     }
 
     /* dot grid */
@@ -226,7 +234,6 @@
       line-height: 1.05;
       letter-spacing: -0.03em;
       margin-bottom: 1.5rem;
-      animation: fadeUp 600ms var(--ease-out) both 200ms;
     }
 
     .gradient-text {
@@ -288,12 +295,13 @@
       display: flex;
       flex-direction: column;
       gap: 0.2rem;
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.08);
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
       border-radius: 14px;
       padding: 0.9rem 1.25rem;
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      box-shadow: inset 0 1px 0 var(--glass-glow), 0 4px 20px rgba(0,0,0,0.3);
       pointer-events: none;
       will-change: transform;
     }
@@ -484,8 +492,8 @@
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 1px;
-      background: var(--border);
-      border: 1px solid var(--border);
+      background: var(--glass-border);
+      border: 1px solid var(--glass-border);
       border-radius: 20px;
       overflow: hidden;
       perspective: 1200px;
@@ -493,7 +501,9 @@
     }
 
     .bento-card {
-      background: var(--bg-1);
+      background: var(--glass-bg);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
       padding: 2.2rem;
       position: relative;
       overflow: hidden;
@@ -505,7 +515,7 @@
     .bento-card:nth-child(4) { grid-column: span 2; }
 
     @media (hover: hover) and (pointer: fine) {
-      .bento-card:hover { background: var(--bg-card-h); }
+      .bento-card:hover { background: var(--glass-bg-hover); border-color: var(--glass-border-h); }
     }
 
     /* glow on hover */
@@ -639,21 +649,23 @@
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 1px;
-      background: var(--border);
-      border: 1px solid var(--border);
+      background: var(--glass-border);
+      border: 1px solid var(--glass-border);
       border-radius: 20px;
       overflow: hidden;
     }
 
     .paso {
       padding: 2rem 1.8rem;
-      background: var(--bg-1);
+      background: var(--glass-bg);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
       position: relative;
-      transition: background 250ms var(--ease-out);
+      transition: background 250ms var(--ease-out), border-color 250ms var(--ease-out);
     }
 
     @media (hover: hover) and (pointer: fine) {
-      .paso:hover { background: var(--bg-card-h); }
+      .paso:hover { background: var(--glass-bg-hover); }
     }
 
     .paso-index {
@@ -729,10 +741,13 @@
 
     /* form card */
     .form-card {
-      background: var(--bg-1);
-      border: 1px solid var(--border);
+      background: var(--glass-bg);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--glass-border);
       border-radius: 20px;
       padding: 2.5rem;
+      box-shadow: inset 0 1px 0 var(--glass-glow), 0 8px 40px rgba(0,0,0,0.4);
     }
 
     .form-card h3 {
@@ -763,8 +778,8 @@
     .form-group select,
     .form-group textarea {
       padding: 0.72rem 0.95rem;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid var(--border);
+      background: rgba(27,77,62,0.08);
+      border: 1px solid var(--glass-border);
       border-radius: 9px;
       font-family: 'Inter', sans-serif;
       font-size: 0.875rem;
@@ -891,6 +906,689 @@
       color: var(--text-subtle);
     }
 
+    /* ─────────────────── PRODUCTO PINNEABLE ─────────────────── */
+    #producto {
+      height: 280vh;
+      position: relative;
+    }
+
+    .prod-sticky {
+      height: 100vh;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      background: var(--bg);
+    }
+
+    .prod-header-1 {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 4;
+      pointer-events: none;
+      text-align: center;
+    }
+
+    .prod-header-1 span {
+      font-family: 'Montserrat', sans-serif;
+      font-size: clamp(3rem, 8vw, 7rem);
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 0.95;
+      color: var(--text);
+    }
+
+    .prod-marquee {
+      position: absolute;
+      top: 50%; left: 0; right: 0;
+      transform: translateY(-50%);
+      overflow: hidden;
+      z-index: 3;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    .marquee-track {
+      display: inline-flex;
+      animation: marquee-scroll 16s linear infinite;
+    }
+
+    .marquee-track span {
+      font-family: 'Montserrat', sans-serif;
+      font-size: clamp(2.4rem, 6vw, 5.5rem);
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      color: transparent;
+      -webkit-text-stroke: 1px rgba(46,204,113,0.22);
+      padding-right: 2rem;
+    }
+
+    @keyframes marquee-scroll {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    .prod-mask {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      clip-path: circle(0% at 50% 50%);
+      z-index: 5;
+      background: var(--bg);
+    }
+
+    #sphere-canvas {
+      width: min(500px, 82vw);
+      height: min(500px, 82vw);
+      display: block;
+    }
+
+    .prod-tooltip {
+      position: absolute;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: rgba(10,15,13,0.88);
+      border: 1px solid rgba(46,204,113,0.18);
+      border-radius: 12px;
+      padding: 0.85rem 1.1rem;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      z-index: 10;
+      pointer-events: none;
+      max-width: 230px;
+    }
+
+    .tp-1 { left: 5%;  top: 26%; }
+    .tp-2 { right: 5%; top: 44%; }
+    .tp-3 { left: 50%; bottom: 14%; transform: translateX(-50%); }
+
+    .tp-icon {
+      width: 34px; height: 34px;
+      border-radius: 8px;
+      background: rgba(46,204,113,0.09);
+      border: 1px solid rgba(46,204,113,0.2);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      color: var(--green);
+    }
+
+    .tp-icon svg {
+      width: 14px; height: 14px;
+      stroke: var(--green); fill: none;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    .tp-divider {
+      width: 1px; height: 36px;
+      background: rgba(46,204,113,0.2);
+      flex-shrink: 0;
+      transform-origin: top center;
+    }
+
+    .tp-content h4 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.2rem;
+      letter-spacing: -0.01em;
+    }
+
+    .tp-content p {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    @media (max-width: 768px) {
+      .tp-1 { left: 3%; top: 18%; max-width: 180px; }
+      .tp-2 { right: 3%; top: 52%; max-width: 180px; }
+      .tp-3 { bottom: 8%; }
+      #producto { height: 240vh; }
+    }
+
+    /* ─────────────────── FANCY TEXT ─────────────────── */
+    .fancy-text-host {
+      position: relative;
+      display: inline-block;
+    }
+
+    .ft-base {
+      color: rgba(46,204,113,0.08);
+      display: block;
+    }
+
+    .ft-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-wrap: nowrap;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .ft-char {
+      display: inline-block;
+      white-space: pre;
+      clip-path: inset(100% 0% 0% 0%);
+      animation: ft-reveal 1.1s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+      animation-play-state: paused;
+    }
+
+    .ft-char.ft-run {
+      animation-play-state: running;
+    }
+
+    @keyframes ft-reveal {
+      to { clip-path: inset(0% 0% 0% 0%); }
+    }
+
+    /* Legal section */
+    #legal {
+      background: var(--bg);
+      border-top: 1px solid var(--glass-border);
+      padding: 6rem 0;
+    }
+
+    .legal-hero {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+
+    .legal-fancy-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1.5rem 3rem;
+      margin: 2.5rem 0 3.5rem;
+    }
+
+    .legal-fancy-item {
+      font-family: 'Montserrat', sans-serif;
+      font-size: clamp(1.6rem, 3.5vw, 2.8rem);
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+
+    .legal-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.2rem;
+    }
+
+    .legal-card {
+      background: var(--glass-bg);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 1.6rem 1.8rem;
+      box-shadow: inset 0 1px 0 var(--glass-glow);
+      transition: border-color 250ms ease;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .legal-card:hover { border-color: var(--glass-border-h); }
+    }
+
+    .legal-card-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--green);
+      background: rgba(46,204,113,0.07);
+      border: 1px solid rgba(46,204,113,0.15);
+      border-radius: 100px;
+      padding: 0.22rem 0.65rem;
+      margin-bottom: 0.9rem;
+      letter-spacing: 0.06em;
+    }
+
+    .legal-card h4 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.4rem;
+      letter-spacing: -0.01em;
+    }
+
+    .legal-card p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    @media (max-width: 768px) {
+      .legal-grid { grid-template-columns: 1fr; }
+      .legal-fancy-row { gap: 1rem 1.5rem; }
+    }
+
+    /* ─────────────────── TESTIMONIOS ─────────────────── */
+    #testimonios { background: var(--bg-1); border-top: 1px solid var(--glass-border); border-bottom: 1px solid var(--glass-border); }
+
+    .tc-wrapper {
+      position: relative;
+      max-width: 780px;
+      margin: 0 auto;
+    }
+
+    .tc-stage {
+      overflow: hidden;
+      border-radius: 20px;
+      position: relative;
+      min-height: 320px;
+    }
+
+    .tc-card {
+      position: absolute;
+      inset: 0;
+      background: var(--glass-bg);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 2.4rem 2.8rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 1.8rem;
+      opacity: 0;
+      transform: translateX(32px);
+      transition: opacity 420ms var(--ease-out), transform 420ms var(--ease-out);
+      pointer-events: none;
+      box-shadow: inset 0 1px 0 var(--glass-glow);
+    }
+
+    .tc-card.active {
+      opacity: 1;
+      transform: translateX(0);
+      pointer-events: all;
+    }
+
+    .tc-card.exit {
+      opacity: 0;
+      transform: translateX(-32px);
+      pointer-events: none;
+    }
+
+    .tc-quote-mark {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 3.5rem;
+      line-height: 0.6;
+      color: var(--green);
+      opacity: 0.35;
+      font-weight: 900;
+      margin-bottom: 0.4rem;
+    }
+
+    .tc-text {
+      font-size: 1rem;
+      color: var(--text-muted);
+      line-height: 1.75;
+      font-style: italic;
+    }
+
+    .tc-author {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .tc-avatar-wrap {
+      position: relative;
+      flex-shrink: 0;
+      width: 48px;
+      height: 48px;
+    }
+
+    .tc-avatar {
+      width: 42px; height: 42px;
+      border-radius: 50%;
+      background: rgba(27,77,62,0.35);
+      border: 1px solid var(--glass-border);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: var(--green);
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .tc-ring {
+      width: 48px; height: 48px;
+      position: absolute;
+      inset: 0;
+      transform: rotate(-90deg);
+      overflow: visible;
+    }
+
+    .tc-ring-bg {
+      fill: none;
+      stroke: rgba(46,204,113,0.12);
+      stroke-width: 2;
+    }
+
+    .tc-ring-fill {
+      fill: none;
+      stroke: var(--green);
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-dasharray: 131.95;
+      stroke-dashoffset: 131.95;
+      transition: stroke-dashoffset 50ms linear;
+    }
+
+    .tc-info strong {
+      display: block;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.01em;
+    }
+
+    .tc-info span {
+      font-size: 0.75rem;
+      color: var(--text-subtle);
+    }
+
+    .tc-controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1.2rem;
+      margin-top: 2rem;
+    }
+
+    .tc-btn {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: border-color 200ms ease, color 200ms ease;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .tc-btn:hover { border-color: var(--glass-border-h); color: var(--text); }
+    }
+
+    .tc-btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+
+    .tc-dots {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .tc-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: rgba(46,204,113,0.25);
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      transition: background 200ms ease, transform 200ms ease;
+    }
+
+    .tc-dot.active {
+      background: var(--green);
+      transform: scale(1.3);
+    }
+
+    @media (max-width: 768px) {
+      .tc-card { padding: 1.8rem; }
+      .tc-text { font-size: 0.9rem; }
+    }
+
+    /* ─────────────────── EXPANDABLE CARDS ─────────────────── */
+    .exp-grid {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+      height: 420px;
+    }
+
+    .exp-card {
+      flex-grow: 1;
+      border-radius: 18px;
+      overflow: hidden;
+      position: relative;
+      cursor: pointer;
+      transition: flex-grow 500ms cubic-bezier(0.4, 0, 0.2, 1),
+                  border-color 300ms ease;
+      background: var(--glass-bg);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--glass-border);
+      box-shadow: inset 0 1px 0 var(--glass-glow);
+    }
+
+    .exp-card.active {
+      flex-grow: 3.2;
+      border-color: var(--glass-border-h);
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .exp-card:hover { border-color: var(--glass-border-h); }
+    }
+
+    .exp-card-inner {
+      position: absolute;
+      inset: 0;
+      padding: 1.8rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+
+    .exp-card-icon {
+      position: absolute;
+      top: 1.6rem; left: 1.6rem;
+      width: 42px; height: 42px;
+      border-radius: 10px;
+      background: rgba(46,204,113,0.09);
+      border: 1px solid rgba(46,204,113,0.18);
+      display: flex; align-items: center; justify-content: center;
+      transition: opacity 300ms ease;
+    }
+
+    .exp-card-icon svg {
+      width: 18px; height: 18px;
+      stroke: var(--green); fill: none;
+      stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    .exp-card-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.62rem;
+      color: var(--text-subtle);
+      margin-bottom: 0.6rem;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 300ms ease 200ms, transform 300ms ease 200ms;
+    }
+
+    .exp-card h3 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.01em;
+      margin-bottom: 0.5rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .exp-card-desc {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      line-height: 1.65;
+      max-width: 380px;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 320ms ease 150ms, transform 320ms ease 150ms;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .exp-card-stat {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-top: 1rem;
+      font-size: 0.73rem;
+      font-weight: 700;
+      color: var(--green);
+      background: rgba(46,204,113,0.07);
+      border: 1px solid rgba(46,204,113,0.15);
+      padding: 0.28rem 0.75rem;
+      border-radius: 100px;
+      font-family: 'Montserrat', sans-serif;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 300ms ease 250ms, transform 300ms ease 250ms;
+    }
+
+    .exp-card.active .exp-card-desc,
+    .exp-card.active .exp-card-stat,
+    .exp-card.active .exp-card-num {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .exp-card-glow {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 60% 40% at 50% 100%, rgba(27,77,62,0.35) 0%, transparent 70%);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 400ms ease;
+    }
+
+    .exp-card.active .exp-card-glow { opacity: 1; }
+
+    @media (max-width: 768px) {
+      .exp-grid {
+        flex-direction: column;
+        height: auto;
+        gap: 8px;
+      }
+      .exp-card { flex-grow: 1 !important; min-height: 100px; }
+      .exp-card.active { min-height: 260px; }
+      .exp-card-desc, .exp-card-stat, .exp-card-num { opacity: 1 !important; transform: none !important; }
+      .exp-card h3 { white-space: normal; }
+    }
+
+    /* ─────────────────── LAYERED BUTTON ─────────────────── */
+    .btn-layered {
+      position: relative;
+      overflow: hidden;
+      padding: 0 !important;
+      isolation: isolate;
+    }
+
+    .lb-circle {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.18);
+      pointer-events: none;
+      will-change: transform;
+      transform: translateX(-50%) scale(0);
+      z-index: 1;
+    }
+
+    .lb-wrap {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.8rem 1.8rem;
+      overflow: hidden;
+      z-index: 2;
+      min-height: 44px;
+    }
+
+    .lb-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      will-change: transform;
+      font-weight: 700;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.9rem;
+    }
+
+    .lb-hover {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      will-change: transform, opacity;
+      font-weight: 700;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.9rem;
+      color: #fff;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* ─────────────────── WORD REVEAL ─────────────────── */
+    .word-reveal {
+      display: inline-block;
+      opacity: 0;
+      transform: translateY(12px);
+      filter: blur(5px);
+      transition: opacity 580ms var(--ease-out), transform 580ms var(--ease-out), filter 480ms ease;
+    }
+    .word-reveal.lit {
+      opacity: 1;
+      transform: none;
+      filter: blur(0);
+    }
+
+    /* ─────────────────── SCROLL VINE ─────────────────── */
+    .scroll-vine {
+      position: fixed;
+      left: 22px;
+      top: 0;
+      width: 1px;
+      height: 100vh;
+      z-index: 50;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .scroll-vine-bar {
+      width: 100%;
+      height: 0%;
+      background: linear-gradient(to bottom, transparent, rgba(46,204,113,0.55) 18%, rgba(27,77,62,0.38) 82%, transparent);
+    }
+    @media (max-width: 900px) { .scroll-vine { display: none; } }
+
     /* ─────────────────── REVEAL ANIMATIONS ─────────────────── */
     .reveal {
       opacity: 0;
@@ -954,6 +1652,313 @@
     @media (max-width: 480px) {
       .proceso-grid { grid-template-columns: 1fr; }
     }
+    /* ─────────────────── CHAT WIDGET ─────────────────── */
+    @keyframes shimmer-spin {
+      to { transform: rotate(360deg); }
+    }
+    @keyframes chat-bounce {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-4px); }
+    }
+    @keyframes msg-in {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .chat-fab {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      z-index: 900;
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      padding: 0;
+    }
+
+    .chat-fab-ring {
+      position: absolute;
+      inset: -2px;
+      border-radius: 50%;
+      background: conic-gradient(from 0deg, transparent 0%, rgba(46,204,113,0.85) 40%, transparent 60%);
+      animation: shimmer-spin 2.2s linear infinite;
+      pointer-events: none;
+    }
+
+    .chat-fab-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: var(--glass-bg);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--glass-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 22px rgba(46,204,113,0.22), 0 4px 20px rgba(0,0,0,0.4);
+      transition: box-shadow 250ms ease;
+      z-index: 1;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .chat-fab:hover .chat-fab-inner {
+        box-shadow: 0 0 32px rgba(46,204,113,0.38), 0 4px 24px rgba(0,0,0,0.5);
+      }
+      .chat-fab:hover .chat-fab-icon { animation: chat-bounce 0.7s ease infinite; }
+    }
+
+    .chat-fab-icon {
+      width: 22px; height: 22px;
+      stroke: var(--green); fill: none;
+      stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+      transition: opacity 200ms ease, transform 200ms ease;
+    }
+
+    .chat-fab-icon-close {
+      width: 18px; height: 18px;
+      stroke: var(--green); fill: none;
+      stroke-width: 2; stroke-linecap: round;
+      position: absolute;
+      opacity: 0;
+      transform: rotate(-90deg) scale(0.7);
+      transition: opacity 200ms ease, transform 200ms ease;
+    }
+
+    .chat-fab.open .chat-fab-icon       { opacity: 0; transform: rotate(90deg) scale(0.7); }
+    .chat-fab.open .chat-fab-icon-close { opacity: 1; transform: rotate(0deg) scale(1); }
+
+    /* Panel */
+    .chat-panel {
+      position: fixed;
+      bottom: 5.8rem;
+      right: 2rem;
+      z-index: 899;
+      width: 340px;
+      max-height: 500px;
+      display: flex;
+      flex-direction: column;
+      background: rgba(10,15,13,0.92);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      box-shadow: 0 8px 48px rgba(0,0,0,0.55), inset 0 1px 0 var(--glass-glow);
+      opacity: 0;
+      transform: translateY(16px) scale(0.94);
+      pointer-events: none;
+      transition: opacity 300ms var(--ease-out), transform 300ms var(--ease-out);
+      transform-origin: bottom right;
+      overflow: hidden;
+    }
+
+    .chat-panel.open {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: all;
+    }
+
+    .chat-panel-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem 1.2rem;
+      border-bottom: 1px solid var(--glass-border);
+      flex-shrink: 0;
+    }
+
+    .chat-bot-avatar {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: rgba(27,77,62,0.4);
+      border: 1px solid var(--glass-border);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .chat-bot-avatar svg {
+      width: 16px; height: 16px;
+      stroke: var(--green); fill: none;
+      stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    .chat-bot-status {
+      position: absolute;
+      bottom: 1px; right: 1px;
+      width: 9px; height: 9px;
+      border-radius: 50%;
+      background: var(--green);
+      border: 1.5px solid rgba(10,15,13,0.92);
+    }
+
+    .chat-panel-header-info strong {
+      display: block;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.01em;
+    }
+
+    .chat-panel-header-info span {
+      font-size: 0.68rem;
+      color: var(--green);
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(46,204,113,0.15) transparent;
+    }
+
+    .chat-msg {
+      display: flex;
+      gap: 0.5rem;
+      animation: msg-in 280ms var(--ease-out) both;
+    }
+
+    .chat-msg-bot { align-self: flex-start; }
+    .chat-msg-user { align-self: flex-end; flex-direction: row-reverse; }
+
+    .chat-bubble {
+      max-width: 82%;
+      padding: 0.65rem 0.9rem;
+      border-radius: 14px;
+      font-size: 0.82rem;
+      line-height: 1.55;
+    }
+
+    .chat-msg-bot  .chat-bubble {
+      background: rgba(27,77,62,0.22);
+      border: 1px solid var(--glass-border);
+      color: var(--text-muted);
+      border-bottom-left-radius: 4px;
+    }
+
+    .chat-msg-user .chat-bubble {
+      background: rgba(46,204,113,0.14);
+      border: 1px solid rgba(46,204,113,0.2);
+      color: var(--text);
+      border-bottom-right-radius: 4px;
+    }
+
+    .chat-typing {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      padding: 0.65rem 0.9rem;
+      background: rgba(27,77,62,0.22);
+      border: 1px solid var(--glass-border);
+      border-radius: 14px;
+      border-bottom-left-radius: 4px;
+      width: fit-content;
+    }
+
+    .chat-typing span {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: var(--green);
+      opacity: 0.4;
+      animation: chat-bounce 1.1s ease infinite;
+    }
+    .chat-typing span:nth-child(2) { animation-delay: 0.18s; }
+    .chat-typing span:nth-child(3) { animation-delay: 0.36s; }
+
+    .chat-input-area {
+      display: flex;
+      gap: 0.5rem;
+      padding: 0.9rem 1.2rem;
+      border-top: 1px solid var(--glass-border);
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .chat-input-wrap {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      border-radius: 100px;
+      background: rgba(27,77,62,0.1);
+      border: 1px solid var(--glass-border);
+      transition: border-color 200ms ease, box-shadow 200ms ease;
+    }
+
+    .chat-input-wrap::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: 100px;
+      background: conic-gradient(from 0deg, transparent 0%, rgba(46,204,113,0.6) 40%, transparent 60%);
+      animation: shimmer-spin 2.5s linear infinite;
+      opacity: 0;
+      transition: opacity 250ms ease;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .chat-input-wrap:focus-within::before { opacity: 1; }
+
+    .chat-input-wrap:focus-within {
+      border-color: transparent;
+      box-shadow: 0 0 0 1px rgba(46,204,113,0.3);
+    }
+
+    .chat-input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      padding: 0.55rem 1rem;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.82rem;
+      color: var(--text);
+      position: relative;
+      z-index: 1;
+    }
+
+    .chat-input::placeholder { color: var(--text-subtle); }
+
+    .chat-send {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      background: var(--green);
+      border: none;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: background 180ms ease, transform 150ms ease;
+      align-self: center;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .chat-send:hover { background: #27ae60; }
+    }
+
+    .chat-send:active { transform: scale(0.92); }
+
+    .chat-send svg {
+      width: 14px; height: 14px;
+      stroke: #fff; fill: none;
+      stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    @media (max-width: 480px) {
+      .chat-panel { width: calc(100vw - 2rem); right: 1rem; }
+      .chat-fab   { bottom: 1.5rem; right: 1rem; }
+    }
   </style>
 </head>
 <body>
@@ -969,10 +1974,19 @@
         <a href="#servicios">Servicios</a>
         <a href="#proceso">Proceso</a>
         <a href="#contacto">Contacto</a>
-        <a href="#contacto" class="nav-cta">Solicitar Demo</a>
+        <a href="#contacto" class="nav-cta btn-layered">
+          <span class="lb-circle" aria-hidden="true"></span>
+          <span class="lb-wrap" style="padding: 0.55rem 1.25rem; min-height: unset;">
+            <span class="lb-label" style="font-size:0.85rem;">Innovar Ahora</span>
+            <span class="lb-hover" aria-hidden="true" style="font-size:0.85rem;">Innovar Ahora</span>
+          </span>
+        </a>
       </div>
     </nav>
   </div>
+
+  <!-- Scroll vine -->
+  <div class="scroll-vine" aria-hidden="true"><div class="scroll-vine-bar"></div></div>
 
   <!-- HERO -->
   <section id="hero">
@@ -1003,8 +2017,8 @@
         </span>
 
         <h1>
-          Potencia tu operación.<br />
-          <span class="gradient-text">Libera tu talento.</span>
+          <span class="word-reveal">Potencia</span> <span class="word-reveal">tu</span> <span class="word-reveal">operación.</span><br />
+          <span class="gradient-text"><span class="word-reveal">Libera</span> <span class="word-reveal">tu</span> <span class="word-reveal">talento.</span></span>
         </h1>
 
         <p>
@@ -1012,13 +2026,72 @@
         </p>
 
         <div class="hero-actions">
-          <a href="#contacto" class="btn-primary">
-            Solicitar Demo Gratis
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          <a href="#contacto" class="btn-primary btn-layered">
+            <span class="lb-circle" aria-hidden="true"></span>
+            <span class="lb-wrap">
+              <span class="lb-label">Innovar Ahora</span>
+              <span class="lb-hover" aria-hidden="true">Innovar Ahora</span>
+            </span>
           </a>
-          <a href="#servicios" class="btn-secondary">Ver servicios</a>
+          <a href="#servicios" class="btn-secondary">Explorar</a>
         </div>
       </div>
+    </div>
+  </section>
+
+  <!-- PRODUCTO PINNEABLE -->
+  <section id="producto">
+    <div class="prod-sticky">
+
+      <div class="prod-header-1" aria-hidden="true">
+        <span>Automatización</span>
+        <span>Inteligente</span>
+      </div>
+
+      <div class="prod-marquee" aria-hidden="true">
+        <div class="marquee-track">
+          <span>Potencia tu operación · Libera tu talento · Ingeniería de mañana · </span>
+          <span>Potencia tu operación · Libera tu talento · Ingeniería de mañana · </span>
+        </div>
+      </div>
+
+      <div class="prod-mask">
+        <canvas id="sphere-canvas"></canvas>
+      </div>
+
+      <div class="prod-tooltip tp-1">
+        <div class="tp-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        </div>
+        <div class="tp-divider"></div>
+        <div class="tp-content">
+          <h4>Automatización 24/7</h4>
+          <p>80% reducción de costos operativos</p>
+        </div>
+      </div>
+
+      <div class="prod-tooltip tp-2">
+        <div class="tp-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="tp-divider"></div>
+        <div class="tp-content">
+          <h4>Precisión máxima</h4>
+          <p>Menos de 1% de error en procesos</p>
+        </div>
+      </div>
+
+      <div class="prod-tooltip tp-3">
+        <div class="tp-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+        </div>
+        <div class="tp-divider"></div>
+        <div class="tp-content">
+          <h4>ROI inmediato</h4>
+          <p>Resultados medibles desde el mes 1</p>
+        </div>
+      </div>
+
     </div>
   </section>
 
@@ -1051,59 +2124,62 @@
       <h2 class="section-title reveal">Soluciones para empresas<br />que no se conforman</h2>
       <p class="section-sub reveal">Desde automatización de flujos hasta IA aplicada. Todo medible, todo a la medida.</p>
 
-      <div class="bento-grid">
+      <div class="exp-grid" id="exp-grid">
 
-        <!-- RPA — large -->
-        <div class="bento-card large reveal" tabindex="0">
-          <div class="bento-icon" aria-hidden="true">
+        <!-- RPA -->
+        <div class="exp-card active" data-index="0" tabindex="0" role="button" aria-label="Automatización RPA">
+          <div class="exp-card-glow"></div>
+          <div class="exp-card-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/><circle cx="9" cy="14" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="14" r="1" fill="currentColor" stroke="none"/><path d="M9 17h6"/><path d="M2 13h2M20 13h2"/></svg>
           </div>
-          <h3>Automatización RPA</h3>
-          <p>Eliminamos tareas manuales repetitivas con robots de software que trabajan 24/7, con integración nativa a Buk, AFC y SII.</p>
-          <div class="bento-extra">
-            <div class="bento-kpi">
-              <span class="kpi-num">41h<span>→</span>8h</span>
-              <span class="kpi-label">por ciclo de proceso</span>
-            </div>
-            <div class="bento-kpi">
-              <span class="kpi-num">&lt;1<span>%</span></span>
-              <span class="kpi-label">tasa de error</span>
-            </div>
+          <div class="exp-card-inner">
+            <div class="exp-card-num">01 / RPA</div>
+            <h3>Automatización RPA</h3>
+            <p class="exp-card-desc">Eliminamos tareas manuales repetitivas con robots de software que trabajan 24/7, con integración nativa a Buk, AFC y SII. De 41h a 8h por ciclo de proceso.</p>
+            <span class="exp-card-stat">ROI medible desde el mes 1</span>
           </div>
-          <span class="bento-stat">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-            ROI medible desde el mes 1
-          </span>
         </div>
 
-        <!-- AI -->
-        <div class="bento-card reveal" tabindex="0">
-          <div class="bento-icon" aria-hidden="true">
+        <!-- IA -->
+        <div class="exp-card" data-index="1" tabindex="0" role="button" aria-label="Inteligencia Artificial">
+          <div class="exp-card-glow"></div>
+          <div class="exp-card-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
           </div>
-          <h3>Inteligencia Artificial</h3>
-          <p>Chatbots, OCR avanzado y modelos predictivos adaptados a tu industria y datos propios.</p>
-          <span class="bento-stat">Decisiones en tiempo real</span>
+          <div class="exp-card-inner">
+            <div class="exp-card-num">02 / IA</div>
+            <h3>Inteligencia Artificial</h3>
+            <p class="exp-card-desc">Chatbots, OCR avanzado y modelos predictivos adaptados a tu industria y datos propios. Decisiones en tiempo real.</p>
+            <span class="exp-card-stat">Decisiones en tiempo real</span>
+          </div>
         </div>
 
         <!-- Dev -->
-        <div class="bento-card reveal" tabindex="0">
-          <div class="bento-icon" aria-hidden="true">
+        <div class="exp-card" data-index="2" tabindex="0" role="button" aria-label="Desarrollo de Software">
+          <div class="exp-card-glow"></div>
+          <div class="exp-card-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
           </div>
-          <h3>Desarrollo de Software</h3>
-          <p>Apps web, APIs REST y dashboards en tiempo real con Python y JavaScript.</p>
-          <span class="bento-stat">Stack moderno y escalable</span>
+          <div class="exp-card-inner">
+            <div class="exp-card-num">03 / DEV</div>
+            <h3>Desarrollo de Software</h3>
+            <p class="exp-card-desc">Apps web, APIs REST y dashboards en tiempo real con Python y JavaScript. Stack moderno y escalable.</p>
+            <span class="exp-card-stat">Stack moderno y escalable</span>
+          </div>
         </div>
 
-        <!-- Consultoría — large -->
-        <div class="bento-card large reveal" tabindex="0">
-          <div class="bento-icon" aria-hidden="true">
+        <!-- Consultoría -->
+        <div class="exp-card" data-index="3" tabindex="0" role="button" aria-label="Consultoría TI">
+          <div class="exp-card-glow"></div>
+          <div class="exp-card-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>
           </div>
-          <h3>Consultoría TI</h3>
-          <p>Diagnóstico, arquitectura tecnológica y capacitación de equipos para liderar la transformación digital con estrategia clara.</p>
-          <span class="bento-stat">Visión + Ejecución</span>
+          <div class="exp-card-inner">
+            <div class="exp-card-num">04 / TI</div>
+            <h3>Consultoría TI</h3>
+            <p class="exp-card-desc">Diagnóstico, arquitectura tecnológica y capacitación de equipos para liderar la transformación digital con estrategia clara.</p>
+            <span class="exp-card-stat">Visión + Ejecución</span>
+          </div>
         </div>
 
       </div>
@@ -1164,6 +2240,122 @@
     </div>
   </section>
 
+  <!-- TESTIMONIOS -->
+  <section id="testimonios">
+    <div class="container">
+      <span class="section-label reveal">Clientes</span>
+      <h2 class="section-title reveal">Lo que dicen<br />nuestros clientes</h2>
+      <p class="section-sub reveal">Empresas chilenas que ya transformaron su operación.</p>
+
+      <div class="tc-wrapper reveal">
+        <div class="tc-stage" id="tc-stage">
+
+          <div class="tc-card active" data-tc="0">
+            <div>
+              <div class="tc-quote-mark">"</div>
+              <p class="tc-text">Redujimos el tiempo de procesamiento de facturas de 3 días a 4 horas. El equipo de Sustenta Futuro entendió nuestra operación desde el día uno y el piloto gratuito nos convenció antes de firmar cualquier contrato.</p>
+            </div>
+            <div class="tc-author">
+              <div class="tc-avatar-wrap">
+                <div class="tc-avatar">MG</div>
+                <svg class="tc-ring" viewBox="0 0 48 48"><circle class="tc-ring-bg" cx="24" cy="24" r="21"/><circle class="tc-ring-fill" id="tc-fill-0" cx="24" cy="24" r="21"/></svg>
+              </div>
+              <div class="tc-info">
+                <strong>María González</strong>
+                <span>Gerente de Operaciones · Retail Andino SpA</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="tc-card" data-tc="1">
+            <div>
+              <div class="tc-quote-mark">"</div>
+              <p class="tc-text">Automatizamos el cierre contable mensual. Lo que antes tomaba 40 horas de trabajo manual, hoy lo ejecuta un robot en menos de 2 horas con cero errores. El ROI fue inmediato.</p>
+            </div>
+            <div class="tc-author">
+              <div class="tc-avatar-wrap">
+                <div class="tc-avatar">CM</div>
+                <svg class="tc-ring" viewBox="0 0 48 48"><circle class="tc-ring-bg" cx="24" cy="24" r="21"/><circle class="tc-ring-fill" id="tc-fill-1" cx="24" cy="24" r="21"/></svg>
+              </div>
+              <div class="tc-info">
+                <strong>Carlos Mendoza</strong>
+                <span>Director TI · Minera del Norte S.A.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="tc-card" data-tc="2">
+            <div>
+              <div class="tc-quote-mark">"</div>
+              <p class="tc-text">La integración con el SII y AFC fue perfecta desde el primer deploy. Nunca imaginamos que modernizar estos procesos pudiera ser tan fluido y sin interrupciones en la operación.</p>
+            </div>
+            <div class="tc-author">
+              <div class="tc-avatar-wrap">
+                <div class="tc-avatar">RS</div>
+                <svg class="tc-ring" viewBox="0 0 48 48"><circle class="tc-ring-bg" cx="24" cy="24" r="21"/><circle class="tc-ring-fill" id="tc-fill-2" cx="24" cy="24" r="21"/></svg>
+              </div>
+              <div class="tc-info">
+                <strong>Roberto Soto</strong>
+                <span>Gerente General · Constructora Pacífico Ltda.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="tc-card" data-tc="3">
+            <div>
+              <div class="tc-quote-mark">"</div>
+              <p class="tc-text">El cumplimiento de la Ley 19.628 era una preocupación real para nosotros. Sustenta Futuro nos dio total tranquilidad: procesos auditables, datos protegidos y reportes claros en cada etapa.</p>
+            </div>
+            <div class="tc-author">
+              <div class="tc-avatar-wrap">
+                <div class="tc-avatar">VT</div>
+                <svg class="tc-ring" viewBox="0 0 48 48"><circle class="tc-ring-bg" cx="24" cy="24" r="21"/><circle class="tc-ring-fill" id="tc-fill-3" cx="24" cy="24" r="21"/></svg>
+              </div>
+              <div class="tc-info">
+                <strong>Valentina Torres</strong>
+                <span>CFO · Finanzas Sur Chile SpA</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="tc-card" data-tc="4">
+            <div>
+              <div class="tc-quote-mark">"</div>
+              <p class="tc-text">Implementamos RPA en nuestras guías de despacho y el equipo logístico recuperó 25 horas semanales. Ahora se enfocan en lo que realmente importa: el cliente. Sustenta Futuro lo hizo posible.</p>
+            </div>
+            <div class="tc-author">
+              <div class="tc-avatar-wrap">
+                <div class="tc-avatar">AR</div>
+                <svg class="tc-ring" viewBox="0 0 48 48"><circle class="tc-ring-bg" cx="24" cy="24" r="21"/><circle class="tc-ring-fill" id="tc-fill-4" cx="24" cy="24" r="21"/></svg>
+              </div>
+              <div class="tc-info">
+                <strong>Ana Reyes</strong>
+                <span>CEO · Logística Sur Chile S.A.</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="tc-controls">
+          <button class="tc-btn" id="tc-prev" aria-label="Anterior">
+            <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <div class="tc-dots">
+            <button class="tc-dot active" data-tc-goto="0" aria-label="Testimonio 1"></button>
+            <button class="tc-dot" data-tc-goto="1" aria-label="Testimonio 2"></button>
+            <button class="tc-dot" data-tc-goto="2" aria-label="Testimonio 3"></button>
+            <button class="tc-dot" data-tc-goto="3" aria-label="Testimonio 4"></button>
+            <button class="tc-dot" data-tc-goto="4" aria-label="Testimonio 5"></button>
+          </div>
+          <button class="tc-btn" id="tc-next" aria-label="Siguiente">
+            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- PROCESO -->
   <section id="proceso">
     <div class="container">
@@ -1196,6 +2388,78 @@
           <h4>Despliegue</h4>
           <p>Producción, capacitación del equipo y soporte continuo desde el primer día de operación.</p>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LEGAL -->
+  <section id="legal">
+    <div class="container">
+      <div class="legal-hero">
+        <span class="section-label reveal" style="justify-content:center;">Cumplimiento Legal</span>
+        <h2 class="section-title reveal" style="text-align:center;">Operamos bajo los más altos<br />estándares legales de Chile</h2>
+        <p class="section-sub reveal" style="text-align:center; margin:0 auto 0;">Tu empresa protegida, tus datos seguros, tu operación en regla.</p>
+
+        <div class="legal-fancy-row">
+          <div class="legal-fancy-item reveal">
+            <span class="fancy-text-host">
+              <span class="ft-base">LEY 19.628</span>
+              <span class="ft-overlay"></span>
+            </span>
+          </div>
+          <div class="legal-fancy-item reveal">
+            <span class="fancy-text-host">
+              <span class="ft-base">LEY 19.223</span>
+              <span class="ft-overlay"></span>
+            </span>
+          </div>
+          <div class="legal-fancy-item reveal">
+            <span class="fancy-text-host">
+              <span class="ft-base">ISO 27001</span>
+              <span class="ft-overlay"></span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="legal-grid">
+
+        <div class="legal-card reveal">
+          <span class="legal-card-badge">Ley 19.628</span>
+          <h4>Protección de Datos Personales</h4>
+          <p>Tratamos todos los datos con el más estricto apego a la Ley 19.628 chilena. Recopilación mínima, consentimiento explícito, acceso controlado y derecho a eliminación garantizados.</p>
+        </div>
+
+        <div class="legal-card reveal">
+          <span class="legal-card-badge">Ley 19.223</span>
+          <h4>Delitos Informáticos</h4>
+          <p>Nuestros sistemas cumplen con la Ley de Delitos Informáticos. Implementamos medidas de ciberseguridad para prevenir acceso no autorizado, sabotaje y fraude digital en toda la cadena.</p>
+        </div>
+
+        <div class="legal-card reveal">
+          <span class="legal-card-badge">Marco Regulatorio</span>
+          <h4>Proyecto de Ley de Ciberseguridad</h4>
+          <p>Anticipamos el cumplimiento de la nueva Ley Marco de Ciberseguridad. Nuestros procesos de RPA e IA están diseñados para adaptarse a la regulación vigente y futura del ecosistema digital chileno.</p>
+        </div>
+
+        <div class="legal-card reveal">
+          <span class="legal-card-badge">Auditoría</span>
+          <h4>Trazabilidad Total</h4>
+          <p>Cada acción ejecutada por nuestros robots queda registrada en logs auditables. Transparencia completa para cumplir con requerimientos de organismos reguladores como la CMF o la SII.</p>
+        </div>
+
+        <div class="legal-card reveal">
+          <span class="legal-card-badge">Contratos</span>
+          <h4>DPA y Acuerdos de Confidencialidad</h4>
+          <p>Firmamos acuerdos de procesamiento de datos (DPA) y NDA con cada cliente. Tu información nunca se comparte con terceros sin consentimiento explícito y documentado.</p>
+        </div>
+
+        <div class="legal-card reveal">
+          <span class="legal-card-badge">Infraestructura</span>
+          <h4>Servidores en Chile</h4>
+          <p>Opción de despliegue en infraestructura local (on-premise) o en la nube con región en Chile. Tus datos no salen del país sin tu autorización, cumpliendo restricciones territoriales vigentes.</p>
+        </div>
+
       </div>
     </div>
   </section>
@@ -1281,9 +2545,12 @@
               <label for="message">¿Qué proceso quieres automatizar?</label>
               <textarea id="message" name="message" placeholder="Describe brevemente el proceso o problema..."></textarea>
             </div>
-            <button type="submit" class="form-submit">
-              Solicitar Demo Gratis
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            <button type="submit" class="form-submit btn-layered">
+              <span class="lb-circle" aria-hidden="true"></span>
+              <span class="lb-wrap" style="width:100%; padding: 0.9rem;">
+                <span class="lb-label">Innovar Ahora</span>
+                <span class="lb-hover" aria-hidden="true">Innovar Ahora</span>
+              </span>
             </button>
             <p class="form-disclaimer">Tus datos están protegidos bajo la Ley 19.628. No los compartimos con terceros.</p>
           </form>
@@ -1367,7 +2634,8 @@
     });
 
     // ── GSAP scroll animations (loaded via CDN below) ──
-    window.addEventListener('load', () => { initPrism(); initGSAP(); });
+    window.addEventListener('load', () => { initOrganicNet(); initGSAP(); });
+    // Note: initLenis, initOrganicSphere, initProductSection are called in the block below
 
     // ── Form submit ──
     function handleSubmit(e) {
@@ -1404,173 +2672,116 @@
 
   <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
 
-  <!-- Prism refraction canvas -->
+  <!-- Organic Intelligence canvas -->
   <script>
-  function initPrism() {
+  function initOrganicNet() {
     const canvas = document.getElementById('prism-canvas');
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    let W, H, t = 0;
-
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-    const RAYS = [
-      [255,  45,  45],
-      [255, 140,  10],
-      [255, 235,   5],
-      [ 40, 225,  70],
-      [ 25, 140, 255],
-      [100,  40, 255],
-      [175,  20, 255],
-    ];
+    const ctx = canvas.getContext('2d');
+    let W, H;
+    let mouse = { x: -999, y: -999 };
+    let nodes = [];
+    let t = 0;
 
-    // Use window dimensions — canvas.offsetWidth is 0 before first layout
     function resize() {
       W = canvas.width  = window.innerWidth;
       H = canvas.height = canvas.parentElement
         ? canvas.parentElement.offsetHeight || window.innerHeight
         : window.innerHeight;
+      buildNodes();
     }
-    window.addEventListener('resize', resize);
+
+    function buildNodes() {
+      const count = Math.min(72, Math.max(32, Math.floor(W * H / 10500)));
+      nodes = Array.from({ length: count }, () => ({
+        x:      Math.random() * W,
+        y:      Math.random() * H,
+        vx:     (Math.random() - 0.5) * 0.42,
+        vy:     (Math.random() - 0.5) * 0.42,
+        r:      Math.random() * 2.4 + 0.9,
+        phase:  Math.random() * Math.PI * 2,
+        bright: Math.random() < 0.18,
+      }));
+    }
+
+    window.addEventListener('resize', () => { resize(); });
     resize();
-    // Second call after layout is guaranteed
     setTimeout(resize, 100);
 
-    function rot(cx, cy, ang, x, y) {
-      const c = Math.cos(ang), s = Math.sin(ang);
-      return { x: cx + x * c - y * s, y: cy + x * s + y * c };
-    }
+    window.addEventListener('mousemove', e => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+    }, { passive: true });
 
-    function line(x1, y1, x2, y2, r, g, b, w, blur) {
-      ctx.save();
-      ctx.shadowBlur  = blur;
-      ctx.shadowColor = `rgba(${r},${g},${b},0.95)`;
-      ctx.strokeStyle = `rgba(${r},${g},${b},1)`;
-      ctx.lineWidth   = w;
-      ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
-      ctx.stroke();
-      ctx.restore();
-    }
-
-    function glow(x, y, r, col) {
-      ctx.save();
-      ctx.shadowBlur = 40; ctx.shadowColor = col;
-      const g = ctx.createRadialGradient(x, y, 0, x, y, r);
-      g.addColorStop(0, col); g.addColorStop(1, col.replace(/[\d.]+\)$/, '0)'));
-      ctx.fillStyle = g;
-      ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
-      ctx.restore();
-    }
-
-    // Lerped scroll value for smooth prism reaction
-    let scrollLerp = 0;
+    const CONNECT  = 158;
+    const M_RADIUS = 135;
+    const M_FORCE  = 0.07;
 
     function draw() {
       ctx.clearRect(0, 0, W, H);
-      t += 0.012;
+      t += 0.007;
 
-      // Smooth scroll tracking (lerp toward real scrollY)
       const heroH = H || window.innerHeight;
-      const rawScroll = Math.min(window.scrollY / heroH, 1);
-      scrollLerp += (rawScroll - scrollLerp) * 0.06;
+      const alpha = Math.max(0, 1 - window.scrollY / (heroH * 0.78));
+      if (alpha <= 0) { requestAnimationFrame(draw); return; }
+      ctx.globalAlpha = alpha;
 
-      const cx  = W * 0.55;
-      const cy  = H * 0.50;
-      const R   = Math.min(W * 0.18, H * 0.34, 210);
-
-      // Time-based breathing: ±8° (clearly visible, ~10s cycle)
-      const breathe = Math.sin(t * 0.65) * 0.14;
-      // Scroll-based spin: full 360° as hero scrolls out
-      const scrollSpin = scrollLerp * Math.PI * 2;
-      const tlt = breathe + scrollSpin;
-
-      // Scroll-based vertical drift: prism rises as you scroll
-      const fy = Math.sin(t * 0.32) * R * 0.04 - scrollLerp * H * 0.18;
-      // Scroll-based scale: shrinks slightly as it exits
-      const sc = 1 - scrollLerp * 0.35;
-
-      // Equilateral triangle, apex → RIGHT (Pink Floyd), scroll-scaled
-      const Sr = R * sc;
-      const A = rot(cx, cy + fy, tlt, -Sr * 0.5, -Sr * 0.866);
-      const B = rot(cx, cy + fy, tlt, -Sr * 0.5,  Sr * 0.866);
-      const C = rot(cx, cy + fy, tlt,  Sr,         0);
-
-      // Entry: AB face, slightly above centre
-      const E = rot(cx, cy + fy, tlt, -Sr * 0.5, -Sr * 0.10);
-      // Exit: BC face at 38% from B→C
-      const tb = 0.38;
-      const X  = { x: B.x + tb*(C.x-B.x), y: B.y + tb*(C.y-B.y) };
-
-      // ── White incoming beam ──
-      line(0, E.y, E.x, E.y, 255, 255, 255, 3, 28);
-
-      // ── Prism glass ──
-      ctx.save();
-      ctx.beginPath();
-      ctx.moveTo(A.x,A.y); ctx.lineTo(B.x,B.y); ctx.lineTo(C.x,C.y);
-      ctx.closePath();
-      const fill = ctx.createLinearGradient(A.x, A.y, C.x, C.y);
-      fill.addColorStop(0,   'rgba(160,210,255,0.06)');
-      fill.addColorStop(0.5, 'rgba(205,232,255,0.13)');
-      fill.addColorStop(1,   'rgba(160,210,255,0.05)');
-      ctx.fillStyle  = fill;
-      ctx.fill();
-      ctx.shadowBlur  = 22;
-      ctx.shadowColor = 'rgba(185,225,255,1)';
-      ctx.strokeStyle = 'rgba(220,242,255,0.92)';
-      ctx.lineWidth   = 2.2;
-      ctx.stroke();
-      ctx.restore();
-
-      // ── Internal beam (clipped) ──
-      ctx.save();
-      ctx.beginPath();
-      ctx.moveTo(A.x,A.y); ctx.lineTo(B.x,B.y); ctx.lineTo(C.x,C.y);
-      ctx.closePath(); ctx.clip();
-      const ig = ctx.createLinearGradient(E.x, E.y, X.x, X.y);
-      ig.addColorStop(0,   'rgba(255,255,255,0.38)');
-      ig.addColorStop(0.5, 'rgba(210,225,255,0.18)');
-      ig.addColorStop(1,   'rgba(255,210,230,0.08)');
-      ctx.strokeStyle = ig;
-      ctx.lineWidth   = 7;
-      ctx.shadowBlur  = 18;
-      ctx.shadowColor = 'rgba(255,255,255,0.7)';
-      ctx.beginPath(); ctx.moveTo(E.x,E.y); ctx.lineTo(X.x,X.y); ctx.stroke();
-      ctx.restore();
-
-      // ── Rainbow exit beams ──
-      const aMin = -0.08;  // red: nearly horizontal
-      const aMax =  0.56;  // violet: ~32° below horizontal
-      const bLen = W * 0.55;
-
-      RAYS.forEach(([r,g,b], i) => {
-        const frac    = i / (RAYS.length - 1);
-        const shimmer = Math.sin(t * 1.6 + i * 0.55) * 0.012;
-        const ang     = aMin + frac * (aMax - aMin) + shimmer;
-        const ex2 = X.x + Math.cos(ang) * bLen;
-        const ey2 = X.y + Math.sin(ang) * bLen;
-
-        // Pulse brightness per beam
-        const pulse = 0.88 + Math.sin(t * 2.2 + i * 0.8) * 0.12;
-
-        const bg = ctx.createLinearGradient(X.x, X.y, ex2, ey2);
-        bg.addColorStop(0,   `rgba(${r},${g},${b},${pulse})`);
-        bg.addColorStop(0.4, `rgba(${r},${g},${b},${(pulse*0.65).toFixed(2)})`);
-        bg.addColorStop(1,   `rgba(${r},${g},${b},0)`);
-
-        ctx.save();
-        ctx.shadowBlur  = 26;
-        ctx.shadowColor = `rgba(${r},${g},${b},0.85)`;
-        ctx.strokeStyle = bg;
-        ctx.lineWidth   = 3;
-        ctx.beginPath(); ctx.moveTo(X.x,X.y); ctx.lineTo(ex2,ey2); ctx.stroke();
-        ctx.restore();
+      // Physics
+      nodes.forEach(n => {
+        const dx = mouse.x - n.x, dy = mouse.y - n.y;
+        const md = Math.sqrt(dx * dx + dy * dy);
+        if (md < M_RADIUS && md > 0) {
+          const f = (1 - md / M_RADIUS) * M_FORCE;
+          n.vx += (dx / md) * f;
+          n.vy += (dy / md) * f;
+        }
+        n.vx *= 0.972;
+        n.vy *= 0.972;
+        n.x = (n.x + n.vx + W) % W;
+        n.y = (n.y + n.vy + H) % H;
       });
 
-      // ── Glow dots ──
-      glow(E.x, E.y, 12, 'rgba(255,255,255,0.95)');
-      glow(X.x, X.y, 16, 'rgba(230,210,255,0.95)');
+      // Connections
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const a = nodes[i], b = nodes[j];
+          const dx = a.x - b.x, dy = a.y - b.y;
+          const d  = Math.sqrt(dx * dx + dy * dy);
+          if (d < CONNECT) {
+            const la = (1 - d / CONNECT) * 0.40;
+            ctx.strokeStyle = `rgba(27,100,68,${la})`;
+            ctx.lineWidth   = 1;
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(b.x, b.y);
+            ctx.stroke();
+          }
+        }
+      }
 
+      // Nodes
+      nodes.forEach(n => {
+        const pulse = 0.5 + Math.sin(t * 1.85 + n.phase) * 0.5;
+        if (n.bright) {
+          ctx.save();
+          ctx.shadowBlur  = 16;
+          ctx.shadowColor = 'rgba(46,204,113,0.65)';
+          ctx.fillStyle   = `rgba(46,204,113,${0.5 + pulse * 0.5})`;
+          ctx.beginPath();
+          ctx.arc(n.x, n.y, n.r * (1.3 + pulse * 0.55), 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        } else {
+          ctx.fillStyle = `rgba(46,160,88,${0.22 + pulse * 0.22})`;
+          ctx.beginPath();
+          ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      });
+
+      ctx.globalAlpha = 1;
       requestAnimationFrame(draw);
     }
 
@@ -1578,6 +2789,67 @@
   }
   </script>
 
+  <!-- Lenis smooth scroll -->
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
+  <!-- Three.js (fallback si cobe falla) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <!-- cobe globe via ESM — se ejecuta antes de window.load -->
+  <script type="module">
+    import createGlobe from 'https://esm.sh/cobe@0.6.3';
+
+    /* Exponer función de init para que initOrganicSphere() la llame */
+    window.__cobeInit = function () {
+      const canvas = document.getElementById('sphere-canvas');
+      if (!canvas) return;
+
+      /* Asegurar dimensiones antes de crear el renderer */
+      let width = canvas.offsetWidth || 460;
+
+      let phi   = 5.76;   /* Sudamérica de frente al cargar */
+      let theta = 0.28;
+      let scrollTheta = 0;
+
+      window._setSphereScroll = (p) => { scrollTheta = p * 0.4; };
+
+      const globe = createGlobe(canvas, {
+        devicePixelRatio: 2,
+        width:  width * 2,
+        height: width * 2,
+        phi,
+        theta,
+        dark: 1,
+        diffuse: 1.4,
+        mapSamples: 20000,
+        mapBrightness: 7,
+        baseColor:   [0.05, 0.22, 0.10],
+        markerColor: [0.18, 0.85, 0.45],
+        glowColor:   [0.10, 0.55, 0.24],
+        markers: [
+          { location: [-33.4, -70.6], size: 0.09 },   /* Santiago */
+          { location: [-12.0, -77.0], size: 0.06 },   /* Lima */
+          { location: [  4.7, -74.1], size: 0.06 },   /* Bogotá */
+          { location: [-23.5, -46.6], size: 0.07 },   /* São Paulo */
+          { location: [-34.6, -58.4], size: 0.07 },   /* Buenos Aires */
+          { location: [ -0.2, -78.5], size: 0.05 },   /* Quito */
+          { location: [-34.9, -56.2], size: 0.05 },   /* Montevideo */
+        ],
+        onRender (state) {
+          phi += 0.003;
+          state.phi   = phi;
+          state.theta = theta + scrollTheta;
+          width = canvas.offsetWidth || width;
+          state.width  = width * 2;
+          state.height = width * 2;
+        },
+      });
+
+      canvas.style.opacity    = '1';
+      canvas.style.transition = 'opacity 1.2s ease';
+
+      window.addEventListener('beforeunload', () => globe.destroy());
+    };
+  </script>
   <!-- GSAP + ScrollTrigger -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
@@ -1587,18 +2859,33 @@
     gsap.registerPlugin(ScrollTrigger);
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-    // ── Hero content entrance (no .reveal conflict — hero els have no .reveal class) ──
+    // ── Hero content entrance ──
     const heroEls = [
       document.querySelector('.hero-badge'),
-      document.querySelector('#hero h1'),
       document.querySelector('#hero > .hero-inner p'),
       document.querySelector('.hero-actions'),
     ].filter(Boolean);
     if (heroEls.length) {
       gsap.from(heroEls, {
-        y: 32, opacity: 0, duration: 1,
-        stagger: 0.13, ease: 'power3.out', delay: 0.2
+        y: 28, opacity: 0, duration: 0.9,
+        stagger: 0.14, ease: 'power3.out', delay: 0.15
       });
+    }
+
+    // ── H1 word-by-word assembly ──
+    const words = document.querySelectorAll('.word-reveal');
+    words.forEach((w, i) => {
+      setTimeout(() => w.classList.add('lit'), 300 + i * 90);
+    });
+
+    // ── Scroll vine ──
+    const vineBar = document.querySelector('.scroll-vine-bar');
+    if (vineBar) {
+      window.addEventListener('scroll', () => {
+        const total = document.body.scrollHeight - window.innerHeight;
+        if (total <= 0) return;
+        vineBar.style.height = ((window.scrollY / total) * 100) + '%';
+      }, { passive: true });
     }
 
     // ── Orb parallax on scroll ──
@@ -1636,6 +2923,620 @@
       });
     });
   }
+  </script>
+
+  <script>
+  /* ── Lenis removido — ScrollTrigger maneja el scroll nativamente ── */
+  function initLenis() { /* no-op */ }
+
+  /* ── Globe: cobe (preferido) o Three.js fallback ── */
+  function initOrganicSphere() {
+    /* Si el módulo ESM de cobe ya cargó, úsalo */
+    if (typeof window.__cobeInit === 'function') {
+      window.__cobeInit();
+      return;
+    }
+    /* ── Three.js fallback (cobe no disponible) ── */
+    const canvas = document.getElementById('sphere-canvas');
+    if (!canvas || typeof THREE === 'undefined') return;
+
+    /* ── Renderer ── */
+    const W = canvas.offsetWidth  || 460;
+    const H = canvas.offsetHeight || 460;
+    canvas.width  = W * window.devicePixelRatio;
+    canvas.height = H * window.devicePixelRatio;
+
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(W, H);
+    renderer.setClearColor(0x000000, 0);
+
+    const scene  = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(45, W / H, 0.1, 100);
+    camera.position.z = 2.65;
+
+    const R = 1.0;
+
+    /* ── Group so all objects rotate together ── */
+    const group = new THREE.Group();
+    scene.add(group);
+
+    /* South America faces the camera on load.
+       lat/lon → 3D uses: x = -sin(φ)cos(θ), y = cos(φ), z = sin(φ)sin(θ)
+       where φ = (90-lat)°, θ = (lon+180)°.
+       For lon=-60 to face +Z we need group.rotation.y ≈ -θ = -(120°) = rotate world so that
+       point at lon=-60 comes to front. Pre-computed offset: */
+    group.rotation.y = THREE.MathUtils.degToRad(-120);
+    group.rotation.x = THREE.MathUtils.degToRad(10);
+
+    /* ── Dark base sphere ── */
+    group.add(new THREE.Mesh(
+      new THREE.SphereGeometry(R - 0.005, 64, 64),
+      new THREE.MeshBasicMaterial({ color: 0x060d09 })
+    ));
+
+    /* ── Subtle atmospheric halo ── */
+    group.add(new THREE.Mesh(
+      new THREE.SphereGeometry(R + 0.055, 32, 32),
+      new THREE.MeshBasicMaterial({ color: 0x1b6444, transparent: true, opacity: 0.07, side: THREE.BackSide })
+    ));
+
+    /* ── lat/lon → Three.js vector ── */
+    function ll2v(lat, lon, r) {
+      const phi   = (90 - lat) * (Math.PI / 180);
+      const theta = (lon + 180) * (Math.PI / 180);
+      return new THREE.Vector3(
+        -r * Math.sin(phi) * Math.cos(theta),
+         r * Math.cos(phi),
+         r * Math.sin(phi) * Math.sin(theta)
+      );
+    }
+
+    /* ── Pulse ring on Santiago (added later to group) ── */
+    const pulseV = ll2v(-33.4, -70.6, R + 0.015);
+    const pulseMesh = new THREE.Mesh(
+      new THREE.RingGeometry(0.03, 0.048, 32),
+      new THREE.MeshBasicMaterial({ color: 0x2ecc71, transparent: true, opacity: 0.9, side: THREE.DoubleSide })
+    );
+    pulseMesh.position.copy(pulseV);
+    pulseMesh.lookAt(0, 0, 0);
+
+    /* ── Build dot globe from land mask ── */
+    const DOTS     = 10000;  /* high density for crisp continent outlines */
+    const PHI_GOLD = Math.PI * (3 - Math.sqrt(5));
+
+    function buildDots(isLand) {
+      const landPts = [], oceanPts = [];
+
+      for (let i = 0; i < DOTS; i++) {
+        const yn    = 1 - (i / (DOTS - 1)) * 2;
+        const rho   = Math.sqrt(Math.max(0, 1 - yn * yn));
+        const theta = PHI_GOLD * i;
+        const xn    = rho * Math.cos(theta);
+        const zn    = rho * Math.sin(theta);
+
+        /* Convert Fibonacci 3D → geographic lat/lon.
+           Given latLonToXYZ: x=-sin(φ)cos(θ_lon), z=sin(φ)sin(θ_lon)
+           Invert: θ_lon = atan2(z, -x) → lon = θ_lon*180/π - 180 */
+        const lat = Math.asin(yn) * 180 / Math.PI;
+        const lon = Math.atan2(zn, -xn) * 180 / Math.PI - 180;
+
+        if (isLand(lat, lon)) {
+          landPts.push(xn * R, yn * R, zn * R);
+        } else if (Math.random() < 0.06) {
+          oceanPts.push(xn * R, yn * R, zn * R);
+        }
+      }
+
+      /* Land dots — bright green */
+      if (landPts.length) {
+        const g = new THREE.BufferGeometry();
+        g.setAttribute('position', new THREE.Float32BufferAttribute(landPts, 3));
+        group.add(new THREE.Points(g, new THREE.PointsMaterial({
+          size: 0.018, color: 0x2ecc71, transparent: true, opacity: 0.88, sizeAttenuation: true
+        })));
+      }
+
+      /* Ocean dots — very dim teal */
+      if (oceanPts.length) {
+        const g = new THREE.BufferGeometry();
+        g.setAttribute('position', new THREE.Float32BufferAttribute(oceanPts, 3));
+        group.add(new THREE.Points(g, new THREE.PointsMaterial({
+          size: 0.007, color: 0x1b6444, transparent: true, opacity: 0.22, sizeAttenuation: true
+        })));
+      }
+
+      /* City markers */
+      const cities = [
+        { lat: -33.4, lon: -70.6 }, /* Santiago */
+        { lat: -12.0, lon: -77.0 }, /* Lima */
+        { lat:   4.7, lon: -74.1 }, /* Bogotá */
+        { lat: -23.5, lon: -46.6 }, /* São Paulo */
+        { lat: -34.6, lon: -58.4 }, /* Buenos Aires */
+        { lat:  -0.2, lon: -78.5 }, /* Quito */
+        { lat: -34.9, lon: -56.2 }, /* Montevideo */
+      ];
+      const mPts = [], mCols = [];
+      cities.forEach(c => {
+        const v = ll2v(c.lat, c.lon, R + 0.012);
+        mPts.push(v.x, v.y, v.z);
+        mCols.push(0.25, 1.0, 0.55);
+      });
+      const mg = new THREE.BufferGeometry();
+      mg.setAttribute('position', new THREE.Float32BufferAttribute(mPts, 3));
+      mg.setAttribute('color',    new THREE.Float32BufferAttribute(mCols, 3));
+      group.add(new THREE.Points(mg, new THREE.PointsMaterial({
+        size: 0.055, vertexColors: true, transparent: true, opacity: 0.95, sizeAttenuation: true
+      })));
+
+      group.add(pulseMesh);
+    }
+
+    /* ── Load land mask (NASA Blue Marble, Three.js r128 examples) ── */
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = function () {
+      const TW = 1024, TH = 512;
+      const off = document.createElement('canvas');
+      off.width = TW; off.height = TH;
+      const ctx = off.getContext('2d');
+      ctx.drawImage(img, 0, 0, TW, TH);
+      let px;
+      try { px = ctx.getImageData(0, 0, TW, TH).data; }
+      catch (e) { buildDots(() => true); return; }
+
+      /* Ocean = blue-dominant; land = everything else (incl. ice/snow) */
+      buildDots(function isLand(lat, lon) {
+        const u   = ((lon + 180) / 360 * TW | 0) % TW;
+        const v   = ((90 - lat) / 180 * TH | 0) % TH;
+        const idx = (v * TW + u) * 4;
+        const r = px[idx], g = px[idx + 1], b = px[idx + 2];
+        return !(b > r + 15 && b > 70);
+      });
+    };
+    img.onerror = function () {
+      /* Fallback: all dots visible (no continent distinction) */
+      buildDots(() => Math.random() > 0.35);
+    };
+    img.src = 'earth-mask.jpg';
+
+    /* ── Ambient glow sprite ── */
+    const gc = document.createElement('canvas');
+    gc.width = gc.height = 128;
+    const gctx = gc.getContext('2d');
+    const gg = gctx.createRadialGradient(64, 64, 0, 64, 64, 64);
+    gg.addColorStop(0,   'rgba(46,204,113,0.32)');
+    gg.addColorStop(0.5, 'rgba(27,100,68,0.07)');
+    gg.addColorStop(1,   'rgba(0,0,0,0)');
+    gctx.fillStyle = gg;
+    gctx.fillRect(0, 0, 128, 128);
+    const glowSprite = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: new THREE.CanvasTexture(gc), transparent: true, depthWrite: false
+    }));
+    glowSprite.scale.set(3.2, 3.2, 1);
+    scene.add(glowSprite);
+
+    /* ── Scroll-linked tilt ── */
+    let scrollProgress = 0;
+    window._setSphereScroll = (p) => { scrollProgress = p; };
+
+    /* ── Render loop ── */
+    let pulseT = 0, rafId;
+    const BASE_X = THREE.MathUtils.degToRad(10);
+    function animate() {
+      rafId = requestAnimationFrame(animate);
+      pulseT += 0.033;
+      group.rotation.y += 0.0014;
+      group.rotation.x  = BASE_X + scrollProgress * 0.38;
+      const s = 1 + 0.38 * Math.sin(pulseT);
+      pulseMesh.scale.set(s, s, s);
+      pulseMesh.material.opacity = 0.9 - 0.58 * Math.abs(Math.sin(pulseT));
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    /* ── Resize ── */
+    const ro = new ResizeObserver(() => {
+      const nw = canvas.offsetWidth, nh = canvas.offsetHeight;
+      if (!nw || !nh) return;
+      renderer.setSize(nw, nh);
+      camera.aspect = nw / nh;
+      camera.updateProjectionMatrix();
+    });
+    ro.observe(canvas);
+
+    window.addEventListener('beforeunload', () => { cancelAnimationFrame(rafId); renderer.dispose(); });
+  }
+
+  /* ── Scroll-pinned product section ── */
+  function initProductSection() {
+    if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      document.querySelectorAll('.prod-tooltip').forEach(el => {
+        el.style.opacity = '1';
+        el.style.transform = el.classList.contains('tp-3') ? 'translateX(-50%)' : 'none';
+      });
+      document.querySelector('.prod-mask') && (document.querySelector('.prod-mask').style.clipPath = 'circle(40% at 50% 50%)');
+      return;
+    }
+
+    const section = document.getElementById('producto');
+    if (!section) return;
+
+    gsap.set('.prod-marquee', { xPercent: 110, opacity: 0 });
+    gsap.set(['.tp-1', '.tp-2', '.tp-3'], { opacity: 0 });
+    gsap.set('.tp-1', { x: -28 });
+    gsap.set('.tp-2', { x:  28 });
+    gsap.set('.tp-3', { y:  18 });
+    gsap.set('.tp-divider', { scaleY: 0 });
+
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: section,
+        start: 'top top',
+        end: 'bottom bottom',
+        scrub: 1.4,
+        pin: '.prod-sticky',
+        anticipatePin: 1,
+      }
+    });
+
+    tl
+      .to('.prod-header-1',  { xPercent: -115, opacity: 0, duration: 0.22, ease: 'power2.in' }, 0)
+      .to('.prod-marquee',   { xPercent: 0, opacity: 1,  duration: 0.24, ease: 'power2.out' }, 0.06)
+      .fromTo('.prod-mask',
+        { clipPath: 'circle(0% at 50% 50%)' },
+        { clipPath: 'circle(38% at 50% 50%)', duration: 0.28, ease: 'power2.out' },
+        0.22)
+      .fromTo('#sphere-canvas', { opacity: 0, scale: 0.82 }, { opacity: 1, scale: 1, duration: 0.20, ease: 'power2.out' }, 0.36)
+      .to('.tp-1', { x: 0, opacity: 1, duration: 0.18, ease: 'power2.out' }, 0.54)
+      .to('.tp-1 .tp-divider', { scaleY: 1, duration: 0.14, ease: 'power2.out' }, 0.60)
+      .to('.tp-2', { x: 0, opacity: 1, duration: 0.18, ease: 'power2.out' }, 0.70)
+      .to('.tp-2 .tp-divider', { scaleY: 1, duration: 0.14, ease: 'power2.out' }, 0.76)
+      .to('.tp-3', { y: 0, opacity: 1, duration: 0.18, ease: 'power2.out' }, 0.84)
+      .to('.tp-3 .tp-divider', { scaleY: 1, duration: 0.14, ease: 'power2.out' }, 0.90);
+
+    ScrollTrigger.create({
+      trigger: section,
+      start: 'top top',
+      end: 'bottom bottom',
+      onUpdate: (self) => {
+        if (window._setSphereScroll) window._setSphereScroll(self.progress);
+      }
+    });
+  }
+
+  function initLayeredButtons() {
+    document.querySelectorAll('.btn-layered').forEach(btn => {
+      const label     = btn.querySelector('.lb-label');
+      const hoverLbl  = btn.querySelector('.lb-hover');
+      const circle    = btn.querySelector('.lb-circle');
+      if (!circle || !label || !hoverLbl) return;
+
+      function layout() {
+        const rect = btn.getBoundingClientRect();
+        const w = rect.width, h = rect.height;
+        if (!w || !h) return;
+        const R      = ((w * w) / 4 + h * h) / (2 * h);
+        const D      = Math.ceil(2 * R) + 2;
+        const delta  = Math.ceil(R - Math.sqrt(Math.max(0, R * R - (w * w) / 4))) + 1;
+        const origY  = D - delta;
+
+        circle.style.width           = `${D}px`;
+        circle.style.height          = `${D}px`;
+        circle.style.bottom          = `-${delta}px`;
+        circle.style.left            = '50%';
+        circle.style.transform       = 'translateX(-50%) scale(0)';
+        circle.style.transformOrigin = `50% ${origY}px`;
+
+        label.style.transform    = 'translateY(0)';
+        hoverLbl.style.transform = `translateY(${h + 12}px)`;
+        hoverLbl.style.opacity   = '0';
+
+        label._moveY    = -(h + 8);
+        hoverLbl._startY = h + 12;
+      }
+
+      layout();
+      window.addEventListener('resize', layout, { passive: true });
+
+      btn.addEventListener('mouseenter', () => {
+        const easing = 'cubic-bezier(0.25, 0.1, 0.25, 1)';
+        circle.style.transition   = `transform 0.3s ${easing}`;
+        circle.style.transform    = 'translateX(-50%) scale(1.25)';
+        label.style.transition    = `transform 0.3s ${easing}`;
+        label.style.transform     = `translateY(${label._moveY ?? -50}px)`;
+        hoverLbl.style.transition = `transform 0.3s ${easing}, opacity 0.3s ${easing}`;
+        hoverLbl.style.transform  = 'translateY(0)';
+        hoverLbl.style.opacity    = '1';
+      });
+
+      btn.addEventListener('mouseleave', () => {
+        const easing = 'cubic-bezier(0.25, 0.1, 0.25, 1)';
+        circle.style.transition   = `transform 0.2s ${easing}`;
+        circle.style.transform    = 'translateX(-50%) scale(0)';
+        label.style.transition    = `transform 0.2s ${easing}`;
+        label.style.transform     = 'translateY(0)';
+        hoverLbl.style.transition = `transform 0.2s ${easing}, opacity 0.2s ${easing}`;
+        hoverLbl.style.transform  = `translateY(${hoverLbl._startY ?? 100}px)`;
+        hoverLbl.style.opacity    = '0';
+      });
+    });
+  }
+
+  function initExpandableCards() {
+    const cards = document.querySelectorAll('.exp-card');
+    if (!cards.length) return;
+
+    function activate(index) {
+      cards.forEach((c, i) => {
+        c.classList.toggle('active', i === index);
+      });
+    }
+
+    cards.forEach((card, i) => {
+      card.addEventListener('mouseenter', () => activate(i));
+      card.addEventListener('focus',      () => activate(i));
+      card.addEventListener('click',      () => activate(i));
+    });
+
+    // Touch: tap to expand
+    cards.forEach((card, i) => {
+      card.addEventListener('touchstart', () => activate(i), { passive: true });
+    });
+  }
+
+  /* ── Testimonial carousel ── */
+  function initTestimonials() {
+    const cards = Array.from(document.querySelectorAll('.tc-card'));
+    const dots  = Array.from(document.querySelectorAll('.tc-dot'));
+    const fills = Array.from(document.querySelectorAll('.tc-ring-fill'));
+    const prev  = document.getElementById('tc-prev');
+    const next  = document.getElementById('tc-next');
+    if (!cards.length) return;
+
+    const TOTAL = cards.length;
+    const CYCLE = 5000;
+    const TICK  = 50;
+    let current = 0;
+    let progress = 0;
+    let timer = null;
+    const CIRC = 2 * Math.PI * 21;
+
+    function setFill(index, pct) {
+      fills.forEach((f, i) => {
+        f.style.strokeDashoffset = i === index
+          ? CIRC * (1 - pct / 100)
+          : CIRC;
+      });
+    }
+
+    function goTo(idx, dir) {
+      const from = current;
+      current = ((idx % TOTAL) + TOTAL) % TOTAL;
+      progress = 0;
+
+      cards[from].classList.remove('active');
+      cards[from].classList.add('exit');
+      setTimeout(() => cards[from].classList.remove('exit'), 450);
+
+      cards[current].classList.add('active');
+
+      dots.forEach((d, i) => d.classList.toggle('active', i === current));
+      setFill(current, 0);
+      restartTimer();
+    }
+
+    function restartTimer() {
+      if (timer) clearInterval(timer);
+      timer = setInterval(() => {
+        progress += (100 / (CYCLE / TICK));
+        if (progress >= 100) {
+          goTo(current + 1);
+        } else {
+          setFill(current, progress);
+        }
+      }, TICK);
+    }
+
+    dots.forEach((d, i) => d.addEventListener('click', () => goTo(i)));
+    document.querySelectorAll('[data-tc-goto]').forEach(b => {
+      b.addEventListener('click', () => goTo(parseInt(b.dataset.tcGoto)));
+    });
+    if (prev) prev.addEventListener('click', () => goTo(current - 1));
+    if (next) next.addEventListener('click', () => goTo(current + 1));
+
+    // Pause on hover
+    const stage = document.getElementById('tc-stage');
+    if (stage) {
+      stage.addEventListener('mouseenter', () => { if (timer) clearInterval(timer); });
+      stage.addEventListener('mouseleave', () => restartTimer());
+    }
+
+    setFill(0, 0);
+    restartTimer();
+  }
+
+  /* ── Fancy text reveal on scroll ── */
+  function initFancyText() {
+    document.querySelectorAll('.fancy-text-host').forEach(host => {
+      const base    = host.querySelector('.ft-base');
+      const overlay = host.querySelector('.ft-overlay');
+      if (!base || !overlay) return;
+
+      const text  = base.textContent;
+      const color = getComputedStyle(host).color || '#2ECC71';
+      overlay.innerHTML = '';
+
+      text.split('').forEach((ch, i) => {
+        const span = document.createElement('span');
+        span.className = 'ft-char';
+        span.textContent = ch === ' ' ? '\u00A0' : ch;
+        span.style.animationDelay = `${i * 0.065}s`;
+        span.style.color = 'var(--green)';
+        overlay.appendChild(span);
+      });
+    });
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      document.querySelectorAll('.ft-char').forEach(c => {
+        c.style.clipPath = 'inset(0% 0% 0% 0%)';
+        c.style.animation = 'none';
+      });
+      return;
+    }
+
+    const ftObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        entry.target.querySelectorAll('.ft-char').forEach(c => c.classList.add('ft-run'));
+        ftObserver.unobserve(entry.target);
+      });
+    }, { threshold: 0.4 });
+
+    document.querySelectorAll('.fancy-text-host').forEach(h => ftObserver.observe(h));
+  }
+
+  window.addEventListener('load', () => {
+    initLenis();
+    initOrganicSphere();
+    initProductSection();
+    initLayeredButtons();
+    initExpandableCards();
+    initTestimonials();
+    initFancyText();
+  });
+  </script>
+
+  <!-- CHAT WIDGET -->
+  <button class="chat-fab" id="chat-fab" aria-label="Abrir asistente virtual" aria-expanded="false">
+    <span class="chat-fab-ring" aria-hidden="true"></span>
+    <span class="chat-fab-inner">
+      <svg class="chat-fab-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      <svg class="chat-fab-icon-close" viewBox="0 0 24 24" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </span>
+  </button>
+
+  <div class="chat-panel" id="chat-panel" role="dialog" aria-label="Asistente virtual Sustenta Futuro" aria-hidden="true">
+    <div class="chat-panel-header">
+      <div class="chat-bot-avatar">
+        <svg viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/><circle cx="9" cy="14" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="14" r="1" fill="currentColor" stroke="none"/><path d="M9 17h6"/></svg>
+        <span class="chat-bot-status" aria-hidden="true"></span>
+      </div>
+      <div class="chat-panel-header-info">
+        <strong>Asistente Sustenta Futuro</strong>
+        <span>En línea · RPA &amp; IA</span>
+      </div>
+    </div>
+
+    <div class="chat-messages" id="chat-messages" aria-live="polite"></div>
+
+    <div class="chat-input-area">
+      <div class="chat-input-wrap">
+        <input
+          type="text"
+          class="chat-input"
+          id="chat-input"
+          placeholder="Escribe tu consulta..."
+          autocomplete="off"
+          maxlength="300"
+        />
+      </div>
+      <button class="chat-send" id="chat-send" aria-label="Enviar mensaje">
+        <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <script>
+  (function() {
+    const fab     = document.getElementById('chat-fab');
+    const panel   = document.getElementById('chat-panel');
+    const msgs    = document.getElementById('chat-messages');
+    const input   = document.getElementById('chat-input');
+    const sendBtn = document.getElementById('chat-send');
+    if (!fab || !panel) return;
+
+    let isOpen = false;
+    let greeted = false;
+
+    const RESPONSES = [
+      'Podemos automatizar cualquier proceso repetitivo: facturación, nómina, reportes, integración con SII o AFC. ¿Cuál es el proceso que más tiempo consume en tu empresa?',
+      'El ROI suele verse desde el primer mes. Nuestro piloto gratuito te permite validarlo en tu propio entorno antes de cualquier compromiso. ¿Te gustaría agendarlo?',
+      'Trabajamos con Python, GSAP, UiPath y herramientas propias. Todo adaptado a las plataformas que ya usas, sin reemplazar tu stack actual.',
+      'Cumplimos con la Ley 19.628 de Protección de Datos y la Ley 19.223 de Delitos Informáticos. Tus datos nunca salen de Chile sin autorización.',
+      'Para darte una propuesta técnica personalizada, lo mejor es una demo de 30 minutos. Puedes solicitarla llenando el formulario de contacto en esta misma página.',
+    ];
+    let rIdx = 0;
+
+    function addMsg(text, role) {
+      const wrap = document.createElement('div');
+      wrap.className = `chat-msg chat-msg-${role}`;
+      const bubble = document.createElement('div');
+      bubble.className = 'chat-bubble';
+      bubble.textContent = text;
+      wrap.appendChild(bubble);
+      msgs.appendChild(wrap);
+      msgs.scrollTop = msgs.scrollHeight;
+    }
+
+    function showTyping() {
+      const t = document.createElement('div');
+      t.className = 'chat-msg chat-msg-bot';
+      t.id = 'chat-typing-indicator';
+      t.innerHTML = '<div class="chat-typing"><span></span><span></span><span></span></div>';
+      msgs.appendChild(t);
+      msgs.scrollTop = msgs.scrollHeight;
+    }
+
+    function removeTyping() {
+      const t = document.getElementById('chat-typing-indicator');
+      if (t) t.remove();
+    }
+
+    function botReply(text) {
+      showTyping();
+      setTimeout(() => {
+        removeTyping();
+        addMsg(text, 'bot');
+      }, 1000 + Math.random() * 600);
+    }
+
+    function toggleChat() {
+      isOpen = !isOpen;
+      fab.classList.toggle('open', isOpen);
+      panel.classList.toggle('open', isOpen);
+      fab.setAttribute('aria-expanded', isOpen);
+      panel.setAttribute('aria-hidden', !isOpen);
+
+      if (isOpen && !greeted) {
+        greeted = true;
+        setTimeout(() => {
+          addMsg('¡Hola! Soy el asistente de Sustenta Futuro. Puedo responder tus dudas sobre automatización RPA, IA y nuestros servicios. ¿En qué puedo ayudarte hoy?', 'bot');
+        }, 320);
+      }
+      if (isOpen) setTimeout(() => input.focus(), 350);
+    }
+
+    function sendMessage() {
+      const text = input.value.trim();
+      if (!text) return;
+      addMsg(text, 'user');
+      input.value = '';
+      botReply(RESPONSES[rIdx % RESPONSES.length]);
+      rIdx++;
+    }
+
+    fab.addEventListener('click', toggleChat);
+    sendBtn.addEventListener('click', sendMessage);
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+    });
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && isOpen) toggleChat();
+    });
+  })();
   </script>
 
 </body>

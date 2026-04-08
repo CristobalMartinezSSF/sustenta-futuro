@@ -2106,6 +2106,37 @@
     }
     [data-theme="light"] body { background: var(--bg); }
 
+    /* Cards — fondo blanco explícito */
+    [data-theme="light"] .bento-card,
+    [data-theme="light"] .exp-card {
+      background: rgba(255,255,255,0.92);
+      border-color: rgba(0,0,0,0.08);
+      box-shadow: 0 1px 12px rgba(0,0,0,0.06);
+    }
+    [data-theme="light"] .bento-card:hover,
+    [data-theme="light"] .exp-card:hover {
+      background: rgba(255,255,255,1);
+      border-color: rgba(0,0,0,0.14);
+    }
+    [data-theme="light"] .exp-card.active {
+      border-color: rgba(0,0,0,0.16);
+    }
+
+    /* Íconos de tarjeta */
+    [data-theme="light"] .bento-icon,
+    [data-theme="light"] .exp-card-icon {
+      background: rgba(0,0,0,0.05);
+      border-color: rgba(0,0,0,0.10);
+    }
+
+    /* Badges / stats */
+    [data-theme="light"] .bento-stat,
+    [data-theme="light"] .exp-card-stat {
+      color: #0A0A0A;
+      background: rgba(0,0,0,0.06);
+      border-color: rgba(0,0,0,0.12);
+    }
+
     /* Globe invert in light mode */
     [data-theme="light"] #sphere-canvas { filter: invert(1); }
 

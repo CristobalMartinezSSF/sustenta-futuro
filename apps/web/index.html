@@ -2046,6 +2046,134 @@
       font-size: 0.78rem;
     }
 
+    /* ── Custom Select (ScrollX style) ── */
+    .sf-select {
+      position: relative;
+      width: 100%;
+    }
+
+    .sf-select__trigger {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      padding: 0.72rem 0.95rem;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--glass-border);
+      border-radius: 9px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      text-align: left;
+      transition: border-color 180ms ease, box-shadow 180ms ease, color 180ms ease;
+      min-height: 44px;
+    }
+    .sf-select__trigger:hover { border-color: var(--border-h); }
+    .sf-select__trigger:focus-visible { outline: none; border-color: rgba(255,255,255,0.35); box-shadow: 0 0 0 3px rgba(255,255,255,0.05); }
+    .sf-select.open .sf-select__trigger { border-color: rgba(255,255,255,0.35); box-shadow: 0 0 0 3px rgba(255,255,255,0.05); }
+    .sf-select__trigger.has-value { color: var(--text); }
+
+    .sf-select__placeholder { color: var(--text-subtle); }
+
+    .sf-select__chevron {
+      width: 16px; height: 16px;
+      flex-shrink: 0;
+      color: var(--text-subtle);
+      transition: transform 220ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .sf-select.open .sf-select__chevron { transform: rotate(180deg); }
+
+    .sf-select__dropdown {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0; right: 0;
+      background: #111;
+      border: 1px solid var(--glass-border);
+      border-radius: 10px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.04);
+      z-index: 500;
+      overflow: hidden;
+      padding: 4px;
+      opacity: 0;
+      transform: translateY(-8px);
+      pointer-events: none;
+      transition: opacity 180ms ease, transform 180ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .sf-select.open .sf-select__dropdown {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: all;
+    }
+
+    .sf-select__item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.55rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: background 140ms ease, color 140ms ease;
+      user-select: none;
+    }
+    .sf-select__item:hover {
+      background: rgba(255,255,255,0.07);
+      color: var(--text);
+    }
+    .sf-select__item.selected {
+      color: var(--text);
+    }
+    .sf-select__item.selected:hover { background: rgba(255,255,255,0.09); }
+
+    .sf-select__check {
+      width: 14px; height: 14px;
+      flex-shrink: 0;
+      opacity: 0;
+      transform: scale(0.6);
+      transition: opacity 150ms ease, transform 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .sf-select__item.selected .sf-select__check {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    /* Stagger animation on open */
+    .sf-select.open .sf-select__item {
+      animation: sf-item-in 200ms ease both;
+    }
+    .sf-select.open .sf-select__item:nth-child(1) { animation-delay: 0ms; }
+    .sf-select.open .sf-select__item:nth-child(2) { animation-delay: 40ms; }
+    .sf-select.open .sf-select__item:nth-child(3) { animation-delay: 80ms; }
+    .sf-select.open .sf-select__item:nth-child(4) { animation-delay: 120ms; }
+    .sf-select.open .sf-select__item:nth-child(5) { animation-delay: 160ms; }
+
+    @keyframes sf-item-in {
+      from { opacity: 0; transform: translateY(-4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Light mode */
+    [data-theme="light"] .sf-select__trigger {
+      background: rgba(0,0,0,0.04);
+      border-color: rgba(0,0,0,0.12);
+    }
+    [data-theme="light"] .sf-select__trigger:hover { border-color: rgba(0,0,0,0.22); }
+    [data-theme="light"] .sf-select.open .sf-select__trigger,
+    [data-theme="light"] .sf-select__trigger:focus-visible {
+      border-color: rgba(0,0,0,0.40);
+      box-shadow: 0 0 0 3px rgba(0,0,0,0.06);
+    }
+    [data-theme="light"] .sf-select__dropdown {
+      background: #ffffff;
+      border-color: rgba(0,0,0,0.10);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.8);
+    }
+    [data-theme="light"] .sf-select__item:hover { background: rgba(0,0,0,0.05); }
+    [data-theme="light"] .sf-select__item.selected:hover { background: rgba(0,0,0,0.07); }
+
     /* ── Theme Switch ── */
     .theme-switch {
       position: relative;
@@ -2163,11 +2291,6 @@
     }
     [data-theme="light"] .form-group input::placeholder,
     [data-theme="light"] .form-group textarea::placeholder { color: rgba(0,0,0,0.35); }
-    [data-theme="light"] .form-group select { color: rgba(0,0,0,0.45); }
-    [data-theme="light"] .form-group select option {
-      background: #ffffff;
-      color: #0A0A0A;
-    }
     [data-theme="light"] .form-group input:focus,
     [data-theme="light"] .form-group select:focus,
     [data-theme="light"] .form-group textarea:focus {
@@ -2766,26 +2889,21 @@
               </div>
             </div>
             <div class="form-group">
-              <label for="service_interest">Servicio de interés *</label>
-              <select id="service_interest" name="service_interest" required>
-                <option value="" disabled selected>Selecciona un servicio</option>
-                <option value="rpa">Automatización RPA</option>
-                <option value="ia">Inteligencia Artificial</option>
-                <option value="dev">Desarrollo de Software</option>
-                <option value="consultoria">Consultoría TI</option>
-                <option value="multiple">Varios servicios</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="estimated_budget">Presupuesto estimado</label>
-              <select id="estimated_budget" name="estimated_budget">
-                <option value="" disabled selected>Selecciona un rango</option>
-                <option value="menos_500k">Menos de $500.000 CLP</option>
-                <option value="500k_2m">$500.000 – $2.000.000 CLP</option>
-                <option value="2m_5m">$2.000.000 – $5.000.000 CLP</option>
-                <option value="mas_5m">Más de $5.000.000 CLP</option>
-                <option value="por_definir">Por definir</option>
-              </select>
+              <label>Servicio de interés *</label>
+              <div class="sf-select" id="sf-service">
+                <button type="button" class="sf-select__trigger" aria-haspopup="listbox" aria-expanded="false">
+                  <span class="sf-select__value sf-select__placeholder">Selecciona un servicio</span>
+                  <svg class="sf-select__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="sf-select__dropdown" role="listbox" aria-hidden="true">
+                  <div class="sf-select__item" data-value="rpa" role="option"><span>Automatización RPA</span><svg class="sf-select__check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  <div class="sf-select__item" data-value="ia" role="option"><span>Inteligencia Artificial</span><svg class="sf-select__check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  <div class="sf-select__item" data-value="dev" role="option"><span>Desarrollo de Software</span><svg class="sf-select__check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  <div class="sf-select__item" data-value="consultoria" role="option"><span>Consultoría TI</span><svg class="sf-select__check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  <div class="sf-select__item" data-value="multiple" role="option"><span>Varios servicios</span><svg class="sf-select__check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                </div>
+                <input type="hidden" name="service_interest" id="service_interest" required />
+              </div>
             </div>
             <div class="form-group">
               <label for="message">¿Qué proceso quieres automatizar?</label>
@@ -3459,8 +3577,66 @@
     initExpandableCards();
     initTestimonials();
     initFancyText();
+    initCustomSelects();
     initThemeSwitch();
   });
+
+  function initCustomSelects() {
+    document.querySelectorAll('.sf-select').forEach(select => {
+      const trigger  = select.querySelector('.sf-select__trigger');
+      const valueEl  = select.querySelector('.sf-select__value');
+      const dropdown = select.querySelector('.sf-select__dropdown');
+      const items    = select.querySelectorAll('.sf-select__item');
+      const hidden   = select.querySelector('input[type="hidden"]');
+
+      function open() {
+        select.classList.add('open');
+        trigger.setAttribute('aria-expanded', 'true');
+        dropdown.removeAttribute('aria-hidden');
+      }
+      function close() {
+        select.classList.remove('open');
+        trigger.setAttribute('aria-expanded', 'false');
+        dropdown.setAttribute('aria-hidden', 'true');
+      }
+      function toggle() { select.classList.contains('open') ? close() : open(); }
+
+      trigger.addEventListener('click', e => { e.stopPropagation(); toggle(); });
+
+      items.forEach(item => {
+        item.addEventListener('click', () => {
+          items.forEach(i => i.classList.remove('selected'));
+          item.classList.add('selected');
+          valueEl.textContent = item.querySelector('span').textContent;
+          valueEl.classList.remove('sf-select__placeholder');
+          trigger.classList.add('has-value');
+          if (hidden) hidden.value = item.dataset.value;
+          close();
+        });
+      });
+
+      /* Keyboard nav */
+      trigger.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+        if (e.key === 'Escape') close();
+        if (e.key === 'ArrowDown') { e.preventDefault(); open(); items[0]?.focus(); }
+      });
+      items.forEach((item, i) => {
+        item.setAttribute('tabindex', '-1');
+        item.addEventListener('keydown', e => {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); item.click(); }
+          if (e.key === 'Escape') { close(); trigger.focus(); }
+          if (e.key === 'ArrowDown') { e.preventDefault(); items[i + 1]?.focus(); }
+          if (e.key === 'ArrowUp')   { e.preventDefault(); (i === 0 ? trigger : items[i - 1]).focus(); }
+        });
+      });
+    });
+
+    /* Close on outside click */
+    document.addEventListener('click', () => {
+      document.querySelectorAll('.sf-select.open').forEach(s => s.classList.remove('open'));
+    });
+  }
 
   function initThemeSwitch() {
     const sw      = document.getElementById('theme-switch');

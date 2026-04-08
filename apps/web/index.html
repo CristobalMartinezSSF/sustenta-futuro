@@ -1971,10 +1971,9 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 0.5rem;
-      padding: 0.6rem 1.5rem;
+      padding: 0.65rem 1.55rem;
       border-radius: 100px;
-      background: #000;
+      background: transparent;
       color: #fff;
       font-family: 'Montserrat', sans-serif;
       font-weight: 700;
@@ -1982,37 +1981,46 @@
       letter-spacing: 0.07em;
       text-transform: uppercase;
       text-decoration: none;
-      overflow: hidden;
       cursor: pointer;
       border: none;
       z-index: 0;
-      transition: color 0.3s ease, transform 0.15s ease;
-      --shimmer-color: rgba(255,255,255,0.9);
+      transition: box-shadow 400ms ease, transform 0.15s ease;
+      --shimmer-color: rgba(255,255,255,0.85);
       --speed: 3s;
-      --spread: 90deg;
-      --cut: 2px;
+      --cut: 1.5px;
+      /* glow en reposo */
+      box-shadow:
+        0 0 6px  rgba(255,255,255,0.18),
+        0 0 18px rgba(255,255,255,0.08);
+    }
+    .btn-shimmer:hover {
+      box-shadow:
+        0 0 8px  rgba(255,255,255,0.55),
+        0 0 22px rgba(255,255,255,0.28),
+        0 0 48px rgba(255,255,255,0.12);
     }
     .btn-shimmer:active { transform: translateY(1px); }
 
-    /* Spinning conic-gradient border */
+    /* Capa giratoria — conic-gradient continuo */
     .btn-shimmer::before {
       content: '';
       position: absolute;
-      inset: -100%;
-      width: 300%;
-      height: 300%;
+      inset: -60%;
+      width: 220%;
+      height: 220%;
       background: conic-gradient(
-        from calc(270deg - (var(--spread) * 0.5)),
-        transparent 0,
-        var(--shimmer-color) var(--spread),
-        transparent var(--spread)
+        from 0deg,
+        transparent 0deg,
+        var(--shimmer-color) 60deg,
+        transparent 120deg
       );
-      animation: btn-spin calc(var(--speed) * 2) infinite linear;
+      animation: btn-spin-continuous var(--speed) infinite linear;
       z-index: -2;
-      filter: blur(2px);
+      filter: blur(1.5px);
+      will-change: transform;
     }
 
-    /* Inner bg that creates the border effect */
+    /* Fondo interior que forma el borde */
     .btn-shimmer::after {
       content: '';
       position: absolute;
@@ -2022,14 +2030,11 @@
       z-index: -1;
     }
 
-    @keyframes btn-spin {
-      0%        { transform: rotate(0deg); }
-      15%, 35%  { transform: rotate(90deg); }
-      65%, 85%  { transform: rotate(270deg); }
-      100%      { transform: rotate(360deg); }
+    @keyframes btn-spin-continuous {
+      to { transform: rotate(360deg); }
     }
 
-    /* Nav variant — slightly smaller */
+    /* Nav variant — ligeramente más pequeño */
     .nav-cta.btn-shimmer {
       padding: 0.5rem 1.2rem;
       font-size: 0.78rem;
@@ -2158,9 +2163,17 @@
 
     /* Shimmer button in light mode */
     [data-theme="light"] .btn-shimmer {
-      background: #0A0A0A;
       color: #fff;
-      --shimmer-color: rgba(0,0,0,0.6);
+      --shimmer-color: rgba(0,0,0,0.7);
+      box-shadow:
+        0 0 6px  rgba(0,0,0,0.14),
+        0 0 18px rgba(0,0,0,0.07);
+    }
+    [data-theme="light"] .btn-shimmer:hover {
+      box-shadow:
+        0 0 8px  rgba(0,0,0,0.35),
+        0 0 22px rgba(0,0,0,0.18),
+        0 0 48px rgba(0,0,0,0.08);
     }
     [data-theme="light"] .btn-shimmer::after { background: #0A0A0A; }
 

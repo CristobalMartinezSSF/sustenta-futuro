@@ -1689,15 +1689,17 @@
       justify-content: center;
       background: transparent;
       padding: 0;
+      overflow: hidden;
     }
 
     .chat-fab-ring {
       position: absolute;
-      inset: -2px;
-      border-radius: 50%;
-      background: conic-gradient(from 0deg, transparent 0%, rgba(255,255,255,0.85) 40%, transparent 60%);
+      top: 50%; left: 50%;
+      width: 150%; aspect-ratio: 1;
+      background: conic-gradient(from 0deg, transparent 0%, rgba(255,255,255,0.85) 35%, transparent 60%);
       animation: shimmer-spin 2.2s linear infinite;
       pointer-events: none;
+      will-change: transform;
     }
 
     .chat-fab-inner {

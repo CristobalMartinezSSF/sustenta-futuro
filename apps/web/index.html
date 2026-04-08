@@ -1343,17 +1343,22 @@
     .tc-dot {
       width: 6px; height: 6px;
       border-radius: 50%;
-      background: rgba(255,255,255,0.20);
+      background: rgba(255,255,255,0.38);
       border: none;
       cursor: pointer;
       padding: 0;
-      transition: background 200ms ease, transform 200ms ease;
+      transition: background 200ms ease, transform 200ms ease, width 200ms ease;
     }
 
     .tc-dot.active {
       background: var(--accent);
-      transform: scale(1.3);
+      width: 18px;
+      border-radius: 3px;
+      transform: none;
     }
+
+    [data-theme="light"] .tc-dot { background: rgba(0,0,0,0.22); }
+    [data-theme="light"] .tc-dot.active { background: var(--accent); }
 
     @media (max-width: 768px) {
       .tc-card { padding: 1.8rem; }

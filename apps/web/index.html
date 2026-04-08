@@ -793,7 +793,10 @@
     .form-group textarea::placeholder { color: var(--text-subtle); }
 
     .form-group select { color: var(--text-muted); }
-    .form-group select option { background: #000; color: var(--text); }
+    .form-group select option {
+      background: #0a0a0a;
+      color: #F0F0F0;
+    }
 
     .form-group input:focus,
     .form-group select:focus,
@@ -2148,6 +2151,28 @@
       color: #0A0A0A;
       background: rgba(0,0,0,0.06);
       border-color: rgba(0,0,0,0.12);
+    }
+
+    /* Formulario en light mode */
+    [data-theme="light"] .form-group input,
+    [data-theme="light"] .form-group select,
+    [data-theme="light"] .form-group textarea {
+      background: rgba(0,0,0,0.04);
+      border-color: rgba(0,0,0,0.12);
+      color: #0A0A0A;
+    }
+    [data-theme="light"] .form-group input::placeholder,
+    [data-theme="light"] .form-group textarea::placeholder { color: rgba(0,0,0,0.35); }
+    [data-theme="light"] .form-group select { color: rgba(0,0,0,0.45); }
+    [data-theme="light"] .form-group select option {
+      background: #ffffff;
+      color: #0A0A0A;
+    }
+    [data-theme="light"] .form-group input:focus,
+    [data-theme="light"] .form-group select:focus,
+    [data-theme="light"] .form-group textarea:focus {
+      border-color: rgba(0,0,0,0.40);
+      box-shadow: 0 0 0 3px rgba(0,0,0,0.06);
     }
 
     /* Tooltips del globe */

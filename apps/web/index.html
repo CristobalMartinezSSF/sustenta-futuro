@@ -1973,7 +1973,7 @@
       justify-content: center;
       padding: 0.65rem 1.55rem;
       border-radius: 100px;
-      background: transparent;
+      background: #000;           /* capa base visible en el ring */
       color: #fff;
       font-family: 'Montserrat', sans-serif;
       font-weight: 700;
@@ -1983,32 +1983,29 @@
       text-decoration: none;
       cursor: pointer;
       border: none;
-      z-index: 0;
-      overflow: hidden;
+      overflow: hidden;           /* recorta el disco giratorio */
       transition: box-shadow 400ms ease, transform 0.15s ease;
-      --shimmer-color: rgba(255,255,255,0.85);
+      --shimmer-color: rgba(255,255,255,0.9);
       --speed: 3s;
       --cut: 1.5px;
       box-shadow:
-        0 0 6px  rgba(255,255,255,0.18),
-        0 0 18px rgba(255,255,255,0.08);
+        0 0 6px  rgba(255,255,255,0.20),
+        0 0 20px rgba(255,255,255,0.10);
     }
     .btn-shimmer:hover {
       box-shadow:
-        0 0 8px  rgba(255,255,255,0.55),
-        0 0 22px rgba(255,255,255,0.28),
-        0 0 48px rgba(255,255,255,0.12);
+        0 0 8px  rgba(255,255,255,0.60),
+        0 0 24px rgba(255,255,255,0.30),
+        0 0 50px rgba(255,255,255,0.14);
     }
     .btn-shimmer:active { transform: translateY(1px); }
 
-    /* Capa giratoria centrada — overflow:hidden la recorta al borde del botón */
+    /* Disco giratorio — capa 1 */
     .btn-shimmer::before {
       content: '';
       position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 200%;
-      aspect-ratio: 1 / 1;
+      top: 50%; left: 50%;
+      width: 200%; aspect-ratio: 1;
       background: conic-gradient(
         from 0deg,
         transparent 0deg,
@@ -2017,19 +2014,23 @@
       );
       transform: translate(-50%, -50%) rotate(0deg);
       animation: btn-spin-continuous var(--speed) infinite linear;
-      z-index: -2;
-      filter: blur(1.5px);
       will-change: transform;
+      filter: blur(1px);
     }
 
-    /* Fondo interior que forma el borde */
+    /* Fondo interior — capa 2, tapa el centro del disco */
     .btn-shimmer::after {
       content: '';
       position: absolute;
       inset: var(--cut);
       border-radius: 100px;
       background: #000;
-      z-index: -1;
+    }
+
+    /* Texto — capa 3, siempre encima */
+    .btn-shimmer span {
+      position: relative;
+      z-index: 1;
     }
 
     @keyframes btn-spin-continuous {
@@ -2164,20 +2165,22 @@
     [data-theme="light"] #sphere-canvas { filter: invert(1); }
 
     /* Shimmer button in light mode */
+    /* Light: botón negro con arco blanco — se ve sobre fondo claro */
     [data-theme="light"] .btn-shimmer {
+      background: #111;
       color: #fff;
-      --shimmer-color: rgba(0,0,0,0.7);
+      --shimmer-color: rgba(255,255,255,0.9);
       box-shadow:
-        0 0 6px  rgba(0,0,0,0.14),
-        0 0 18px rgba(0,0,0,0.07);
+        0 0 6px  rgba(0,0,0,0.20),
+        0 0 18px rgba(0,0,0,0.10);
     }
     [data-theme="light"] .btn-shimmer:hover {
       box-shadow:
-        0 0 8px  rgba(0,0,0,0.35),
-        0 0 22px rgba(0,0,0,0.18),
-        0 0 48px rgba(0,0,0,0.08);
+        0 0 10px rgba(0,0,0,0.35),
+        0 0 24px rgba(0,0,0,0.18),
+        0 0 48px rgba(0,0,0,0.10);
     }
-    [data-theme="light"] .btn-shimmer::after { background: #0A0A0A; }
+    [data-theme="light"] .btn-shimmer::after { background: #111; }
 
     /* Theme switch slider in light mode */
     [data-theme="light"] .theme-switch__slider { background: rgba(0,0,0,0.12); }
@@ -2204,7 +2207,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
           </button>
         </div>
-        <a href="#contacto" class="nav-cta btn-shimmer">Innovar Ahora</a>
+        <a href="#contacto" class="nav-cta btn-shimmer"><span>Innovar Ahora</span></a>
       </div>
     </nav>
   </div>
@@ -2250,7 +2253,7 @@
         </p>
 
         <div class="hero-actions">
-          <a href="#contacto" class="btn-primary btn-shimmer">Innovar Ahora</a>
+          <a href="#contacto" class="btn-primary btn-shimmer"><span>Innovar Ahora</span></a>
           <a href="#servicios" class="btn-secondary">Explorar</a>
         </div>
       </div>

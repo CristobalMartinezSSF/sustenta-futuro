@@ -1663,7 +1663,7 @@
     }
     /* ─────────────────── CHAT WIDGET ─────────────────── */
     @keyframes shimmer-spin {
-      to { transform: rotate(360deg); }
+      to { transform: translate(-50%, -50%) rotate(360deg); }
     }
     @keyframes chat-bounce {
       0%,100% { transform: translateY(0); }
@@ -1908,14 +1908,15 @@
     .chat-input-wrap::before {
       content: '';
       position: absolute;
-      inset: -1px;
-      border-radius: 100px;
-      background: conic-gradient(from 0deg, transparent 0%, rgba(255,255,255,0.5) 40%, transparent 60%);
+      top: 50%; left: 50%;
+      width: 160%; aspect-ratio: 1;
+      background: conic-gradient(from 0deg, transparent 0%, rgba(255,255,255,0.55) 30%, transparent 60%);
       animation: shimmer-spin 2.5s linear infinite;
+      transform: translate(-50%, -50%) rotate(0deg);
       opacity: 0;
       transition: opacity 250ms ease;
       pointer-events: none;
-      z-index: 0;
+      will-change: transform;
     }
 
     .chat-input-wrap:focus-within::before { opacity: 1; }

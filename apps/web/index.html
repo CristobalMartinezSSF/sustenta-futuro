@@ -1984,11 +1984,11 @@
       cursor: pointer;
       border: none;
       z-index: 0;
+      overflow: hidden;
       transition: box-shadow 400ms ease, transform 0.15s ease;
       --shimmer-color: rgba(255,255,255,0.85);
       --speed: 3s;
       --cut: 1.5px;
-      /* glow en reposo */
       box-shadow:
         0 0 6px  rgba(255,255,255,0.18),
         0 0 18px rgba(255,255,255,0.08);
@@ -2001,19 +2001,21 @@
     }
     .btn-shimmer:active { transform: translateY(1px); }
 
-    /* Capa giratoria — conic-gradient continuo */
+    /* Capa giratoria centrada — overflow:hidden la recorta al borde del botón */
     .btn-shimmer::before {
       content: '';
       position: absolute;
-      inset: -60%;
-      width: 220%;
-      height: 220%;
+      top: 50%;
+      left: 50%;
+      width: 200%;
+      aspect-ratio: 1 / 1;
       background: conic-gradient(
         from 0deg,
         transparent 0deg,
         var(--shimmer-color) 60deg,
         transparent 120deg
       );
+      transform: translate(-50%, -50%) rotate(0deg);
       animation: btn-spin-continuous var(--speed) infinite linear;
       z-index: -2;
       filter: blur(1.5px);
@@ -2031,7 +2033,7 @@
     }
 
     @keyframes btn-spin-continuous {
-      to { transform: rotate(360deg); }
+      to { transform: translate(-50%, -50%) rotate(360deg); }
     }
 
     /* Nav variant — ligeramente más pequeño */

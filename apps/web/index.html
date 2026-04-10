@@ -995,55 +995,75 @@
       display: block;
     }
 
-    /* service display — one at a time */
+    /* service cards — alternating left/right */
     .srv-display {
       position: absolute;
-      bottom: 7%;
-      left: 50%;
-      transform: translateX(-50%);
-      width: min(560px, 86vw);
-      height: 130px;
-      text-align: center;
+      inset: 0;
       z-index: 10;
       pointer-events: none;
     }
 
     .srv-item {
       position: absolute;
-      inset: 0;
+      top: 50%;
+      width: 220px;
+      background: rgba(8,8,8,0.88);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 14px;
+      padding: 1.5rem 1.6rem;
       opacity: 0;
-      transform: translateY(30px);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
     }
+
+    /* right: srv 0 and 2 */
+    .srv-item[data-srv="0"],
+    .srv-item[data-srv="2"] { right: 5%; margin-top: -80px; }
+
+    /* left: srv 1 and 3 */
+    .srv-item[data-srv="1"],
+    .srv-item[data-srv="3"] { left: 5%; margin-top: -80px; }
 
     .srv-num {
       font-family: 'Montserrat', sans-serif;
-      font-size: 0.68rem;
+      font-size: 0.62rem;
       font-weight: 700;
-      letter-spacing: 0.18em;
+      letter-spacing: 0.16em;
       text-transform: uppercase;
       color: var(--text-muted);
-      margin-bottom: 0.6rem;
+      margin-bottom: 0.65rem;
     }
 
     .srv-item h3 {
       font-family: 'Montserrat', sans-serif;
-      font-size: clamp(1.5rem, 3.6vw, 2.6rem);
-      font-weight: 900;
-      letter-spacing: -0.03em;
-      line-height: 1.05;
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
       color: var(--text);
-      margin-bottom: 0.75rem;
+      margin-bottom: 0.6rem;
     }
 
     .srv-item p {
-      font-size: 0.9rem;
+      font-size: 0.8rem;
       color: var(--text-muted);
-      line-height: 1.65;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 1024px) {
+      .srv-item {
+        top: auto !important;
+        bottom: 6%;
+        left: 50% !important;
+        right: auto !important;
+        margin-top: 0 !important;
+        transform: translateX(-50%);
+        width: min(300px, 78vw);
+      }
     }
 
     @media (max-width: 768px) {
       #producto { height: 420vh; }
-      .srv-display { bottom: 5%; }
     }
 
     /* ─────────────────── FANCY TEXT ─────────────────── */
@@ -3305,8 +3325,9 @@
   function initProductSection() {
     if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      const first = document.querySelector('.srv-item[data-srv="0"]');
-      if (first) { first.style.opacity = '1'; first.style.transform = 'translateY(0)'; }
+      document.querySelectorAll('.srv-item').forEach(el => {
+        el.style.opacity = '1'; el.style.transform = 'none';
+      });
       document.querySelector('.prod-mask') && (document.querySelector('.prod-mask').style.clipPath = 'circle(40% at 50% 50%)');
       return;
     }
@@ -3315,7 +3336,9 @@
     if (!section) return;
 
     gsap.set('.prod-marquee', { xPercent: 110, opacity: 0 });
-    gsap.set('.srv-item', { opacity: 0, y: 30 });
+    // right cards start from right, left cards from left
+    gsap.set('.srv-item[data-srv="0"], .srv-item[data-srv="2"]', { opacity: 0, x: 60 });
+    gsap.set('.srv-item[data-srv="1"], .srv-item[data-srv="3"]', { opacity: 0, x: -60 });
 
     const tl = gsap.timeline({
       scrollTrigger: {
@@ -3336,18 +3359,18 @@
         { clipPath: 'circle(38% at 50% 50%)', duration: 0.28, ease: 'power2.out' },
         0.22)
       .fromTo('#sphere-canvas', { opacity: 0, scale: 0.82 }, { opacity: 1, scale: 1, duration: 0.20, ease: 'power2.out' }, 0.36)
-      // Servicio 1
-      .to('.srv-item[data-srv="0"]', { opacity: 1, y: 0, duration: 0.22, ease: 'power2.out' }, 0.52)
-      .to('.srv-item[data-srv="0"]', { opacity: 0, y: -20, duration: 0.18, ease: 'power2.in' }, 0.82)
-      // Servicio 2
-      .to('.srv-item[data-srv="1"]', { opacity: 1, y: 0, duration: 0.22, ease: 'power2.out' }, 0.90)
-      .to('.srv-item[data-srv="1"]', { opacity: 0, y: -20, duration: 0.18, ease: 'power2.in' }, 1.20)
-      // Servicio 3
-      .to('.srv-item[data-srv="2"]', { opacity: 1, y: 0, duration: 0.22, ease: 'power2.out' }, 1.28)
-      .to('.srv-item[data-srv="2"]', { opacity: 0, y: -20, duration: 0.18, ease: 'power2.in' }, 1.58)
-      // Servicio 4
-      .to('.srv-item[data-srv="3"]', { opacity: 1, y: 0, duration: 0.22, ease: 'power2.out' }, 1.66)
-      .to('.srv-item[data-srv="3"]', { opacity: 0, y: -20, duration: 0.18, ease: 'power2.in' }, 1.96);
+      // Servicio 1 — derecha entra, sale a la derecha
+      .to('.srv-item[data-srv="0"]', { opacity: 1, x: 0, duration: 0.22, ease: 'power2.out' }, 0.52)
+      .to('.srv-item[data-srv="0"]', { opacity: 0, x: 60, duration: 0.18, ease: 'power2.in' }, 0.82)
+      // Servicio 2 — izquierda entra, sale a la izquierda
+      .to('.srv-item[data-srv="1"]', { opacity: 1, x: 0, duration: 0.22, ease: 'power2.out' }, 0.90)
+      .to('.srv-item[data-srv="1"]', { opacity: 0, x: -60, duration: 0.18, ease: 'power2.in' }, 1.20)
+      // Servicio 3 — derecha entra, sale a la derecha
+      .to('.srv-item[data-srv="2"]', { opacity: 1, x: 0, duration: 0.22, ease: 'power2.out' }, 1.28)
+      .to('.srv-item[data-srv="2"]', { opacity: 0, x: 60, duration: 0.18, ease: 'power2.in' }, 1.58)
+      // Servicio 4 — izquierda entra, sale a la izquierda
+      .to('.srv-item[data-srv="3"]', { opacity: 1, x: 0, duration: 0.22, ease: 'power2.out' }, 1.66)
+      .to('.srv-item[data-srv="3"]', { opacity: 0, x: -60, duration: 0.18, ease: 'power2.in' }, 1.96);
 
     ScrollTrigger.create({
       trigger: section,

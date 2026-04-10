@@ -30,6 +30,7 @@
 - [ ] ¿Cómo llegan los proyectos de clientes? ¿Solo por Hector o también por leads directos?
 - [ ] Validar que los 8 agentes listados en la sección Tecnología son los correctos y están bien nombrados
 - [ ] Revisar y aprobar el texto de la sección Tecnología antes de dar la landing por terminada
+- [ ] ¿Cuáles son los servicios exactos que vendemos? Lista completa con nombres, descripción breve y cuáles deben aparecer en la landing page
 
 ## Plan para la próxima semana
 - [ ] Terminar de pulir la landing page (responsividad, elementos dispersos, sección diferenciadores)

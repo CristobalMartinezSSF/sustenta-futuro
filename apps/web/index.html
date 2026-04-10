@@ -1006,59 +1006,72 @@
     .srv-item {
       position: absolute;
       top: 50%;
-      width: 220px;
-      background: rgba(8,8,8,0.88);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 14px;
-      padding: 1.5rem 1.6rem;
+      width: 260px;
+      background: rgba(8,8,8,0.9);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 16px;
+      padding: 1.8rem 2rem;
       opacity: 0;
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.04) inset;
     }
 
-    /* right: srv 0 and 2 */
+    /* right cards: just beside the globe */
     .srv-item[data-srv="0"],
-    .srv-item[data-srv="2"] { right: 5%; margin-top: -80px; }
+    .srv-item[data-srv="2"] {
+      left: calc(50% + 275px);
+      margin-top: -100px;
+    }
 
-    /* left: srv 1 and 3 */
+    /* left cards: just beside the globe */
     .srv-item[data-srv="1"],
-    .srv-item[data-srv="3"] { left: 5%; margin-top: -80px; }
+    .srv-item[data-srv="3"] {
+      right: calc(50% + 275px);
+      margin-top: -100px;
+    }
 
     .srv-num {
       font-family: 'Montserrat', sans-serif;
-      font-size: 0.62rem;
+      font-size: 0.65rem;
       font-weight: 700;
       letter-spacing: 0.16em;
       text-transform: uppercase;
       color: var(--text-muted);
-      margin-bottom: 0.65rem;
+      margin-bottom: 0.75rem;
     }
 
     .srv-item h3 {
       font-family: 'Montserrat', sans-serif;
-      font-size: 1.15rem;
+      font-size: 1.3rem;
       font-weight: 800;
       letter-spacing: -0.02em;
       line-height: 1.2;
       color: var(--text);
-      margin-bottom: 0.6rem;
+      margin-bottom: 0.7rem;
     }
 
     .srv-item p {
-      font-size: 0.8rem;
+      font-size: 0.85rem;
       color: var(--text-muted);
-      line-height: 1.6;
+      line-height: 1.65;
     }
 
-    @media (max-width: 1024px) {
+    @media (max-width: 1200px) {
+      .srv-item[data-srv="0"], .srv-item[data-srv="2"] { left: auto; right: 2%; }
+      .srv-item[data-srv="1"], .srv-item[data-srv="3"] { right: auto; left: 2%; }
+      .srv-item { width: 200px; padding: 1.4rem 1.5rem; }
+    }
+
+    @media (max-width: 900px) {
       .srv-item {
         top: auto !important;
-        bottom: 6%;
+        bottom: 5%;
         left: 50% !important;
         right: auto !important;
         margin-top: 0 !important;
         transform: translateX(-50%);
-        width: min(300px, 78vw);
+        width: min(300px, 76vw);
       }
     }
 

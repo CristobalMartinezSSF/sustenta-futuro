@@ -912,7 +912,7 @@
 
     /* ─────────────────── PRODUCTO PINNEABLE ─────────────────── */
     #producto {
-      height: 280vh;
+      height: 500vh;
       position: relative;
     }
 
@@ -995,69 +995,55 @@
       display: block;
     }
 
-    .prod-tooltip {
+    /* service display — one at a time */
+    .srv-display {
       position: absolute;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      background: rgba(0,0,0,0.88);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 12px;
-      padding: 0.85rem 1.1rem;
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
+      bottom: 7%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(560px, 86vw);
+      height: 130px;
+      text-align: center;
       z-index: 10;
       pointer-events: none;
-      max-width: 230px;
     }
 
-    .tp-1 { left: 5%;  top: 26%; }
-    .tp-2 { right: 5%; top: 44%; }
-    .tp-3 { left: 50%; bottom: 14%; transform: translateX(-50%); }
-
-    .tp-icon {
-      width: 34px; height: 34px;
-      border-radius: 8px;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.15);
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
-      color: var(--accent);
+    .srv-item {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transform: translateY(30px);
     }
 
-    .tp-icon svg {
-      width: 14px; height: 14px;
-      stroke: var(--accent); fill: none;
-      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
-    }
-
-    .tp-divider {
-      width: 1px; height: 36px;
-      background: rgba(255,255,255,0.15);
-      flex-shrink: 0;
-      transform-origin: top center;
-    }
-
-    .tp-content h4 {
+    .srv-num {
       font-family: 'Montserrat', sans-serif;
-      font-size: 0.78rem;
+      font-size: 0.68rem;
       font-weight: 700;
-      color: var(--text);
-      margin-bottom: 0.2rem;
-      letter-spacing: -0.01em;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.6rem;
     }
 
-    .tp-content p {
-      font-size: 0.72rem;
+    .srv-item h3 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: clamp(1.5rem, 3.6vw, 2.6rem);
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      line-height: 1.05;
+      color: var(--text);
+      margin-bottom: 0.75rem;
+    }
+
+    .srv-item p {
+      font-size: 0.9rem;
       color: var(--text-muted);
-      line-height: 1.4;
+      line-height: 1.65;
     }
 
     @media (max-width: 768px) {
-      .tp-1 { left: 3%; top: 18%; max-width: 180px; }
-      .tp-2 { right: 3%; top: 52%; max-width: 180px; }
-      .tp-3 { bottom: 8%; }
-      #producto { height: 240vh; }
+      #producto { height: 420vh; }
+      .srv-display { bottom: 5%; }
     }
 
     /* ─────────────────── FANCY TEXT ─────────────────── */
@@ -2433,36 +2419,26 @@
         <canvas id="sphere-canvas"></canvas>
       </div>
 
-      <div class="prod-tooltip tp-1">
-        <div class="tp-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      <div class="srv-display" aria-live="polite">
+        <div class="srv-item" data-srv="0">
+          <div class="srv-num">01 / RPA</div>
+          <h3>Automatización RPA</h3>
+          <p>Robots de software que trabajan 24/7. Integramos con Buk, AFC y SII. De 41 horas a 8 horas por ciclo.</p>
         </div>
-        <div class="tp-divider"></div>
-        <div class="tp-content">
-          <h4>Automatización 24/7</h4>
-          <p>80% reducción de costos operativos</p>
+        <div class="srv-item" data-srv="1">
+          <div class="srv-num">02 / IA</div>
+          <h3>Inteligencia Artificial</h3>
+          <p>Chatbots, OCR avanzado y modelos predictivos adaptados a tu industria y datos propios.</p>
         </div>
-      </div>
-
-      <div class="prod-tooltip tp-2">
-        <div class="tp-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <div class="srv-item" data-srv="2">
+          <div class="srv-num">03 / DEV</div>
+          <h3>Desarrollo de Software</h3>
+          <p>Apps web, APIs REST y dashboards en tiempo real. Stack moderno y escalable.</p>
         </div>
-        <div class="tp-divider"></div>
-        <div class="tp-content">
-          <h4>Precisión máxima</h4>
-          <p>Menos de 1% de error en procesos</p>
-        </div>
-      </div>
-
-      <div class="prod-tooltip tp-3">
-        <div class="tp-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-        </div>
-        <div class="tp-divider"></div>
-        <div class="tp-content">
-          <h4>ROI inmediato</h4>
-          <p>Resultados medibles desde el mes 1</p>
+        <div class="srv-item" data-srv="3">
+          <div class="srv-num">04 / TI</div>
+          <h3>Consultoría TI</h3>
+          <p>Diagnóstico, arquitectura tecnológica y capacitación para liderar la transformación digital.</p>
         </div>
       </div>
 
@@ -3329,10 +3305,8 @@
   function initProductSection() {
     if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      document.querySelectorAll('.prod-tooltip').forEach(el => {
-        el.style.opacity = '1';
-        el.style.transform = el.classList.contains('tp-3') ? 'translateX(-50%)' : 'none';
-      });
+      const first = document.querySelector('.srv-item[data-srv="0"]');
+      if (first) { first.style.opacity = '1'; first.style.transform = 'translateY(0)'; }
       document.querySelector('.prod-mask') && (document.querySelector('.prod-mask').style.clipPath = 'circle(40% at 50% 50%)');
       return;
     }
@@ -3341,11 +3315,7 @@
     if (!section) return;
 
     gsap.set('.prod-marquee', { xPercent: 110, opacity: 0 });
-    gsap.set(['.tp-1', '.tp-2', '.tp-3'], { opacity: 0 });
-    gsap.set('.tp-1', { x: -28 });
-    gsap.set('.tp-2', { x:  28 });
-    gsap.set('.tp-3', { y:  18 });
-    gsap.set('.tp-divider', { scaleY: 0 });
+    gsap.set('.srv-item', { opacity: 0, y: 30 });
 
     const tl = gsap.timeline({
       scrollTrigger: {
@@ -3360,18 +3330,24 @@
 
     tl
       .to('.prod-header-1',  { xPercent: -115, opacity: 0, duration: 0.22, ease: 'power2.in' }, 0)
-      .to('.prod-marquee',   { xPercent: 0, opacity: 1,  duration: 0.24, ease: 'power2.out' }, 0.06)
+      .to('.prod-marquee',   { xPercent: 0, opacity: 1, duration: 0.24, ease: 'power2.out' }, 0.06)
       .fromTo('.prod-mask',
         { clipPath: 'circle(0% at 50% 50%)' },
         { clipPath: 'circle(38% at 50% 50%)', duration: 0.28, ease: 'power2.out' },
         0.22)
       .fromTo('#sphere-canvas', { opacity: 0, scale: 0.82 }, { opacity: 1, scale: 1, duration: 0.20, ease: 'power2.out' }, 0.36)
-      .to('.tp-1', { x: 0, opacity: 1, duration: 0.18, ease: 'power2.out' }, 0.54)
-      .to('.tp-1 .tp-divider', { scaleY: 1, duration: 0.14, ease: 'power2.out' }, 0.60)
-      .to('.tp-2', { x: 0, opacity: 1, duration: 0.18, ease: 'power2.out' }, 0.70)
-      .to('.tp-2 .tp-divider', { scaleY: 1, duration: 0.14, ease: 'power2.out' }, 0.76)
-      .to('.tp-3', { y: 0, opacity: 1, duration: 0.18, ease: 'power2.out' }, 0.84)
-      .to('.tp-3 .tp-divider', { scaleY: 1, duration: 0.14, ease: 'power2.out' }, 0.90);
+      // Servicio 1
+      .to('.srv-item[data-srv="0"]', { opacity: 1, y: 0, duration: 0.22, ease: 'power2.out' }, 0.52)
+      .to('.srv-item[data-srv="0"]', { opacity: 0, y: -20, duration: 0.18, ease: 'power2.in' }, 0.82)
+      // Servicio 2
+      .to('.srv-item[data-srv="1"]', { opacity: 1, y: 0, duration: 0.22, ease: 'power2.out' }, 0.90)
+      .to('.srv-item[data-srv="1"]', { opacity: 0, y: -20, duration: 0.18, ease: 'power2.in' }, 1.20)
+      // Servicio 3
+      .to('.srv-item[data-srv="2"]', { opacity: 1, y: 0, duration: 0.22, ease: 'power2.out' }, 1.28)
+      .to('.srv-item[data-srv="2"]', { opacity: 0, y: -20, duration: 0.18, ease: 'power2.in' }, 1.58)
+      // Servicio 4
+      .to('.srv-item[data-srv="3"]', { opacity: 1, y: 0, duration: 0.22, ease: 'power2.out' }, 1.66)
+      .to('.srv-item[data-srv="3"]', { opacity: 0, y: -20, duration: 0.18, ease: 'power2.in' }, 1.96);
 
     ScrollTrigger.create({
       trigger: section,

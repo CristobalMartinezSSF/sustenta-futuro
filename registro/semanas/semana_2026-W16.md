@@ -53,6 +53,8 @@
 | 14 | Reemplazado "robot/robots" por "automatización/el sistema" en toda la página | `apps/web/index.html` |
 | 15 | Botón "Explorar": redirige de `#tecnologia` (oculta) a `#producto` | `apps/web/index.html` |
 | 16 | Creado informe W16 con formato Lean y cuestionario sección por sección (25 preguntas urgenciadas) | `registro/informes/informe-semana-W16.md` |
+| 17 | Nueva sección `#nosotros` — Quiénes somos con texto genérico, stats placeholder y cuadro para foto | `apps/web/index.html` |
+| 18 | Link "Nosotros" añadido al nav | `apps/web/index.html` |
 
 ## Problemas encontrados
 - **Globe bug en pantalla dividida → expandir**: GSAP ScrollTrigger cachea alturas al cargar. Fix: debounced `ScrollTrigger.refresh()` en `window resize`. ✅ Resuelto

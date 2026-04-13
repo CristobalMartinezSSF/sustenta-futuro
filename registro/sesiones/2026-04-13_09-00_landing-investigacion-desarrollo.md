@@ -46,6 +46,8 @@ Refinar el sistema de trabajo usando toda la información acumulada, investigar 
 - Reemplazado "robot/robots" por "automatización/el sistema" en toda la página (globe, FAQ, testimonial, sección legal)
 - Botón "Explorar" del hero: redirige de `#tecnologia` (oculta) a `#producto`
 - Creado informe W16 con formato Lean (desglose diario + pivotes) y cuestionario sección por sección con 25 preguntas urgenciadas (🔴🟡🟢)
+- Nueva sección `#nosotros` — Quiénes somos con texto genérico, 3 stats placeholder y cuadro para foto del equipo
+- Link "Nosotros" añadido al nav
 
 ## Problemas / Dudas
 - **Globe bug en pantalla dividida → expandir**: GSAP cachea alturas al cargar. Fix: debounced `ScrollTrigger.refresh()`. ✅ Resuelto

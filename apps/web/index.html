@@ -1709,6 +1709,79 @@
     }
     @media (max-width: 900px) { .scroll-vine { display: none; } }
 
+    /* ─────────────────── QUIÉNES SOMOS ─────────────────── */
+    #nosotros { padding: 7rem 0; border-top: 1px solid var(--border); }
+
+    .nosotros-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+      align-items: center;
+      margin-top: 2.5rem;
+    }
+
+    .nosotros-text h2 {
+      font-size: clamp(2rem, 3.5vw, 2.8rem);
+      font-weight: 900;
+      line-height: 1.15;
+      margin-bottom: 1.5rem;
+    }
+
+    .nosotros-text p {
+      color: var(--text-muted);
+      line-height: 1.75;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+    }
+
+    .nosotros-stats {
+      display: flex;
+      gap: 2.5rem;
+      margin-top: 2.5rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .nosotros-stat { display: flex; flex-direction: column; gap: 0.2rem; }
+
+    .nosotros-stat-num {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: var(--text);
+    }
+
+    .nosotros-stat-label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .nosotros-image { display: flex; justify-content: center; }
+
+    .nosotros-placeholder {
+      width: 100%;
+      aspect-ratio: 4/3;
+      border: 1px dashed var(--border);
+      border-radius: 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      color: var(--text-muted);
+      background: var(--bg-1);
+    }
+
+    .nosotros-placeholder svg { width: 64px; height: 64px; opacity: 0.4; }
+    .nosotros-placeholder span { font-size: 0.85rem; opacity: 0.5; }
+
+    @media (max-width: 900px) {
+      .nosotros-grid { grid-template-columns: 1fr; gap: 3rem; }
+      .nosotros-stats { flex-wrap: wrap; gap: 1.5rem; }
+    }
+
     /* ─────────────────── SIN/CON ─────────────────── */
     #sincon { background: var(--bg-1); }
 
@@ -2615,6 +2688,7 @@
         <span class="nav-brand-text">SUSTENTA FUTURO</span>
       </a>
       <div class="nav-links">
+        <a href="#nosotros">Nosotros</a>
         <a href="#proceso">Proceso</a>
         <div class="theme-switch" id="theme-switch" role="group" aria-label="Cambiar tema">
           <div class="theme-switch__slider" id="ts-slider"></div>
@@ -2885,6 +2959,43 @@
           <div>
             <h4>Equipo local, visión regional</h4>
             <p>Presencia en Santiago con visión de escalar a toda Sudamérica. Entendemos el ecosistema local.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUIÉNES SOMOS -->
+  <section id="nosotros">
+    <div class="container">
+      <div class="section-label reveal">Quiénes somos</div>
+      <div class="nosotros-grid">
+        <div class="nosotros-text reveal">
+          <h2>Transformamos procesos.<br /><span class="gradient-text">Potenciamos equipos.</span></h2>
+          <p>Somos un equipo de especialistas en transformación digital con presencia en Santiago, Chile. Ayudamos a empresas a diseñar, desarrollar e implementar soluciones tecnológicas que generan resultados reales: más eficiencia, menos errores y equipos enfocados en lo que realmente importa.</p>
+          <p>Trabajamos con metodologías ágiles y un acompañamiento cercano en cada etapa del proyecto, desde el diagnóstico hasta la operación. Nuestro compromiso es que cada solución funcione en tu contexto real, no en papel.</p>
+          <div class="nosotros-stats">
+            <div class="nosotros-stat">
+              <span class="nosotros-stat-num">— </span>
+              <span class="nosotros-stat-label">años de experiencia</span>
+            </div>
+            <div class="nosotros-stat">
+              <span class="nosotros-stat-num">— </span>
+              <span class="nosotros-stat-label">proyectos entregados</span>
+            </div>
+            <div class="nosotros-stat">
+              <span class="nosotros-stat-num">— </span>
+              <span class="nosotros-stat-label">industrias atendidas</span>
+            </div>
+          </div>
+        </div>
+        <div class="nosotros-image reveal">
+          <div class="nosotros-placeholder">
+            <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="40" cy="30" r="18" stroke="currentColor" stroke-width="2"/>
+              <path d="M10 72c0-16.569 13.431-30 30-30s30 13.431 30 30" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <span>Foto del equipo</span>
           </div>
         </div>
       </div>

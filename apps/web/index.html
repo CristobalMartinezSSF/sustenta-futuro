@@ -2575,6 +2575,14 @@
     /* Globe invert in light mode */
     [data-theme="light"] #sphere-canvas { filter: invert(1); }
 
+    /* srv-item has hardcoded dark bg — force light text in light mode */
+    [data-theme="light"] .srv-item {
+      border-color: rgba(255,255,255,0.15);
+    }
+    [data-theme="light"] .srv-num { color: rgba(240,240,240,0.55); }
+    [data-theme="light"] .srv-item h3 { color: rgba(240,240,240,0.95); }
+    [data-theme="light"] .srv-item p  { color: rgba(240,240,240,0.6); }
+
     /* Shimmer button in light mode */
     /* Light: botón negro con arco blanco — se ve sobre fondo claro */
     [data-theme="light"] .btn-shimmer {

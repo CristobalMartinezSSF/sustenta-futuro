@@ -4021,6 +4021,17 @@
     initThemeSwitch();
   });
 
+  /* ── Refresh ScrollTrigger + re-init product section on resize ── */
+  let _resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(_resizeTimer);
+    _resizeTimer = setTimeout(() => {
+      if (typeof ScrollTrigger !== 'undefined') {
+        ScrollTrigger.refresh();
+      }
+    }, 250);
+  }, { passive: true });
+
   function initCustomSelects() {
     document.querySelectorAll('.sf-select').forEach(select => {
       const trigger  = select.querySelector('.sf-select__trigger');

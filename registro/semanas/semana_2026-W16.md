@@ -46,6 +46,13 @@
 | 7 | Tarjetas flotantes del hero movidas más cerca del título (left/right 14–15%) | `apps/web/index.html` |
 | 8 | Fix modo claro: texto de tarjetas del globe forzado a blanco (estaban negro sobre negro) | `apps/web/index.html` |
 | 9 | Fix resize: `ScrollTrigger.refresh()` con debounce 250ms — soluciona bug al expandir ventana desde pantalla dividida | `apps/web/index.html` |
+| 10 | Badge del hero: "RPA & IA · Santiago" → "Sustenta Futuro" | `apps/web/index.html` |
+| 11 | `<title>`: "Sustenta Futuro — Automatización RPA e IA" → "Sustenta Futuro" | `apps/web/index.html` |
+| 12 | Descripción del hero reescrita para cubrir los 5 servicios, sin enfoque en RPA | `apps/web/index.html` |
+| 13 | Globe servicio 4: "04/RPA — Automatizaciones y RPA" → "04/AUTO — Automatizaciones" | `apps/web/index.html` |
+| 14 | Reemplazado "robot/robots" por "automatización/el sistema" en toda la página | `apps/web/index.html` |
+| 15 | Botón "Explorar": redirige de `#tecnologia` (oculta) a `#producto` | `apps/web/index.html` |
+| 16 | Creado informe W16 con formato Lean y cuestionario sección por sección (25 preguntas urgenciadas) | `registro/informes/informe-semana-W16.md` |
 
 ## Problemas encontrados
 - **Globe bug en pantalla dividida → expandir**: GSAP ScrollTrigger cachea alturas al cargar. Fix: debounced `ScrollTrigger.refresh()` en `window resize`. ✅ Resuelto

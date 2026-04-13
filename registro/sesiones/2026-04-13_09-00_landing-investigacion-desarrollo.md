@@ -38,6 +38,15 @@ Refinar el sistema de trabajo usando toda la información acumulada, investigar 
 - Fix modo claro: texto de tarjetas del globe forzado a blanco (negro sobre negro antes)
 - Fix resize: `ScrollTrigger.refresh()` con debounce — soluciona bug al expandir desde pantalla dividida
 
+### 16:00 en adelante — Ajustes por feedback de Héctor
+- Badge del hero: eliminado "RPA & Inteligencia Artificial · Santiago, Chile" → "Sustenta Futuro"
+- `<title>` de la página: "Sustenta Futuro — Automatización RPA e IA" → "Sustenta Futuro"
+- Descripción del hero: reescrita para cubrir los 5 servicios (sin enfoque en RPA)
+- Globe servicio 4: "04 / RPA — Automatizaciones y RPA" → "04 / AUTO — Automatizaciones" (RPA mencionado en descripción)
+- Reemplazado "robot/robots" por "automatización/el sistema" en toda la página (globe, FAQ, testimonial, sección legal)
+- Botón "Explorar" del hero: redirige de `#tecnologia` (oculta) a `#producto`
+- Creado informe W16 con formato Lean (desglose diario + pivotes) y cuestionario sección por sección con 25 preguntas urgenciadas (🔴🟡🟢)
+
 ## Problemas / Dudas
 - **Globe bug en pantalla dividida → expandir**: GSAP cachea alturas al cargar. Fix: debounced `ScrollTrigger.refresh()`. ✅ Resuelto
 - **Texto invisible en modo claro (globe cards)**: fondo hardcodeado oscuro + variables CSS cambiando en modo claro = texto negro sobre negro. Fix: override `[data-theme="light"]`. ✅ Resuelto

@@ -3,11 +3,72 @@
 
 ---
 
-## Tarea: Hero y branding general
-**Proyecto:** Landing Page
+## Tarea: Refinamiento del sistema de trabajo
+**Proyecto:** Sistema interno
+**Horario:** 09:00 – 10:00
 
 **Avances:**
-- Badge del hero actualizado: eliminado "RPA & Inteligencia Artificial · Santiago, Chile" → reemplazado por "Sustenta Futuro"
+- Releídas y analizadas las 3 reuniones acumuladas (resúmenes Gemini)
+- Revisado informe W15 + respuesta de Héctor del viernes
+- Consolidada la base de conocimiento para trabajar de forma más eficiente
+
+**Aprendizajes:**
+- Tener las reuniones bien documentadas permite retomar el contexto rápidamente sin perder tiempo
+
+**Por definir:**
+- —
+
+**Preguntas asociadas:**
+- —
+
+---
+
+## Tarea: Investigación de páginas competidoras
+**Proyecto:** Landing Page
+**Horario:** 10:00 – 11:00
+
+**Avances:**
+- Analizadas 4 páginas de referencia: Deel.com, Sísua Digital, ACL TI, Urantiacos.cl
+- Identificados patrones clave: equipo visible, certificaciones, métricas de ROI, lead magnet, casos de éxito
+
+**Aprendizajes:**
+- Páginas que muestran al equipo y sus certificaciones generan más confianza inmediata
+- El lenguaje orientado a ROI (resultados, tiempo ahorrado, costos reducidos) convierte mejor que el lenguaje técnico
+
+**Por definir:**
+- —
+
+**Preguntas asociadas:**
+- —
+
+---
+
+## Tarea: Investigación de videos de referencia
+**Proyecto:** Landing Page
+**Horario:** 11:00 – 13:00
+
+**Avances:**
+- Video 1 (16 min): https://www.youtube.com/watch?v=p6ynR1c5TPA — completado
+- Video 2 (21 min): https://www.youtube.com/watch?v=C4sTAnCPEiU — completado
+- Video 3 (2:31:13): https://www.youtube.com/watch?v=eABNL3igtVo — vista 1h, pendiente 1:31:13 para mañana
+
+**Aprendizajes:**
+- Pendiente de registrar al terminar el video 3 mañana
+
+**Por definir:**
+- Terminar video 3 mañana (desde 1:00:00)
+
+**Preguntas asociadas:**
+- —
+
+---
+
+## Tarea: Hero y branding general
+**Proyecto:** Landing Page
+**Horario:** 14:10 – 15:30
+
+**Avances:**
+- Badge del hero actualizado: "RPA & Inteligencia Artificial · Santiago, Chile" → "Sustenta Futuro"
 - Título de la pestaña simplificado a "Sustenta Futuro"
 - Descripción del hero reescrita para reflejar los 5 servicios reales de la empresa
 - Botón "Explorar" corregido para llevar a la sección de servicios
@@ -17,7 +78,7 @@
 
 **Por definir:**
 - Texto definitivo de la descripción del hero
-- Validación de los números destacados en el hero
+- Validación de los números destacados
 
 **Preguntas asociadas:**
 1. ¿Apruebas la descripción actual del hero?: *"Diseñamos y desarrollamos soluciones digitales a medida: sitios web, software, apps móviles, automatizaciones y chatbots con IA. Transformamos los procesos de tu empresa para que tu equipo se enfoque en lo que realmente importa."*
@@ -27,11 +88,12 @@
 
 ## Tarea: Catálogo de servicios (Globe interactivo)
 **Proyecto:** Landing Page
+**Horario:** 15:30 – 16:15
 
 **Avances:**
 - Globe actualizado con los 5 servicios confirmados por Héctor en su respuesta del viernes
-- Eliminada la etiqueta "RPA" como identificador del servicio 4 → renombrado a "Automatizaciones"
-- Reemplazada toda mención de "robot/robots" en la página por "automatización" o "el sistema"
+- Etiqueta "RPA" eliminada como identificador del servicio 4 → renombrado a "Automatizaciones"
+- Toda mención de "robot/robots" reemplazada por "automatización" o "el sistema" en toda la página
 
 **Aprendizajes:**
 - RPA es una tecnología dentro del servicio de Automatizaciones, no un servicio separado ni la identidad de la empresa
@@ -54,13 +116,15 @@
 
 ## Tarea: Sección Quiénes somos
 **Proyecto:** Landing Page
+**Horario:** 16:15 – 17:00
 
 **Avances:**
 - Sección creada con estructura completa: título, descripción de la empresa, 3 estadísticas clave y espacio para foto del equipo
+- Link "Nosotros" añadido al nav
 - Contenido actual es genérico — pendiente de reemplazar con información real
 
 **Aprendizajes:**
-- Páginas de referencia como Sísua Digital y Urantiacos.cl muestran que el equipo visible y las certificaciones generan confianza directa en el cliente
+- Páginas de referencia muestran que el equipo visible y las certificaciones generan confianza directa en el cliente
 
 **Por definir:**
 - Todo el contenido real de la sección: historia, cifras, foto
@@ -69,7 +133,7 @@
 4. ¿Cuántos años lleva operando Sustenta Futuro?
 5. ¿Cuántos proyectos han entregado hasta hoy?
 6. ¿En cuántas industrias han trabajado?
-7. ¿Qué texto o historia quieres contar sobre la empresa? (origen, misión, valores en 2–3 párrafos cortos)
+7. ¿Qué texto o historia quieres contar sobre la empresa? (origen, misión, valores — 2 a 3 párrafos cortos)
 8. ¿Tienes una foto del equipo o personal para incluir en esta sección?
 9. ¿Tienes certificaciones relevantes que quieras destacar? (UiPath, Microsoft, AWS, Google, etc.)
 
@@ -77,9 +141,10 @@
 
 ## Tarea: Métricas
 **Proyecto:** Landing Page
+**Horario:** Sin tiempo dedicado esta sesión
 
 **Avances:**
-- Sección de métricas activa con 3 indicadores animados
+- Sección activa con 3 indicadores animados (trabajo de semanas anteriores)
 
 **Por definir:**
 - Validación de que los números son reales y respaldables
@@ -95,6 +160,7 @@
 
 ## Tarea: Testimonios
 **Proyecto:** Landing Page
+**Horario:** Sin tiempo dedicado esta sesión
 
 **Avances:**
 - Sección con estructura completa y 3 testimonios de ejemplo (placeholders)
@@ -110,12 +176,13 @@
 
 ## Tarea: Contacto y formulario
 **Proyecto:** Landing Page
+**Horario:** Sin tiempo dedicado esta sesión
 
 **Avances:**
 - Formulario de contacto activo en el frontend
 
 **Por definir:**
-- Destino de los leads que completen el formulario (email, sistema, notificación)
+- Destino de los leads que completen el formulario
 
 **Preguntas asociadas:**
 14. ¿A qué correo deben llegar los mensajes del formulario de contacto?
@@ -124,14 +191,15 @@
 
 ---
 
-## Tarea: Sección Por qué elegirnos
+## Tarea: Por qué elegirnos
 **Proyecto:** Landing Page
+**Horario:** Sin tiempo dedicado esta sesión
 
 **Avances:**
 - Sección activa con 4 diferenciadores
 
 **Por definir:**
-- Validación de los diferenciadores con Héctor
+- Validación de los diferenciadores
 
 **Preguntas asociadas:**
 17. ¿Los 4 diferenciadores actuales reflejan tu propuesta de valor o quieres cambiar alguno?
@@ -145,6 +213,7 @@
 
 ## Tarea: FAQ
 **Proyecto:** Landing Page
+**Horario:** Sin tiempo dedicado esta sesión
 
 **Avances:**
 - Sección FAQ activa con 7 preguntas frecuentes
@@ -160,6 +229,7 @@
 
 ## Tarea: Redes sociales y footer
 **Proyecto:** Landing Page
+**Horario:** Sin tiempo dedicado esta sesión
 
 **Por definir:**
 - Presencia en redes sociales

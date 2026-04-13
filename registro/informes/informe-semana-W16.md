@@ -3,133 +3,169 @@
 
 ---
 
-## Trabajo del día 2026-04-13
+## Tarea: Hero y branding general
+**Proyecto:** Landing Page
 
-### 09:00 – 10:00 — Refinamiento del sistema de trabajo
-- Releídas y analizadas las 3 reuniones acumuladas (resúmenes Gemini)
-- Revisado informe W15 + respuesta de Héctor
-- Consolidada la base de conocimiento para trabajar de forma más eficiente
+**Avances:**
+- Badge del hero actualizado: eliminado "RPA & Inteligencia Artificial · Santiago, Chile" → reemplazado por "Sustenta Futuro"
+- Título de la pestaña simplificado a "Sustenta Futuro"
+- Descripción del hero reescrita para reflejar los 5 servicios reales de la empresa
+- Botón "Explorar" corregido para llevar a la sección de servicios
 
-### 10:00 – 11:20 — Investigación de páginas competidoras
+**Aprendizajes:**
+- Presentar la empresa con "RPA" como etiqueta principal encasilla la propuesta de valor y limita la percepción del cliente sobre el alcance real de los servicios
 
-| Página | Lo destacable |
-|---|---|
-| Deel.com | Estructura hero + métricas + testimonios + FAQ. Lenguaje directo, enfocado en ROI |
-| Sísua Digital | Metodología visible, lead magnet (recurso descargable), casos de éxito con Stark |
-| ACL TI | Clientes enterprise (IBM, Oracle, BCI, Walmart). Texto "partner tecnológico" |
-| Urantiacos.cl | Equipo visible, certificaciones en footer, sección nosotros con años de experiencia |
+**Por definir:**
+- Texto definitivo de la descripción del hero
+- Validación de los números destacados en el hero
 
-**Conclusiones:** Agregar sección Quiénes somos (bloqueada, esperar info de Héctor). Considerar certificaciones y lead magnet en fases posteriores.
-
-### 11:00 – 13:00 — Investigación de videos
-- 11:00–11:16 → https://www.youtube.com/watch?v=p6ynR1c5TPA (16 min, completo)
-- 11:16–11:37 → https://www.youtube.com/watch?v=C4sTAnCPEiU (21 min, completo)
-- 11:57–12:57 → https://www.youtube.com/watch?v=eABNL3igtVo (1h vista de 2:31:13 — **pendiente 1:31:13 para mañana**)
-
-### 14:10 – 16:00 — Desarrollo landing page
-
-| # | Cambio | Archivo |
-|---|---|---|
-| 1 | Badge del hero: eliminado "RPA & Inteligencia Artificial · Santiago, Chile" → "Sustenta Futuro" | `apps/web/index.html` |
-| 2 | Título de página: "Sustenta Futuro — Automatización RPA e IA" → "Sustenta Futuro" | `apps/web/index.html` |
-| 3 | Descripción del hero actualizada: cubre los 5 servicios reales, sin mención de RPA como etiqueta | `apps/web/index.html` |
-| 4 | Globe servicio 4: "04 / RPA — Automatizaciones y RPA" → "04 / AUTO — Automatizaciones" | `apps/web/index.html` |
-| 5 | Sección Legal: "procesos de RPA e IA" → "procesos de automatización e IA" | `apps/web/index.html` |
-| 6 | Sección Tecnología ocultada (`display:none`) + link de nav eliminado | `apps/web/index.html` |
-| 7 | Globe actualizado a 5 servicios reales (Web, Software, Apps, Automatizaciones, Chatbots) | `apps/web/index.html` |
-| 8 | Altura de sección `#producto` corregida proporcionalmente (600vh desktop / 520vh mobile) | `apps/web/index.html` |
-| 9 | Footer actualizado: columna Servicios con los 5 reales, columna Empresa sin Tecnología | `apps/web/index.html` |
-| 10 | Nueva sección `#sincon` — comparación Sin/Con Sustenta Futuro | `apps/web/index.html` |
-| 11 | Nueva sección `#faq` — 7 preguntas frecuentes en acordeón | `apps/web/index.html` |
-| 12 | Tarjetas flotantes del hero movidas más cerca del título (left/right 14–15%) | `apps/web/index.html` |
-| 13 | Fix modo claro: texto de tarjetas del globe forzado a blanco | `apps/web/index.html` |
-| 14 | Fix resize: `ScrollTrigger.refresh()` con debounce 250ms | `apps/web/index.html` |
+**Preguntas asociadas:**
+1. ¿Apruebas la descripción actual del hero?: *"Diseñamos y desarrollamos soluciones digitales a medida: sitios web, software, apps móviles, automatizaciones y chatbots con IA. Transformamos los procesos de tu empresa para que tu equipo se enfoque en lo que realmente importa."*
+2. ¿Los números del hero son reales y puedes respaldarlos?: **80%** reducción de costos operativos · **247+** documentos procesados por día · **<1%** tasa de error
 
 ---
 
-## Problemas encontrados y cómo se resolvieron (pivotes)
+## Tarea: Catálogo de servicios (Globe interactivo)
+**Proyecto:** Landing Page
 
-| Problema | Causa raíz | Solución |
+**Avances:**
+- Globe actualizado con los 5 servicios confirmados por Héctor en su respuesta del viernes
+- Eliminada la etiqueta "RPA" como identificador del servicio 4 → renombrado a "Automatizaciones"
+- Reemplazada toda mención de "robot/robots" en la página por "automatización" o "el sistema"
+
+**Aprendizajes:**
+- RPA es una tecnología dentro del servicio de Automatizaciones, no un servicio separado ni la identidad de la empresa
+
+**Por definir:**
+- Confirmación de los nombres finales y las descripciones de cada servicio
+
+**Preguntas asociadas:**
+3. ¿Apruebas los 5 nombres y descripciones del globe?
+
+| # | Nombre | Descripción actual |
 |---|---|---|
-| Globe bug al expandir ventana desde pantalla dividida | GSAP ScrollTrigger cachea alturas al cargar | `debounced ScrollTrigger.refresh()` en `window resize` |
-| Texto invisible en modo claro (globe cards) | `.srv-item` tiene fondo hardcodeado oscuro; texto usa variables CSS que cambian en modo claro | Override de colores en `[data-theme="light"]` |
-| Altura de sección globe insuficiente al agregar 5° servicio | El timeline GSAP se alarga con cada servicio; la altura debe calcularse proporcionalmente | Recálculo matemático de `600vh` desktop / `520vh` mobile |
+| 01 | Diseño y Desarrollo Web | Sitios y aplicaciones web a medida, con diseño premium y rendimiento optimizado para convertir visitas en clientes |
+| 02 | Desarrollo de Software | Soluciones de software personalizadas que se integran con tus sistemas actuales y escalan con tu negocio |
+| 03 | Aplicaciones Móviles | Apps iOS y Android diseñadas para tus procesos y equipos, con experiencia de usuario intuitiva y sincronización en tiempo real |
+| 04 | Automatizaciones | Automatizamos procesos repetitivos con software inteligente e IA. Conectamos tus sistemas actuales para liberar a tu equipo del trabajo manual |
+| 05 | Chatbots y Landing Pages | Atención al cliente 24/7 con IA conversacional y páginas de captura diseñadas para convertir |
 
 ---
 
-## Preguntas para Héctor — Sección por sección
+## Tarea: Sección Quiénes somos
+**Proyecto:** Landing Page
 
-> Las preguntas están ordenadas por urgencia. 🔴 Bloquea desarrollo · 🟡 Mejora calidad · 🟢 Nice to have
+**Avances:**
+- Sección creada con estructura completa: título, descripción de la empresa, 3 estadísticas clave y espacio para foto del equipo
+- Contenido actual es genérico — pendiente de reemplazar con información real
 
-### Hero
-| # | Pregunta | Urgencia |
-|---|---|---|
-| H1 | ¿Apruebas la nueva descripción del hero?: *"Diseñamos y desarrollamos soluciones digitales a medida: sitios web, software, apps móviles, automatizaciones y chatbots con IA. Transformamos los procesos de tu empresa para que tu equipo se enfoque en lo que realmente importa."* | 🔴 |
-| H2 | ¿Los números del hero son reales? 80% reducción de costos · 247+ documentos/día · <1% tasa de error | 🔴 |
-| H3 | ¿Quieres que las tarjetas flotantes del hero muestren otros datos o están bien así? | 🟡 |
+**Aprendizajes:**
+- Páginas de referencia como Sísua Digital y Urantiacos.cl muestran que el equipo visible y las certificaciones generan confianza directa en el cliente
 
-### Servicios (Globe)
-| # | Pregunta | Urgencia |
-|---|---|---|
-| S1 | ¿Apruebas los 5 nombres finales?: Diseño y Desarrollo Web · Desarrollo de Software · Aplicaciones Móviles · Automatizaciones · Chatbots y Landing Pages | 🔴 |
-| S2 | ¿La descripción breve de cada servicio en el globe es correcta o quieres ajustar alguna? | 🟡 |
+**Por definir:**
+- Todo el contenido real de la sección: historia, cifras, foto
 
-### Quiénes somos
-| # | Pregunta | Urgencia |
-|---|---|---|
-| Q1 | ¿Cuántos años lleva la empresa operando? | 🔴 |
-| Q2 | ¿Cuántos proyectos han entregado hasta hoy? | 🔴 |
-| Q3 | ¿Quieres incluir tu foto o imagen del equipo? | 🔴 |
-| Q4 | ¿Cuál es el texto o historia de la empresa que quieres contar? (misión, origen, valores) | 🔴 |
-| Q5 | ¿Tienes certificaciones relevantes? (UiPath, Microsoft, AWS, Google, etc.) | 🟡 |
+**Preguntas asociadas:**
+4. ¿Cuántos años lleva operando Sustenta Futuro?
+5. ¿Cuántos proyectos han entregado hasta hoy?
+6. ¿En cuántas industrias han trabajado?
+7. ¿Qué texto o historia quieres contar sobre la empresa? (origen, misión, valores en 2–3 párrafos cortos)
+8. ¿Tienes una foto del equipo o personal para incluir en esta sección?
+9. ¿Tienes certificaciones relevantes que quieras destacar? (UiPath, Microsoft, AWS, Google, etc.)
 
-### Métricas
-| # | Pregunta | Urgencia |
-|---|---|---|
-| M1 | ¿Confirmas los 3 números del bloque de métricas o los cambiamos? (80%, 247+, <1%) | 🔴 |
-| M2 | ¿Tienes algún número adicional que quieras destacar? (ej: años de experiencia, clientes atendidos) | 🟡 |
+---
 
-### Por qué elegirnos
-| # | Pregunta | Urgencia |
-|---|---|---|
-| E1 | ¿La agroindustria es el rubro en que más has trabajado? ¿La usamos como ejemplo o lo dejamos genérico? | 🟡 |
-| E2 | ¿Los 4 diferenciadores actuales reflejan tu propuesta de valor o quieres cambiar alguno? | 🟡 |
+## Tarea: Métricas
+**Proyecto:** Landing Page
 
-### Sin/Con
-| # | Pregunta | Urgencia |
-|---|---|---|
-| SC1 | ¿Apruebas los puntos de la columna "Sin Sustenta Futuro" vs "Con Sustenta Futuro"? | 🟡 |
+**Avances:**
+- Sección de métricas activa con 3 indicadores animados
 
-### Testimonios
-| # | Pregunta | Urgencia |
-|---|---|---|
-| T1 | ¿Tienes clientes que puedan dar testimonios reales? (nombre, empresa, texto breve) | 🔴 |
-| T2 | ¿Tienes casos de éxito documentados con cifras concretas? | 🟡 |
+**Por definir:**
+- Validación de que los números son reales y respaldables
 
-### Proceso de trabajo
-| # | Pregunta | Urgencia |
-|---|---|---|
-| P1 | ¿Las 4 etapas del proceso (Diagnóstico → Diseño → Implementación → Optimización) son correctas? | 🟡 |
-| P2 | ¿Quieres agregar tiempos estimados por etapa? | 🟢 |
+**Preguntas asociadas:**
+10. ¿Confirmas los 3 indicadores del bloque de métricas o los ajustamos?
+    - **80%** reducción de costos operativos
+    - **247+** documentos procesados por día
+    - **<1%** tasa de error
+11. ¿Quieres agregar algún indicador adicional? (ej: años de experiencia, clientes atendidos, horas ahorradas)
 
-### FAQ
-| # | Pregunta | Urgencia |
-|---|---|---|
-| F1 | ¿Las 7 preguntas frecuentes reflejan lo que tus clientes realmente preguntan? | 🟡 |
-| F2 | ¿Quieres agregar o quitar alguna? | 🟡 |
+---
 
-### Contacto / Formulario
-| # | Pregunta | Urgencia |
-|---|---|---|
-| C1 | ¿El formulario debe quedar en la landing o prefieres redirigir a WhatsApp/email directo? | 🔴 |
-| C2 | ¿A qué email deben llegar los leads que completen el formulario? | 🔴 |
-| C3 | ¿Quieres mostrar tu número de teléfono o solo el formulario? | 🟡 |
+## Tarea: Testimonios
+**Proyecto:** Landing Page
 
-### Redes sociales / Footer
-| # | Pregunta | Urgencia |
-|---|---|---|
-| R1 | ¿Tienes o quieres crear redes sociales para la empresa? (LinkedIn, Instagram, etc.) | 🟡 |
-| R2 | ¿El texto del footer está bien o quieres ajustar algo? | 🟢 |
+**Avances:**
+- Sección con estructura completa y 3 testimonios de ejemplo (placeholders)
+
+**Por definir:**
+- Testimonios reales de clientes
+
+**Preguntas asociadas:**
+12. ¿Tienes clientes que puedan dar un testimonio para la landing? Necesito: nombre, cargo, empresa y un párrafo breve con su experiencia
+13. ¿Tienes casos de éxito documentados con cifras concretas que podamos destacar?
+
+---
+
+## Tarea: Contacto y formulario
+**Proyecto:** Landing Page
+
+**Avances:**
+- Formulario de contacto activo en el frontend
+
+**Por definir:**
+- Destino de los leads que completen el formulario (email, sistema, notificación)
+
+**Preguntas asociadas:**
+14. ¿A qué correo deben llegar los mensajes del formulario de contacto?
+15. ¿Quieres mostrar tu número de teléfono o WhatsApp en la landing?
+16. ¿Prefieres que el formulario envíe al correo directamente o que los leads queden almacenados en un panel de administración? (esto define la prioridad del backend)
+
+---
+
+## Tarea: Sección Por qué elegirnos
+**Proyecto:** Landing Page
+
+**Avances:**
+- Sección activa con 4 diferenciadores
+
+**Por definir:**
+- Validación de los diferenciadores con Héctor
+
+**Preguntas asociadas:**
+17. ¿Los 4 diferenciadores actuales reflejan tu propuesta de valor o quieres cambiar alguno?
+    - Resultados desde el primer mes
+    - Integración sin interrupciones
+    - Equipo local, visión regional
+    - Soporte continuo incluido
+18. ¿La agroindustria es el rubro en el que más has trabajado? ¿La usamos como caso de ejemplo o lo dejamos genérico?
+
+---
+
+## Tarea: FAQ
+**Proyecto:** Landing Page
+
+**Avances:**
+- Sección FAQ activa con 7 preguntas frecuentes
+
+**Por definir:**
+- Validación de que las preguntas reflejan lo que tus clientes realmente preguntan
+
+**Preguntas asociadas:**
+19. ¿Las 7 preguntas del FAQ son representativas de lo que te preguntan tus clientes?
+20. ¿Quieres agregar, quitar o modificar alguna?
+
+---
+
+## Tarea: Redes sociales y footer
+**Proyecto:** Landing Page
+
+**Por definir:**
+- Presencia en redes sociales
+
+**Preguntas asociadas:**
+21. ¿Tienes o quieres crear perfiles de redes sociales para Sustenta Futuro? (LinkedIn, Instagram, etc.)
 
 ---
 
@@ -137,26 +173,20 @@
 
 | Sección | Estado |
 |---|---|
-| Hero | ✅ Completo (métricas pendientes validación H2) |
-| Servicios / Globe | ✅ Completo — 5 servicios aprobados por Héctor |
-| Métricas | ⚠️ Pendiente validación números reales (M1) |
-| Tecnología | ⏸ Oculta — pendiente decisión definitiva |
-| Por qué elegirnos | ✅ Completo |
+| Hero | ✅ Completo — pendiente validación de métricas y descripción |
+| Servicios / Globe | ✅ Completo — pendiente confirmación de descripciones |
+| Métricas | ⚠️ Pendiente validación de números reales |
+| Por qué elegirnos | ✅ Completo — pendiente validación |
+| Quiénes somos | ⚠️ Estructura lista — pendiente contenido real |
 | Sin/Con | ✅ Completo |
-| Testimonios | ❌ Pendiente — placeholders, esperar testimonios reales (T1) |
+| Testimonios | ❌ Pendiente — necesito testimonios reales |
 | Proceso | ✅ Completo |
 | Legal | ✅ Completo |
-| FAQ | ✅ Completo |
-| Contacto / Formulario | ✅ Frontend listo — email destino pendiente (C2) |
+| FAQ | ✅ Completo — pendiente validación |
+| Contacto / Formulario | ✅ Frontend listo — pendiente email destino |
 | Footer | ✅ Completo |
-| Quiénes somos | ❌ Pendiente — bloqueado (Q1–Q4) |
+| Tecnología | ⏸ Oculta — pendiente decisión definitiva |
 
 ---
 
-## Plan próxima semana
-
-- [ ] Terminar video 3 (desde 1:00:00, quedan 1:31:13) — https://www.youtube.com/watch?v=eABNL3igtVo
-- [ ] Respuestas de Héctor → implementar cambios en landing
-- [ ] Definir schema Supabase (`leads`, `lead_status_history`, `admin_profiles`)
-- [ ] Iniciar backend FastAPI: endpoint `POST /leads`
-- [ ] Conectar formulario de la landing al backend
+*Cristóbal Martínez — Sustenta Futuro*

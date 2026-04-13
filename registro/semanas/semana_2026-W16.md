@@ -31,7 +31,11 @@
 - 11:16–11:37 → https://www.youtube.com/watch?v=C4sTAnCPEiU (21 min, completo)
 - 11:57–12:57 → https://www.youtube.com/watch?v=eABNL3igtVo (1h vista de 2:31:13 — **pendiente 1:31:13 para mañana**)
 
-### 14:10 en adelante — Desarrollo landing page
+### 14:10 – 17:00 — Desarrollo landing page
+
+### 17:00 – 18:00 — Investigación y preparación para mañana
+- Revisión del feedback de Héctor (respuesta viernes + mensaje urgente de hoy)
+- Preparación del trabajo de mañana: leads y backend (schema Supabase, endpoint FastAPI `POST /leads`)
 
 ## Logros de desarrollo
 

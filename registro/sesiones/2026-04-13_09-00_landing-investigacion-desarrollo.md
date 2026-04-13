@@ -3,8 +3,8 @@
 | Campo | Valor |
 |---|---|
 | Fecha | 2026-04-13 |
-| Horario | 09:00 – 16:00 |
-| Duración | ~7h |
+| Horario | 09:00 – 18:00 |
+| Duración | ~9h |
 
 ## Objetivo
 Refinar el sistema de trabajo usando toda la información acumulada, investigar páginas competidoras para alimentar la landing, ver videos de referencia, y avanzar en el desarrollo de la landing page.
@@ -48,6 +48,10 @@ Refinar el sistema de trabajo usando toda la información acumulada, investigar 
 - Creado informe W16 con formato Lean (desglose diario + pivotes) y cuestionario sección por sección con 25 preguntas urgenciadas (🔴🟡🟢)
 - Nueva sección `#nosotros` — Quiénes somos con texto genérico, 3 stats placeholder y cuadro para foto del equipo
 - Link "Nosotros" añadido al nav
+
+### 17:00 – 18:00 — Investigación y preparación para mañana
+- Revisión del feedback de Héctor (respuesta viernes + mensaje urgente de hoy)
+- Preparación del trabajo de mañana: leads y backend (schema Supabase, endpoint FastAPI `POST /leads`)
 
 ## Problemas / Dudas
 - **Globe bug en pantalla dividida → expandir**: GSAP cachea alturas al cargar. Fix: debounced `ScrollTrigger.refresh()`. ✅ Resuelto

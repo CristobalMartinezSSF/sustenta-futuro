@@ -321,9 +321,9 @@
       font-family: 'Inter', sans-serif;
     }
 
-    .hfs-1 { top: 28%; left: 2%; }
-    .hfs-2 { top: 52%; right: 2%; }
-    .hfs-3 { bottom: 18%; left: 6%; }
+    .hfs-1 { top: 26%; left: 8%; }
+    .hfs-2 { top: 42%; right: 8%; }
+    .hfs-3 { bottom: 24%; left: 9%; }
 
     @media (max-width: 1024px) {
       .hero-float-stat { display: none; }
@@ -1003,7 +1003,7 @@
 
     /* ─────────────────── PRODUCTO PINNEABLE ─────────────────── */
     #producto {
-      height: 500vh;
+      height: 600vh;
       position: relative;
     }
 
@@ -1110,7 +1110,8 @@
 
     /* right cards: just beside the globe */
     .srv-item[data-srv="0"],
-    .srv-item[data-srv="2"] {
+    .srv-item[data-srv="2"],
+    .srv-item[data-srv="4"] {
       left: calc(50% + 275px);
       margin-top: -100px;
     }
@@ -1149,7 +1150,7 @@
     }
 
     @media (max-width: 1200px) {
-      .srv-item[data-srv="0"], .srv-item[data-srv="2"] { left: auto; right: 2%; }
+      .srv-item[data-srv="0"], .srv-item[data-srv="2"], .srv-item[data-srv="4"] { left: auto; right: 2%; }
       .srv-item[data-srv="1"], .srv-item[data-srv="3"] { right: auto; left: 2%; }
       .srv-item { width: 200px; padding: 1.4rem 1.5rem; }
     }
@@ -1167,7 +1168,7 @@
     }
 
     @media (max-width: 768px) {
-      #producto { height: 420vh; }
+      #producto { height: 520vh; }
     }
 
     /* ─────────────────── FANCY TEXT ─────────────────── */
@@ -1708,6 +1709,148 @@
     }
     @media (max-width: 900px) { .scroll-vine { display: none; } }
 
+    /* ─────────────────── SIN/CON ─────────────────── */
+    #sincon { background: var(--bg-1); }
+
+    .sincon-header { text-align: center; margin-bottom: 3.5rem; }
+    .sincon-header .section-label { justify-content: center; }
+    .sincon-header .section-title { text-align: center; }
+    .sincon-header .section-sub { margin: 0 auto; }
+
+    .sincon-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    .sincon-col { padding: 2.8rem; }
+    .sincon-col.sin { background: var(--bg-1); }
+    .sincon-col.con { background: var(--bg); }
+
+    .sincon-col-label {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 2rem;
+      padding-bottom: 1.25rem;
+      border-bottom: 1px solid var(--border);
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-subtle);
+    }
+
+    .sincon-col.con .sincon-col-label { color: var(--cta); }
+
+    .sincon-col-label svg {
+      width: 13px; height: 13px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex-shrink: 0;
+    }
+
+    .sc-list { list-style: none; display: flex; flex-direction: column; gap: 0.9rem; }
+
+    .sc-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      font-size: 0.87rem;
+      line-height: 1.6;
+    }
+
+    .sin .sc-list li { color: var(--text-subtle); }
+    .con .sc-list li { color: var(--text); }
+
+    .sc-list li svg {
+      width: 13px; height: 13px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex-shrink: 0;
+      margin-top: 3px;
+    }
+
+    /* ─────────────────── FAQ ─────────────────── */
+    #faq { background: var(--bg); }
+
+    .faq-header { margin-bottom: 3rem; }
+
+    .faq-list {
+      max-width: 780px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    .faq-item { background: var(--glass-bg); }
+
+    .faq-question {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1.5rem 2rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      text-align: left;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.93rem;
+      font-weight: 600;
+      line-height: 1.4;
+      transition: background 200ms var(--ease-out);
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .faq-question:hover { background: var(--glass-bg-hover); }
+    }
+
+    .faq-icon {
+      width: 18px; height: 18px;
+      flex-shrink: 0;
+      stroke: var(--text-muted);
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      transition: transform 280ms var(--ease-out), stroke 200ms;
+    }
+
+    .faq-item.open .faq-icon { transform: rotate(45deg); stroke: var(--cta); }
+
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 350ms var(--ease-out);
+    }
+
+    .faq-answer-inner {
+      padding: 0 2rem 1.5rem;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.75;
+      border-top: 1px solid var(--border);
+      padding-top: 1.25rem;
+    }
+
     /* ─────────────────── REVEAL ANIMATIONS ─────────────────── */
     .reveal {
       opacity: 0;
@@ -1766,6 +1909,10 @@
       .footer-bottom { flex-direction: column; gap: 0.5rem; text-align: center; }
       .btn-secondary { display: none; }
       .form-row { grid-template-columns: 1fr; }
+      .sincon-grid { grid-template-columns: 1fr; }
+      .sincon-col { padding: 2rem 1.5rem; }
+      .faq-question { padding: 1.25rem 1.5rem; font-size: 0.88rem; }
+      .faq-answer-inner { padding: 0 1.5rem 1.25rem; padding-top: 1rem; }
     }
 
     @media (max-width: 480px) {
@@ -2460,7 +2607,6 @@
         <span class="nav-brand-text">SUSTENTA FUTURO</span>
       </a>
       <div class="nav-links">
-        <a href="#tecnologia">Tecnología</a>
         <a href="#proceso">Proceso</a>
         <div class="theme-switch" id="theme-switch" role="group" aria-label="Cambiar tema">
           <div class="theme-switch__slider" id="ts-slider"></div>
@@ -2546,24 +2692,29 @@
 
       <div class="srv-display" aria-live="polite">
         <div class="srv-item" data-srv="0">
-          <div class="srv-num">01 / RPA</div>
-          <h3>Automatización RPA</h3>
-          <p>Robots de software que trabajan 24/7. Integramos con Buk, AFC y SII. De 41 horas a 8 horas por ciclo.</p>
+          <div class="srv-num">01 / WEB</div>
+          <h3>Diseño y Desarrollo Web</h3>
+          <p>Sitios y aplicaciones web a medida, con diseño premium y rendimiento optimizado para convertir visitas en clientes.</p>
         </div>
         <div class="srv-item" data-srv="1">
-          <div class="srv-num">02 / IA</div>
-          <h3>Inteligencia Artificial</h3>
-          <p>Chatbots, OCR avanzado y modelos predictivos adaptados a tu industria y datos propios.</p>
+          <div class="srv-num">02 / DEV</div>
+          <h3>Desarrollo de Software</h3>
+          <p>Soluciones de software personalizadas que se integran con tus sistemas actuales y escalan con tu negocio.</p>
         </div>
         <div class="srv-item" data-srv="2">
-          <div class="srv-num">03 / DEV</div>
-          <h3>Desarrollo de Software</h3>
-          <p>Apps web, APIs REST y dashboards en tiempo real. Stack moderno y escalable.</p>
+          <div class="srv-num">03 / APP</div>
+          <h3>Aplicaciones Móviles</h3>
+          <p>Apps iOS y Android diseñadas para tus procesos y equipos, con experiencia de usuario intuitiva y sincronización en tiempo real.</p>
         </div>
         <div class="srv-item" data-srv="3">
-          <div class="srv-num">04 / TI</div>
-          <h3>Consultoría TI</h3>
-          <p>Diagnóstico, arquitectura tecnológica y capacitación para liderar la transformación digital.</p>
+          <div class="srv-num">04 / RPA</div>
+          <h3>Automatizaciones y RPA</h3>
+          <p>Robots de software que eliminan el trabajo repetitivo. Integramos con tus sistemas actuales para liberar a tu equipo.</p>
+        </div>
+        <div class="srv-item" data-srv="4">
+          <div class="srv-num">05 / BOT</div>
+          <h3>Chatbots y Landing Pages</h3>
+          <p>Atención al cliente 24/7 con IA conversacional y páginas de captura diseñadas para convertir.</p>
         </div>
       </div>
 
@@ -2592,8 +2743,8 @@
     </div>
   </div>
 
-  <!-- TECNOLOGÍA / MULTI-AGENTE -->
-  <section id="tecnologia">
+  <!-- TECNOLOGÍA / MULTI-AGENTE — eliminada por decisión de Hector (09 abr 2026) -->
+  <section id="tecnologia" style="display:none;">
     <div class="container">
       <span class="section-label reveal">Cómo lo hacemos</span>
       <h2 class="section-title reveal">Arquitectura<br />Multi-Agente</h2>
@@ -2727,6 +2878,75 @@
             <h4>Equipo local, visión regional</h4>
             <p>Presencia en Santiago con visión de escalar a toda Sudamérica. Entendemos el ecosistema local.</p>
           </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SIN/CON -->
+  <section id="sincon">
+    <div class="container">
+      <div class="sincon-header">
+        <span class="section-label reveal">Antes / Después</span>
+        <h2 class="section-title reveal">Qué cambia cuando<br />llegas a Sustenta Futuro</h2>
+        <p class="section-sub reveal">El mismo equipo, los mismos recursos — pero con la operación automatizada.</p>
+      </div>
+      <div class="sincon-grid reveal">
+        <div class="sincon-col sin">
+          <div class="sincon-col-label">
+            <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            Sin Sustenta Futuro
+          </div>
+          <ul class="sc-list">
+            <li>
+              <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              Errores humanos que interrumpen tus procesos críticos
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              Tu equipo perdiendo horas en tareas repetitivas de bajo valor
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              Proyectos tecnológicos sin fechas claras ni visibilidad del avance
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              Operación que se detiene si falta una persona clave
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              Costos que crecen sin retorno medible ni transparencia
+            </li>
+          </ul>
+        </div>
+        <div class="sincon-col con">
+          <div class="sincon-col-label">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            Con Sustenta Futuro
+          </div>
+          <ul class="sc-list">
+            <li>
+              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+              Automatización con menos del 1% de error y monitoreo continuo
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+              Tu equipo enfocado en lo estratégico que hace crecer el negocio
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+              Piloto operativo en semanas con métricas de éxito definidas desde el día 1
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+              Operación 24/7 sin intervención manual, SLA 99% uptime
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+              ROI medible desde el piloto, precios transparentes, sin letra chica
+            </li>
+          </ul>
         </div>
       </div>
     </div>
@@ -2956,6 +3176,81 @@
     </div>
   </section>
 
+  <!-- FAQ -->
+  <section id="faq">
+    <div class="container">
+      <div class="faq-header">
+        <span class="section-label reveal">Preguntas frecuentes</span>
+        <h2 class="section-title reveal">Resolvemos tus<br />dudas antes de empezar</h2>
+      </div>
+      <div class="faq-list reveal">
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">
+            ¿Cuánto cuesta implementar una automatización?
+            <svg class="faq-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">El costo varía según el alcance y la complejidad del proceso. Comenzamos con un piloto gratuito para validar el caso de uso antes de cualquier inversión. Agenda una demo y te damos una estimación clara en 48 horas hábiles.</div>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">
+            ¿Cuánto tiempo tarda la implementación?
+            <svg class="faq-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">La mayoría de los pilotos están operativos entre 2 y 4 semanas. Un proyecto completo puede tomar entre 6 y 12 semanas según su complejidad. Definimos plazos realistas antes de comenzar, con hitos visibles en cada etapa.</div>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">
+            ¿Necesito cambiar mis sistemas actuales?
+            <svg class="faq-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">No. Nuestras soluciones se integran con los sistemas que ya usas — ERP, correo corporativo, portales web, archivos Excel o PDF — sin modificar tu infraestructura existente. El robot se adapta a tu flujo, no al revés.</div>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">
+            ¿Qué pasa si el robot falla en producción?
+            <svg class="faq-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">Contamos con monitoreo continuo y un SLA del 99% de uptime. Ante cualquier incidencia respondemos en menos de 4 horas hábiles. Cada acción ejecutada queda registrada en logs auditables para diagnóstico inmediato.</div>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">
+            ¿Mis datos y los de mis clientes están seguros?
+            <svg class="faq-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">Sí. Operamos bajo Ley 19.628 de protección de datos personales y firmamos NDA y DPA con cada cliente. Ofrecemos despliegue on-premise o en la nube con región en Chile. Tus datos no salen del país sin tu autorización explícita.</div>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">
+            ¿Puedo pedir cambios después de la implementación?
+            <svg class="faq-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">Sí. Las actualizaciones y mejoras están incluidas durante toda la relación comercial, sin costos adicionales sorpresa. Si tu proceso cambia, adaptamos el robot para que siga funcionando correctamente.</div>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">
+            ¿Trabajan con empresas de cualquier tamaño y rubro?
+            <svg class="faq-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">Sí. Trabajamos con empresas medianas y grandes de distintos rubros. Si tienes un proceso repetitivo que quieres automatizar, podemos ayudarte — independiente del sector o tamaño de tu organización.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- CONTACTO -->
   <section id="contacto">
     <div class="container">
@@ -3065,9 +3360,17 @@
           <a href="#">Santiago, Chile</a>
         </div>
         <div class="footer-links">
+          <p class="footer-links-title">Servicios</p>
+          <a href="#producto">Diseño y Desarrollo Web</a>
+          <a href="#producto">Desarrollo de Software</a>
+          <a href="#producto">Aplicaciones Móviles</a>
+          <a href="#producto">Automatizaciones y RPA</a>
+          <a href="#producto">Chatbots y Landing Pages</a>
+        </div>
+        <div class="footer-links">
           <p class="footer-links-title">Empresa</p>
-          <a href="#tecnologia">Tecnología</a>
           <a href="#proceso">Proceso</a>
+          <a href="#diferenciadores">Por qué elegirnos</a>
           <a href="#contacto">Contacto</a>
         </div>
       </div>
@@ -3459,7 +3762,7 @@
 
     gsap.set('.prod-marquee', { xPercent: 110, opacity: 0 });
     // right cards start from right, left cards from left
-    gsap.set('.srv-item[data-srv="0"], .srv-item[data-srv="2"]', { opacity: 0, x: 60 });
+    gsap.set('.srv-item[data-srv="0"], .srv-item[data-srv="2"], .srv-item[data-srv="4"]', { opacity: 0, x: 60 });
     gsap.set('.srv-item[data-srv="1"], .srv-item[data-srv="3"]', { opacity: 0, x: -60 });
 
     const tl = gsap.timeline({
@@ -3492,7 +3795,10 @@
       .to('.srv-item[data-srv="2"]', { opacity: 0, x: 60, duration: 0.18, ease: 'power2.in' }, 1.58)
       // Servicio 4 — izquierda entra, sale a la izquierda
       .to('.srv-item[data-srv="3"]', { opacity: 1, x: 0, duration: 0.22, ease: 'power2.out' }, 1.66)
-      .to('.srv-item[data-srv="3"]', { opacity: 0, x: -60, duration: 0.18, ease: 'power2.in' }, 1.96);
+      .to('.srv-item[data-srv="3"]', { opacity: 0, x: -60, duration: 0.18, ease: 'power2.in' }, 1.96)
+      // Servicio 5 — derecha entra, queda visible al final
+      .to('.srv-item[data-srv="4"]', { opacity: 1, x: 0, duration: 0.22, ease: 'power2.out' }, 2.04)
+      .to('.srv-item[data-srv="4"]', { opacity: 0, x: 60, duration: 0.18, ease: 'power2.in' }, 2.34);
 
     ScrollTrigger.create({
       trigger: section,
@@ -3789,6 +4095,27 @@
     /* Restore saved or default dark */
     applyTheme(localStorage.getItem(STORAGE_KEY) || 'dark');
   }
+
+  /* ── FAQ accordion ── */
+  document.querySelectorAll('.faq-question').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const item = btn.closest('.faq-item');
+      const answer = item.querySelector('.faq-answer');
+      const isOpen = item.classList.contains('open');
+
+      document.querySelectorAll('.faq-item.open').forEach(openItem => {
+        openItem.classList.remove('open');
+        openItem.querySelector('.faq-answer').style.maxHeight = '0';
+        openItem.querySelector('.faq-question').setAttribute('aria-expanded', 'false');
+      });
+
+      if (!isOpen) {
+        item.classList.add('open');
+        answer.style.maxHeight = answer.scrollHeight + 'px';
+        btn.setAttribute('aria-expanded', 'true');
+      }
+    });
+  });
   </script>
 
   <!-- CHAT WIDGET -->

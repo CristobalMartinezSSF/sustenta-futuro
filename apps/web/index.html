@@ -3547,7 +3547,13 @@
     // Note: initOrganicSphere, initProductSection are called in the block below
 
     // ── Form submit ──
-    function handleSubmit(e) {
+    // ⚠️ TEMPORAL: conexión directa a Supabase desde el frontend.
+    // La anon key es pública por diseño pero esto DEBE migrarse a FastAPI
+    // antes de producción real. Ver nota crítica en informe W16.
+    const SUPABASE_URL = 'https://rddbfflzhdwhefrkpkcj.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_o-aVjnZDAIZa7bs8nAaiXQ_Cs8U7tgw';
+
+    async function handleSubmit(e) {
       e.preventDefault();
       const form = e.target;
       const btn  = form.querySelector('.form-submit');
@@ -3556,27 +3562,53 @@
       btn.style.opacity = '0.7';
       btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="animation:spin .8s linear infinite"><path d="M21 12a9 9 0 1 1-6.22-8.56"/></svg> Enviando...`;
 
-      const data = {
-        full_name:        form.full_name.value,
-        email:            form.email.value,
-        phone:            form.phone.value,
-        company:          form.company.value,
-        service_interest: form.service_interest.value,
-        estimated_budget: form.estimated_budget.value,
-        message:          form.message.value,
-        source:           'landing_page'
+      // Build message combining all relevant fields
+      const serviceInterest = form.service_interest ? form.service_interest.value : '';
+      const estimatedBudget = form.estimated_budget ? form.estimated_budget.value : '';
+      let fullMessage = form.message.value || '';
+      if (serviceInterest) fullMessage += `\nServicio de interés: ${serviceInterest}`;
+      if (estimatedBudget) fullMessage += `\nPresupuesto estimado: ${estimatedBudget}`;
+
+      const payload = {
+        name:    form.full_name.value.trim(),
+        email:   form.email.value.trim(),
+        phone:   form.phone.value.trim()   || undefined,
+        company: form.company.value.trim() || undefined,
+        message: fullMessage.trim()        || undefined,
+        source:  'landing_form',
       };
 
-      // TODO: conectar con FastAPI POST /leads
-      console.log('Lead:', data);
+      // Remove undefined keys
+      Object.keys(payload).forEach(k => payload[k] === undefined && delete payload[k]);
 
-      setTimeout(() => {
+      try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/leads`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+            'Prefer': 'return=minimal',
+          },
+          body: JSON.stringify(payload),
+        });
+
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
         btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> ¡Listo! Te contactamos pronto`;
         btn.style.background = '#fff';
         btn.style.color      = '#000';
         btn.style.opacity    = '1';
         form.reset();
-      }, 1200);
+
+      } catch (err) {
+        console.error('Error enviando lead:', err);
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Error — intenta nuevamente`;
+        btn.style.background = '#fff';
+        btn.style.color      = '#000';
+      }
     }
   </script>
 

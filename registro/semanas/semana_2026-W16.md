@@ -4,6 +4,8 @@
 | Fecha | Tema | Duración | Archivo |
 |---|---|---|---|
 | 2026-04-13 | Landing page — investigación y desarrollo | ~7h | [ver](../sesiones/2026-04-13_09-00_landing-investigacion-desarrollo.md) |
+| 2026-04-14 | Investigación, infraestructura y configuración de Git | ~9h | [ver](../sesiones/2026-04-14_09-00_investigacion-infraestructura-git.md) |
+| 2026-04-15 | Arreglo panel admin + backend | en curso | [ver](../sesiones/2026-04-15_09-00_arreglo-admin-panel-backend.md) |
 
 ## Trabajo del día 2026-04-13
 

@@ -159,45 +159,326 @@ function formatDate(iso: string): string {
   return `${dd}/${mm}/${yyyy}`
 }
 
+// --- Create Project Modal ---
+
+interface CreateLeadForm {
+  name: string
+  email: string
+  phone: string
+  company: string
+  message: string
+  status: LeadStatus
+}
+
+function CreateProjectModal({
+  onClose,
+  onCreated,
+  accessToken,
+}: {
+  onClose: () => void
+  onCreated: (lead: Lead) => void
+  accessToken: string
+}) {
+  const [form, setForm] = useState<CreateLeadForm>({
+    name: '',
+    email: '',
+    phone: '',
+    company: '',
+    message: '',
+    status: 'new',
+  })
+  const [submitting, setSubmitting] = useState(false)
+  const [formError, setFormError] = useState<string | null>(null)
+
+  function set<K extends keyof CreateLeadForm>(key: K, value: CreateLeadForm[K]) {
+    setForm((prev) => ({ ...prev, [key]: value }))
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!form.name.trim() || !form.email.trim()) return
+    setFormError(null)
+    setSubmitting(true)
+
+    const payload: Record<string, string> = {
+      name: form.name.trim(),
+      email: form.email.trim(),
+      status: form.status,
+    }
+    if (form.phone.trim()) payload.phone = form.phone.trim()
+    if (form.company.trim()) payload.company = form.company.trim()
+    if (form.message.trim()) payload.message = form.message.trim()
+
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/leads`,
+        {
+          method: 'POST',
+          headers: {
+            'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=representation',
+          },
+          body: JSON.stringify(payload),
+        }
+      )
+
+      if (!res.ok) {
+        const body = await res.text()
+        setFormError(`Error al crear proyecto: ${body}`)
+        return
+      }
+
+      const data = await res.json()
+      if (data && data[0]) {
+        onCreated(data[0] as Lead)
+      }
+    } catch {
+      setFormError('Error inesperado. Intenta nuevamente.')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const inputStyle = {
+    background: '#111111',
+    border: '1px solid rgba(255,255,255,0.08)',
+    color: '#F0F0F0',
+  }
+
+  const labelStyle = { color: 'rgba(240,240,240,0.6)' }
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center px-4"
+      style={{ background: 'rgba(0,0,0,0.75)' }}
+      onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
+    >
+      <div
+        className="w-full max-w-md rounded-xl border p-6 shadow-2xl"
+        style={{ background: '#0a0a0a', borderColor: 'rgba(255,255,255,0.1)' }}
+      >
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-base font-semibold text-white">Crear proyecto</h2>
+          <button
+            onClick={onClose}
+            className="text-lg leading-none transition-opacity hover:opacity-60"
+            style={{ color: 'rgba(240,240,240,0.4)' }}
+            aria-label="Cerrar"
+          >
+            ✕
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Nombre */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs" style={labelStyle}>
+                Nombre <span style={{ color: '#f87171' }}>*</span>
+              </label>
+              <input
+                type="text"
+                required
+                value={form.name}
+                onChange={(e) => set('name', e.target.value)}
+                className="rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-[#4B9BF5]/40"
+                style={inputStyle}
+                placeholder="Juan Pérez"
+              />
+            </div>
+
+            {/* Email */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs" style={labelStyle}>
+                Email <span style={{ color: '#f87171' }}>*</span>
+              </label>
+              <input
+                type="email"
+                required
+                value={form.email}
+                onChange={(e) => set('email', e.target.value)}
+                className="rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-[#4B9BF5]/40"
+                style={inputStyle}
+                placeholder="juan@empresa.cl"
+              />
+            </div>
+
+            {/* Telefono */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs" style={labelStyle}>Telefono</label>
+              <input
+                type="tel"
+                value={form.phone}
+                onChange={(e) => set('phone', e.target.value)}
+                className="rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-[#4B9BF5]/40"
+                style={inputStyle}
+                placeholder="+56 9 1234 5678"
+              />
+            </div>
+
+            {/* Empresa */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs" style={labelStyle}>Empresa</label>
+              <input
+                type="text"
+                value={form.company}
+                onChange={(e) => set('company', e.target.value)}
+                className="rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-[#4B9BF5]/40"
+                style={inputStyle}
+                placeholder="Empresa S.A."
+              />
+            </div>
+          </div>
+
+          {/* Mensaje */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs" style={labelStyle}>Mensaje</label>
+            <textarea
+              value={form.message}
+              onChange={(e) => set('message', e.target.value)}
+              rows={3}
+              className="rounded-lg px-3 py-2 text-sm outline-none resize-none focus:ring-1 focus:ring-[#4B9BF5]/40"
+              style={inputStyle}
+              placeholder="Descripcion del proyecto..."
+            />
+          </div>
+
+          {/* Estado inicial */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs" style={labelStyle}>Estado inicial</label>
+            <select
+              value={form.status}
+              onChange={(e) => set('status', e.target.value as LeadStatus)}
+              className="rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-[#4B9BF5]/40"
+              style={{ ...inputStyle, appearance: 'none' }}
+            >
+              {(Object.keys(STATUS_LABELS) as LeadStatus[]).map((s) => (
+                <option key={s} value={s} style={{ background: '#111111' }}>
+                  {STATUS_LABELS[s]}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {formError && (
+            <p
+              className="text-xs rounded px-3 py-2"
+              style={{
+                color: '#f87171',
+                background: 'rgba(248,113,113,0.08)',
+                border: '1px solid rgba(248,113,113,0.15)',
+              }}
+            >
+              {formError}
+            </p>
+          )}
+
+          <div className="flex justify-end gap-2 pt-1">
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-lg px-4 py-2 text-sm transition-opacity hover:opacity-70"
+              style={{
+                background: 'rgba(255,255,255,0.06)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                color: 'rgba(240,240,240,0.7)',
+              }}
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              disabled={submitting || !form.name.trim() || !form.email.trim()}
+              className="rounded-lg px-4 py-2 text-sm font-medium transition-opacity disabled:opacity-40"
+              style={{ background: '#4B9BF5', color: '#ffffff' }}
+            >
+              {submitting ? 'Creando...' : 'Crear proyecto'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+// --- Dashboard ---
+
 export default function DashboardPage() {
   const router = useRouter()
   const [leads, setLeads] = useState<Lead[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [authChecked, setAuthChecked] = useState(false)
+  const [accessToken, setAccessToken] = useState<string>('')
+  const [showCreateModal, setShowCreateModal] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false)
 
   useEffect(() => {
     async function init() {
-      const supabase = createClient()
+      try {
+        const supabase = createClient()
 
-      // Check auth first
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) {
-        router.replace('/login')
-        return
-      }
+        const { data: { user }, error: userError } = await supabase.auth.getUser()
+        if (!user || userError) {
+          window.location.href = '/login'
+          return
+        }
 
-      // Fetch leads
-      const { data, error: fetchError } = await supabase
-        .from('leads')
-        .select('id, name, company, email, status, created_at')
-        .order('created_at', { ascending: false })
+        const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession()
+        if (!refreshError && refreshData.session) {
+          setAuthChecked(true)
+          setAccessToken(refreshData.session.access_token)
 
-      if (fetchError) {
-        setError(`Error al cargar proyectos: ${fetchError.message} (code: ${fetchError.code})`)
-      } else {
-        setLeads((data as Lead[]) ?? [])
+          // Check role for conditional nav
+          const { data: roleData } = await supabase.rpc('get_my_role')
+          if (roleData === 'admin') setIsAdmin(true)
+
+          const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/leads?select=id,name,company,email,status,created_at&order=created_at.desc`
+          const res = await fetch(url, {
+            headers: {
+              'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+              'Authorization': `Bearer ${refreshData.session.access_token}`,
+            },
+          })
+
+          if (!res.ok) {
+            const body = await res.text()
+            setError(`Error ${res.status}: ${body}`)
+          } else {
+            const data = await res.json()
+            setLeads((data as Lead[]) ?? [])
+          }
+        } else {
+          window.location.href = '/login'
+          return
+        }
+      } catch {
+        window.location.href = '/login'
       }
       setLoading(false)
     }
 
     init()
-  }, [router])
+  }, [])
+
+  if (!authChecked) return (
+    <div className="min-h-screen flex items-center justify-center" style={{ background: '#000000' }}>
+      <div className="w-5 h-5 rounded-full border-2 border-white/20 border-t-white animate-spin" />
+    </div>
+  )
 
   async function handleLogout() {
     const supabase = createClient()
     await supabase.auth.signOut()
     router.push('/login')
     router.refresh()
+  }
+
+  function handleLeadCreated(newLead: Lead) {
+    setLeads((prev) => [newLead, ...prev])
+    setShowCreateModal(false)
   }
 
   return (
@@ -207,25 +488,51 @@ export default function DashboardPage() {
         className="border-b px-6 py-4 flex items-center justify-between"
         style={{ borderColor: 'rgba(255,255,255,0.08)', background: '#000000' }}
       >
-        <span className="text-white font-semibold tracking-tight">
-          Sustenta Futuro
-        </span>
-        <button
-          onClick={handleLogout}
-          className="text-sm transition-opacity hover:opacity-70"
-          style={{ color: 'rgba(240,240,240,0.5)' }}
-        >
-          Cerrar sesión
-        </button>
+        <div className="flex items-center gap-2.5">
+          <img src="/logo.png" alt="Sustenta Futuro" style={{ height: '28px', width: 'auto' }} />
+          <span
+            className="text-white font-semibold tracking-tight"
+            style={{ fontFamily: 'var(--font-montserrat)' }}
+          >
+            Sustenta Futuro
+          </span>
+        </div>
+        <div className="flex items-center gap-5">
+          {isAdmin && (
+            <button
+              onClick={() => router.push('/usuarios')}
+              className="text-sm transition-opacity hover:opacity-70"
+              style={{ color: 'rgba(240,240,240,0.5)' }}
+            >
+              Usuarios
+            </button>
+          )}
+          <button
+            onClick={handleLogout}
+            className="text-sm transition-opacity hover:opacity-70"
+            style={{ color: 'rgba(240,240,240,0.5)' }}
+          >
+            Cerrar sesión
+          </button>
+        </div>
       </header>
 
       {/* Main */}
       <main className="px-6 py-8 max-w-7xl mx-auto">
-        <div className="mb-6">
-          <h1 className="text-xl font-semibold text-white">Proyectos</h1>
-          <p className="text-sm mt-0.5" style={{ color: 'rgba(240,240,240,0.4)' }}>
-            Solicitudes recibidas desde el sitio web
-          </p>
+        <div className="mb-6 flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-xl font-semibold text-white">Proyectos</h1>
+            <p className="text-sm mt-0.5" style={{ color: 'rgba(240,240,240,0.4)' }}>
+              Solicitudes recibidas desde el sitio web
+            </p>
+          </div>
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="flex-shrink-0 rounded-lg px-4 py-2 text-sm font-medium transition-opacity hover:opacity-85"
+            style={{ background: '#4B9BF5', color: '#ffffff' }}
+          >
+            Crear proyecto
+          </button>
         </div>
 
         {/* Error state */}
@@ -296,13 +603,15 @@ export default function DashboardPage() {
                     return (
                       <tr
                         key={lead.id}
+                        onClick={() => router.push(`/leads/${lead.id}`)}
                         style={{
                           borderBottom:
                             idx < leads.length - 1
                               ? '1px solid rgba(255,255,255,0.04)'
                               : 'none',
+                          cursor: 'pointer',
                         }}
-                        className="transition-colors hover:bg-white/[0.02]"
+                        className="transition-colors hover:bg-white/[0.03]"
                       >
                         <td className="px-4 py-3 font-medium text-white whitespace-nowrap">
                           {lead.name}
@@ -340,6 +649,15 @@ export default function DashboardPage() {
           </div>
         </div>
       </main>
+
+      {/* Create project modal */}
+      {showCreateModal && (
+        <CreateProjectModal
+          onClose={() => setShowCreateModal(false)}
+          onCreated={handleLeadCreated}
+          accessToken={accessToken}
+        />
+      )}
     </div>
   )
 }

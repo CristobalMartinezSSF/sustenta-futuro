@@ -12,12 +12,40 @@ interface ConfigRow {
   value: string
 }
 
-function applyCms(html: string, key: string, value: string): string {
+function applyCms(html: string, key: string, replacement: string): string {
   const regex = new RegExp(
     `(<!-- CMS:${key}:START -->)[\\s\\S]*?(<!-- CMS:${key}:END -->)`,
     'g'
   )
-  return html.replace(regex, `$1${value}$2`)
+  return html.replace(regex, `$1${replacement}$2`)
+}
+
+// Wraps plain text values in the correct HTML element for each CMS key
+function wrapValue(section: string, key: string, value: string): string {
+  const text = value.replace(/</g, '&lt;').replace(/>/g, '&gt;')
+
+  if (section === 'hero' && key === 'description') {
+    return `<p>\n          ${text}\n        </p>`
+  }
+  if (section === 'metrics' && key.endsWith('_label')) {
+    return `<p>${text}</p>`
+  }
+  if (section === 'nosotros' && (key === 'text_1' || key === 'text_2')) {
+    return `<p>${text}</p>`
+  }
+  if (section === 'nosotros' && key === 'founder_name') {
+    return `<span>${text}</span>`
+  }
+  if (section === 'testimonios' && key.endsWith('_text')) {
+    return `<p class="tc-text">${text}</p>`
+  }
+  if (section === 'testimonios' && key.endsWith('_name')) {
+    return `<strong>${text}</strong>`
+  }
+  if (section === 'testimonios' && key.endsWith('_role')) {
+    return `<span>${text}</span>`
+  }
+  return value
 }
 
 export async function POST(): Promise<Response> {
@@ -71,18 +99,23 @@ export async function POST(): Promise<Response> {
     // 3. Apply CMS replacements
     for (const row of configRows) {
       const cmsKey = `${row.section}-${row.key}`
-      let value = row.value ?? ''
+      const value = row.value ?? ''
 
-      // Special case: founder photo — replace SVG placeholder with img tag
-      if (
-        row.section === 'nosotros' &&
-        row.key === 'founder_photo_url' &&
-        value
-      ) {
-        value = `<img src="${value}" alt="Fundador" style="width:100%;height:100%;object-fit:cover;" />`
+      // Founder photo: skip if empty (keep SVG placeholder), inject img if URL present
+      if (row.section === 'nosotros' && row.key === 'founder_photo_url') {
+        if (value) {
+          const imgTag = `<img src="${value}" alt="Héctor Molt" style="width:200px;height:200px;object-fit:cover;border-radius:12px;" />`
+          html = applyCms(html, 'nosotros-founder_photo', imgTag)
+        }
+        continue
       }
 
-      html = applyCms(html, cmsKey, value)
+      // Metric nums: skip — managed in code, not editable via CMS
+      if (row.section === 'metrics' && row.key.endsWith('_num')) {
+        continue
+      }
+
+      html = applyCms(html, cmsKey, wrapValue(row.section, row.key, value))
     }
 
     // 4. Commit updated file back to GitHub

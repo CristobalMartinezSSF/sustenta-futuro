@@ -507,6 +507,15 @@ export default function DashboardPage() {
               Usuarios
             </button>
           )}
+          {isAdmin && (
+            <button
+              onClick={() => router.push('/configuracion')}
+              className="text-sm transition-opacity hover:opacity-70"
+              style={{ color: 'rgba(240,240,240,0.5)' }}
+            >
+              Configuración
+            </button>
+          )}
           <button
             onClick={handleLogout}
             className="text-sm transition-opacity hover:opacity-70"

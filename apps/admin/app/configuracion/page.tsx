@@ -443,53 +443,32 @@ export default function ConfiguracionPage() {
             title="Metricas"
             onSave={() =>
               saveSection('metrics', [
-                'metric_1_num',
                 'metric_1_label',
-                'metric_2_num',
                 'metric_2_label',
-                'metric_3_num',
                 'metric_3_label',
               ])
             }
             saving={!!saving['metrics']}
             saved={!!saved['metrics']}
           >
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4">
               <Field
-                label="Metrica 1 — numero"
-                value={get('metrics', 'metric_1_num')}
-                onChange={(v) => set('metrics', 'metric_1_num', v)}
-                placeholder="50+"
-              />
-              <Field
-                label="Metrica 1 — descripcion"
+                label="Metrica 1 — descripcion (80% ahorro de tiempo)"
                 value={get('metrics', 'metric_1_label')}
                 onChange={(v) => set('metrics', 'metric_1_label', v)}
-                placeholder="Proyectos completados"
+                placeholder="ahorro de tiempo en tareas repetitivas"
               />
               <Field
-                label="Metrica 2 — numero"
-                value={get('metrics', 'metric_2_num')}
-                onChange={(v) => set('metrics', 'metric_2_num', v)}
-                placeholder="98%"
-              />
-              <Field
-                label="Metrica 2 — descripcion"
+                label="Metrica 2 — descripcion (24/7)"
                 value={get('metrics', 'metric_2_label')}
                 onChange={(v) => set('metrics', 'metric_2_label', v)}
-                placeholder="Clientes satisfechos"
+                placeholder="disponibilidad sin interrupciones"
               />
               <Field
-                label="Metrica 3 — numero"
-                value={get('metrics', 'metric_3_num')}
-                onChange={(v) => set('metrics', 'metric_3_num', v)}
-                placeholder="5+"
-              />
-              <Field
-                label="Metrica 3 — descripcion"
+                label="Metrica 3 — descripcion (100%)"
                 value={get('metrics', 'metric_3_label')}
                 onChange={(v) => set('metrics', 'metric_3_label', v)}
-                placeholder="Anos de experiencia"
+                placeholder="personalización y soporte técnico ágil"
               />
             </div>
           </SectionCard>

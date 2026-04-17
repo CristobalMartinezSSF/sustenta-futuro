@@ -5,12 +5,23 @@
 | Fecha | 2026-04-17 |
 | Responsable | Cristóbal |
 | Para revisión de | Héctor Molt |
+| Jornada | 09:00 – 16:30 (colación 13:00 – 14:00) |
 
 ---
 
 ## Resumen ejecutivo
 
 Jornada enfocada en implementar el flujo central del sistema de gestión: **Leads → Propuestas → Proyectos**, basado directamente en el feedback de audio enviado por Héctor. Se transcribieron los 5 audios, se identificaron las tareas, y se implementó todo el flujo en el panel admin. El día cerró con la lectura de los documentos de propuesta y cotización de Héctor, que servirán como base para la siguiente etapa de automatización.
+
+---
+
+## Registro por bloques horarios
+
+| Bloque | Actividad |
+|---|---|
+| 09:00 – 13:00 | Creación cuenta Héctor en admin · Transcripción de 5 audios OGG con Whisper · Análisis del feedback · Identificación de 9 puntos de acción · Reestructura del menú de navegación (todas las páginas) · Nuevas tablas SQL (propuestas, proyectos, levantamiento_respuestas) |
+| 13:00 – 14:00 | Colación |
+| 14:00 – 16:30 | Implementación completa del flujo Leads → Propuestas → Proyectos · Página /propuestas con estados y auto-creación de proyecto al aprobar · Página /proyectos · Levantamiento de 10 preguntas en detalle de lead · Documentación del flujo · Lectura de propuesta y cotización de referencia de Héctor · Generación de este informe |
 
 ---
 

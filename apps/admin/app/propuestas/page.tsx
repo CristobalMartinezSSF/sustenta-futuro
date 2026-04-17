@@ -599,12 +599,9 @@ export default function PropuestasPage() {
   const [accessToken, setAccessToken] = useState('')
 
   const [propuestas, setPropuestas] = useState<Propuesta[]>([])
-  const [leads, setLeads] = useState<Lead[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [tableUnavailable, setTableUnavailable] = useState(false)
-
-  const [showCreateModal, setShowCreateModal] = useState(false)
 
   useEffect(() => {
     async function init() {
@@ -661,16 +658,7 @@ export default function PropuestasPage() {
           const propData = await propRes.json()
           setPropuestas((propData as Propuesta[]) ?? [])
 
-          // Fetch leads for the create modal
-          const leadsRes = await fetch(
-            `${base}/rest/v1/leads?select=id,name,company,email&order=name.asc`,
-            { headers }
-          )
-          if (leadsRes.ok) {
-            const leadsData = await leadsRes.json()
-            setLeads((leadsData as Lead[]) ?? [])
           }
-        }
       } catch {
         window.location.href = '/login'
       }
@@ -685,11 +673,6 @@ export default function PropuestasPage() {
     await supabase.auth.signOut()
     router.push('/login')
     router.refresh()
-  }
-
-  function handlePropuestaCreated(p: Propuesta) {
-    setPropuestas((prev) => [p, ...prev])
-    setShowCreateModal(false)
   }
 
   function handlePropuestaUpdated(updated: Propuesta) {
@@ -822,11 +805,11 @@ export default function PropuestasPage() {
             </p>
           </div>
           <button
-            onClick={() => setShowCreateModal(true)}
+            onClick={() => router.push('/')}
             className="flex-shrink-0 rounded-lg px-4 py-2 text-sm font-medium transition-opacity hover:opacity-85"
-            style={{ background: '#4B9BF5', color: '#ffffff' }}
+            style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(240,240,240,0.8)' }}
           >
-            Nueva propuesta
+            ← Ir a Leads
           </button>
         </div>
 
@@ -953,15 +936,6 @@ export default function PropuestasPage() {
         </div>
       </main>
 
-      {/* Create modal */}
-      {showCreateModal && (
-        <CreatePropuestaModal
-          leads={leads}
-          accessToken={accessToken}
-          onClose={() => setShowCreateModal(false)}
-          onCreated={handlePropuestaCreated}
-        />
-      )}
     </div>
   )
 }

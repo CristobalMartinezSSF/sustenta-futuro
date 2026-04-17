@@ -35,9 +35,17 @@ interface Note {
   created_by: string | null
 }
 
+interface LevantamientoRespuesta {
+  id: string
+  lead_id: string
+  pregunta: string
+  respuesta: string
+  orden: number
+}
+
 const STATUS_LABELS: Record<LeadStatus, string> = {
   new: 'Sin iniciar',
-  reviewing: 'Esperando reunión',
+  reviewing: 'Esperando reunion',
   contacted: 'En prototipado',
   qualified: 'En propuesta',
   proposal_pending: 'En desarrollo',
@@ -46,13 +54,13 @@ const STATUS_LABELS: Record<LeadStatus, string> = {
 }
 
 const STATUS_COLORS: Record<LeadStatus, { bg: string; text: string; border: string }> = {
-  new: { bg: 'rgba(100,100,100,0.12)', text: '#9ca3af', border: 'rgba(100,100,100,0.2)' },
-  reviewing: { bg: 'rgba(59,130,246,0.1)', text: '#60a5fa', border: 'rgba(59,130,246,0.2)' },
-  contacted: { bg: 'rgba(234,179,8,0.1)', text: '#fbbf24', border: 'rgba(234,179,8,0.2)' },
-  qualified: { bg: 'rgba(168,85,247,0.1)', text: '#c084fc', border: 'rgba(168,85,247,0.2)' },
-  proposal_pending: { bg: 'rgba(249,115,22,0.1)', text: '#fb923c', border: 'rgba(249,115,22,0.2)' },
-  won: { bg: 'rgba(34,197,94,0.1)', text: '#4ade80', border: 'rgba(34,197,94,0.2)' },
-  lost: { bg: 'rgba(239,68,68,0.1)', text: '#f87171', border: 'rgba(239,68,68,0.2)' },
+  new:              { bg: 'rgba(100,100,100,0.12)', text: '#9ca3af', border: 'rgba(100,100,100,0.2)' },
+  reviewing:        { bg: 'rgba(59,130,246,0.1)',   text: '#60a5fa', border: 'rgba(59,130,246,0.2)' },
+  contacted:        { bg: 'rgba(234,179,8,0.1)',    text: '#fbbf24', border: 'rgba(234,179,8,0.2)' },
+  qualified:        { bg: 'rgba(168,85,247,0.1)',   text: '#c084fc', border: 'rgba(168,85,247,0.2)' },
+  proposal_pending: { bg: 'rgba(249,115,22,0.1)',   text: '#fb923c', border: 'rgba(249,115,22,0.2)' },
+  won:              { bg: 'rgba(34,197,94,0.1)',    text: '#4ade80', border: 'rgba(34,197,94,0.2)' },
+  lost:             { bg: 'rgba(239,68,68,0.1)',    text: '#f87171', border: 'rgba(239,68,68,0.2)' },
 }
 
 const PIPELINE_STEPS: LeadStatus[] = [
@@ -63,6 +71,19 @@ const PIPELINE_STEPS: LeadStatus[] = [
   'proposal_pending',
   'won',
   'lost',
+]
+
+const PREGUNTAS_ESTANDAR = [
+  '¿Cual es el objetivo principal del sistema que necesitas?',
+  '¿Quienes seran los usuarios del sistema? (roles, cantidad estimada)',
+  '¿Que funcionalidades son imprescindibles para el lanzamiento?',
+  '¿Existen integraciones con sistemas externos requeridas? (ERP, CRM, APIs, etc.)',
+  '¿Cual es el plazo esperado de entrega?',
+  '¿Cual es el presupuesto aproximado disponible?',
+  '¿Tienes referentes visuales o sistemas similares que te gusten?',
+  '¿Cual es la infraestructura tecnologica actual de tu empresa?',
+  '¿Hay requisitos de seguridad, compliance o normativas especificas a cumplir?',
+  '¿Que problema critico resuelve este sistema para tu empresa?',
 ]
 
 function formatDate(iso: string): string {
@@ -111,6 +132,14 @@ export default function LeadDetailPage() {
   const [addingNote, setAddingNote] = useState(false)
   const [noteError, setNoteError] = useState<string | null>(null)
 
+  // Levantamiento
+  const [levantamiento, setLevantamiento] = useState<LevantamientoRespuesta[]>([])
+  const [levantamientoExists, setLevantamientoExists] = useState(true) // false = table missing
+  const [initiatingLevantamiento, setInitiatingLevantamiento] = useState(false)
+  const [savingRespuestaId, setSavingRespuestaId] = useState<string | null>(null)
+  // Local draft values keyed by respuesta id
+  const [respuestaDrafts, setRespuestaDrafts] = useState<Record<string, string>>({})
+
   useEffect(() => {
     async function init() {
       try {
@@ -127,7 +156,6 @@ export default function LeadDetailPage() {
           setAccessToken(refreshData.session.access_token)
           setUserId(refreshData.session.user.id)
 
-          // Check role for conditional nav
           const { data: roleData } = await supabase.rpc('get_my_role')
           if (roleData === 'admin') setIsAdmin(true)
 
@@ -174,10 +202,35 @@ export default function LeadDetailPage() {
               },
             }
           )
-
           if (notesRes.ok) {
             const notesData = await notesRes.json()
             setNotes((notesData as Note[]) ?? [])
+          }
+
+          // Fetch levantamiento (silent fail if table missing)
+          try {
+            const levRes = await fetch(
+              `${baseUrl}/rest/v1/levantamiento_respuestas?lead_id=eq.${leadId}&order=orden.asc`,
+              {
+                headers: {
+                  'apikey': anonKey,
+                  'Authorization': `Bearer ${token}`,
+                },
+              }
+            )
+            if (levRes.ok) {
+              const levData = await levRes.json()
+              const rows = (levData as LevantamientoRespuesta[]) ?? []
+              setLevantamiento(rows)
+              const drafts: Record<string, string> = {}
+              rows.forEach((r) => { drafts[r.id] = r.respuesta ?? '' })
+              setRespuestaDrafts(drafts)
+            } else {
+              // Table likely doesn't exist — hide section silently
+              setLevantamientoExists(false)
+            }
+          } catch {
+            setLevantamientoExists(false)
           }
         } else {
           window.location.href = '/login'
@@ -192,7 +245,6 @@ export default function LeadDetailPage() {
     init()
   }, [leadId])
 
-  // Focus title input when editing starts
   useEffect(() => {
     if (editingTitle && titleInputRef.current) {
       titleInputRef.current.focus()
@@ -303,6 +355,75 @@ export default function LeadDetailPage() {
     }
   }
 
+  async function handleInitLevantamiento() {
+    if (initiatingLevantamiento) return
+    setInitiatingLevantamiento(true)
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+      const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+
+      const rows = PREGUNTAS_ESTANDAR.map((pregunta, idx) => ({
+        lead_id: leadId,
+        pregunta,
+        respuesta: '',
+        orden: idx + 1,
+      }))
+
+      const res = await fetch(
+        `${baseUrl}/rest/v1/levantamiento_respuestas`,
+        {
+          method: 'POST',
+          headers: {
+            'apikey': anonKey,
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=representation',
+          },
+          body: JSON.stringify(rows),
+        }
+      )
+
+      if (res.ok) {
+        const created = await res.json()
+        const sorted = (created as LevantamientoRespuesta[]).sort((a, b) => a.orden - b.orden)
+        setLevantamiento(sorted)
+        const drafts: Record<string, string> = {}
+        sorted.forEach((r) => { drafts[r.id] = r.respuesta ?? '' })
+        setRespuestaDrafts(drafts)
+      }
+    } finally {
+      setInitiatingLevantamiento(false)
+    }
+  }
+
+  async function handleSaveRespuesta(id: string) {
+    if (savingRespuestaId === id) return
+    const value = respuestaDrafts[id] ?? ''
+    setSavingRespuestaId(id)
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/levantamiento_respuestas?id=eq.${id}`,
+        {
+          method: 'PATCH',
+          headers: {
+            'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=representation',
+          },
+          body: JSON.stringify({ respuesta: value, updated_at: new Date().toISOString() }),
+        }
+      )
+      if (res.ok) {
+        setLevantamiento((prev) =>
+          prev.map((r) => (r.id === id ? { ...r, respuesta: value } : r))
+        )
+      }
+    } finally {
+      setSavingRespuestaId(null)
+    }
+  }
+
   if (!authChecked || loading) {
     return (
       <div
@@ -340,7 +461,7 @@ export default function LeadDetailPage() {
             <button onClick={() => router.push('/proyectos')} className="text-sm transition-opacity hover:opacity-70" style={{ color: 'rgba(240,240,240,0.5)' }}>Proyectos</button>
             {isAdmin && <button onClick={() => router.push('/usuarios')} className="text-sm transition-opacity hover:opacity-70" style={{ color: 'rgba(240,240,240,0.5)' }}>Usuarios</button>}
             {isAdmin && <button onClick={() => router.push('/configuracion')} className="text-sm transition-opacity hover:opacity-70" style={{ color: 'rgba(240,240,240,0.5)' }}>Config. Landing</button>}
-            <button onClick={handleLogout} className="text-sm transition-opacity hover:opacity-70" style={{ color: 'rgba(240,240,240,0.5)' }}>Cerrar sesión</button>
+            <button onClick={handleLogout} className="text-sm transition-opacity hover:opacity-70" style={{ color: 'rgba(240,240,240,0.5)' }}>Cerrar sesion</button>
           </div>
         </header>
         <main className="px-6 py-8 max-w-4xl mx-auto">
@@ -381,13 +502,13 @@ export default function LeadDetailPage() {
           <button onClick={() => router.push('/proyectos')} className="text-sm transition-opacity hover:opacity-70" style={{ color: 'rgba(240,240,240,0.5)' }}>Proyectos</button>
           {isAdmin && <button onClick={() => router.push('/usuarios')} className="text-sm transition-opacity hover:opacity-70" style={{ color: 'rgba(240,240,240,0.5)' }}>Usuarios</button>}
           {isAdmin && <button onClick={() => router.push('/configuracion')} className="text-sm transition-opacity hover:opacity-70" style={{ color: 'rgba(240,240,240,0.5)' }}>Config. Landing</button>}
-          <button onClick={handleLogout} className="text-sm transition-opacity hover:opacity-70" style={{ color: 'rgba(240,240,240,0.5)' }}>Cerrar sesión</button>
+          <button onClick={handleLogout} className="text-sm transition-opacity hover:opacity-70" style={{ color: 'rgba(240,240,240,0.5)' }}>Cerrar sesion</button>
         </div>
       </header>
 
       <main className="px-6 py-8 max-w-4xl mx-auto space-y-8">
 
-        {/* Header: title + status badge */}
+        {/* Header: title + status badge + actions */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex flex-col gap-1">
             {/* Editable project title */}
@@ -439,16 +560,34 @@ export default function LeadDetailPage() {
               Creado el {formatDateShort(lead.created_at)}
             </p>
           </div>
-          <span
-            className="inline-flex items-center self-start rounded-md px-2.5 py-1 text-xs font-medium"
-            style={{
-              background: statusStyle.bg,
-              color: statusStyle.text,
-              border: `1px solid ${statusStyle.border}`,
-            }}
-          >
-            {STATUS_LABELS[currentStatus]}
-          </span>
+
+          {/* Right side: status badge + Crear propuesta button */}
+          <div className="flex items-center gap-3 self-start flex-wrap">
+            <button
+              onClick={() => {
+                const params = new URLSearchParams({ lead_id: lead.id, lead_name: lead.name })
+                router.push(`/propuestas?${params.toString()}`)
+              }}
+              className="rounded-lg px-3 py-1.5 text-sm font-medium transition-opacity hover:opacity-80"
+              style={{
+                background: 'rgba(255,255,255,0.06)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                color: 'rgba(240,240,240,0.8)',
+              }}
+            >
+              Crear propuesta
+            </button>
+            <span
+              className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-medium"
+              style={{
+                background: statusStyle.bg,
+                color: statusStyle.text,
+                border: `1px solid ${statusStyle.border}`,
+              }}
+            >
+              {STATUS_LABELS[currentStatus]}
+            </span>
+          </div>
         </div>
 
         {/* Pipeline stepper */}
@@ -461,10 +600,7 @@ export default function LeadDetailPage() {
           </p>
           <div className="flex items-start gap-0 overflow-x-auto pb-1">
             {PIPELINE_STEPS.map((step, idx) => {
-              const stepStyle = STATUS_COLORS[step]
               const isCurrent = step === currentStatus
-              const stepsBefore = PIPELINE_STEPS.indexOf(currentStatus)
-              // "lost" is always treated as a separate terminal state
               const isCompleted =
                 step !== 'lost' &&
                 currentStatus !== 'lost' &&
@@ -478,7 +614,6 @@ export default function LeadDetailPage() {
                     className="flex flex-col items-center gap-2 group"
                     style={{ minWidth: '72px' }}
                   >
-                    {/* Circle */}
                     <div
                       className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold transition-all"
                       style={
@@ -504,7 +639,6 @@ export default function LeadDetailPage() {
                     >
                       {isCompleted ? '✓' : idx + 1}
                     </div>
-                    {/* Label */}
                     <span
                       className="text-center leading-tight"
                       style={{
@@ -520,7 +654,6 @@ export default function LeadDetailPage() {
                       {STATUS_LABELS[step]}
                     </span>
                   </button>
-                  {/* Connector line */}
                   {idx < PIPELINE_STEPS.length - 1 && (
                     <div
                       className="h-px w-4 flex-shrink-0 mt-[-18px]"
@@ -547,7 +680,7 @@ export default function LeadDetailPage() {
           className="rounded-xl border p-5"
           style={{ background: '#0a0a0a', borderColor: 'rgba(255,255,255,0.08)' }}
         >
-          <p className="text-xs font-medium uppercase tracking-wider mb-4" style={{ color: 'rgba(240,240,240,0.35)' }}>
+          <p className="text-xs font-semibold uppercase tracking-wider mb-4" style={{ color: 'rgba(240,240,240,0.35)' }}>
             Informacion de contacto
           </p>
           <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
@@ -570,12 +703,92 @@ export default function LeadDetailPage() {
           )}
         </div>
 
+        {/* Levantamiento section — only shown when table exists */}
+        {levantamientoExists && (
+          <div
+            className="rounded-xl border p-5"
+            style={{ background: '#0a0a0a', borderColor: 'rgba(255,255,255,0.08)' }}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'rgba(240,240,240,0.35)' }}>
+                Levantamiento
+              </p>
+              {levantamiento.length > 0 && (
+                <p className="text-xs" style={{ color: 'rgba(240,240,240,0.3)' }}>
+                  {levantamiento.filter((r) => r.respuesta && r.respuesta.trim() !== '').length} / {levantamiento.length} respondidas
+                </p>
+              )}
+            </div>
+
+            {levantamiento.length === 0 ? (
+              <div className="flex flex-col items-center py-8 gap-4">
+                <p className="text-sm text-center" style={{ color: 'rgba(240,240,240,0.4)' }}>
+                  Aun no se ha iniciado el cuestionario de levantamiento para este lead.
+                </p>
+                <button
+                  onClick={handleInitLevantamiento}
+                  disabled={initiatingLevantamiento}
+                  className="rounded-lg px-4 py-2 text-sm font-medium transition-opacity disabled:opacity-50"
+                  style={{ background: '#4B9BF5', color: '#ffffff' }}
+                >
+                  {initiatingLevantamiento ? 'Iniciando...' : 'Iniciar levantamiento'}
+                </button>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-5">
+                {levantamiento.map((r, idx) => (
+                  <div key={r.id}>
+                    <label
+                      className="block text-xs mb-2 font-medium"
+                      style={{ color: 'rgba(240,240,240,0.55)' }}
+                    >
+                      <span style={{ color: 'rgba(75,155,245,0.7)', marginRight: '6px' }}>
+                        {idx + 1}.
+                      </span>
+                      {r.pregunta}
+                    </label>
+                    <div className="relative">
+                      <textarea
+                        value={respuestaDrafts[r.id] ?? ''}
+                        onChange={(e) =>
+                          setRespuestaDrafts((prev) => ({ ...prev, [r.id]: e.target.value }))
+                        }
+                        onBlur={() => handleSaveRespuesta(r.id)}
+                        rows={3}
+                        placeholder="Escribe la respuesta aqui..."
+                        style={{
+                          background: 'rgba(255,255,255,0.04)',
+                          border: '1px solid rgba(255,255,255,0.08)',
+                          color: '#F0F0F0',
+                          borderRadius: '8px',
+                          padding: '8px 12px',
+                          width: '100%',
+                          resize: 'vertical',
+                          fontSize: '14px',
+                          lineHeight: '1.5',
+                          outline: 'none',
+                        }}
+                        className="focus:ring-1 focus:ring-[#4B9BF5]/30 transition-colors"
+                      />
+                      {savingRespuestaId === r.id && (
+                        <div
+                          className="absolute top-2 right-2 w-3 h-3 rounded-full border border-white/20 border-t-white animate-spin"
+                        />
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Notes section */}
         <div
           className="rounded-xl border p-5"
           style={{ background: '#0a0a0a', borderColor: 'rgba(255,255,255,0.08)' }}
         >
-          <p className="text-xs font-medium uppercase tracking-wider mb-4" style={{ color: 'rgba(240,240,240,0.35)' }}>
+          <p className="text-xs font-semibold uppercase tracking-wider mb-4" style={{ color: 'rgba(240,240,240,0.35)' }}>
             Notas
           </p>
 

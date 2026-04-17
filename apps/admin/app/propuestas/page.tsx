@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useRef } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -283,13 +283,15 @@ function CreatePropuestaModal({
   accessToken,
   onClose,
   onCreated,
+  initialLeadId,
 }: {
   leads: Lead[]
   accessToken: string
   onClose: () => void
   onCreated: (p: Propuesta) => void
+  initialLeadId?: string
 }) {
-  const [form, setForm] = useState<CreateForm>(EMPTY_FORM)
+  const [form, setForm] = useState<CreateForm>({ ...EMPTY_FORM, lead_id: initialLeadId ?? '' })
   const [submitting, setSubmitting] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
 
@@ -593,15 +595,19 @@ function CreatePropuestaModal({
 
 export default function PropuestasPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
 
   const [authChecked, setAuthChecked] = useState(false)
   const [isAdmin, setIsAdmin] = useState(false)
   const [accessToken, setAccessToken] = useState('')
 
   const [propuestas, setPropuestas] = useState<Propuesta[]>([])
+  const [leads, setLeads] = useState<Lead[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [tableUnavailable, setTableUnavailable] = useState(false)
+  const [showCreateModal, setShowCreateModal] = useState(false)
+  const [initialLeadId, setInitialLeadId] = useState('')
 
   useEffect(() => {
     async function init() {
@@ -633,6 +639,23 @@ export default function PropuestasPage() {
         const base = process.env.NEXT_PUBLIC_SUPABASE_URL
         const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
         const headers = { apikey: key, Authorization: `Bearer ${token}` }
+
+        // Fetch leads for the create modal
+        const leadsRes = await fetch(
+          `${base}/rest/v1/leads?select=id,name,company,email&order=created_at.desc`,
+          { headers }
+        )
+        if (leadsRes.ok) {
+          const leadsData = await leadsRes.json()
+          setLeads((leadsData as Lead[]) ?? [])
+        }
+
+        // Auto-open create modal if lead_id param present
+        const paramLeadId = searchParams.get('lead_id')
+        if (paramLeadId) {
+          setInitialLeadId(paramLeadId)
+          setShowCreateModal(true)
+        }
 
         // Fetch propuestas with lead join
         const propRes = await fetch(
@@ -677,6 +700,12 @@ export default function PropuestasPage() {
 
   function handlePropuestaUpdated(updated: Propuesta) {
     setPropuestas((prev) => prev.map((p) => (p.id === updated.id ? updated : p)))
+  }
+
+  function handlePropuestaCreated(p: Propuesta) {
+    setPropuestas((prev) => [p, ...prev])
+    setShowCreateModal(false)
+    setInitialLeadId('')
   }
 
   // ── Loading / auth gate ──────────────────────────────────────────────────
@@ -936,6 +965,15 @@ export default function PropuestasPage() {
         </div>
       </main>
 
+      {showCreateModal && (
+        <CreatePropuestaModal
+          leads={leads}
+          accessToken={accessToken}
+          initialLeadId={initialLeadId}
+          onClose={() => { setShowCreateModal(false); setInitialLeadId('') }}
+          onCreated={handlePropuestaCreated}
+        />
+      )}
     </div>
   )
 }

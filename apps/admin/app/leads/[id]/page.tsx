@@ -314,20 +314,34 @@ export default function LeadDetailPage() {
     )
   }
 
+  async function handleLogout() {
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    router.push('/login')
+    router.refresh()
+  }
+
   if (error || !lead) {
     return (
       <div className="min-h-screen" style={{ background: '#000000', color: '#F0F0F0' }}>
         <header
-          className="border-b px-6 py-4 flex items-center"
+          className="border-b px-6 py-4 flex items-center justify-between"
           style={{ borderColor: 'rgba(255,255,255,0.08)', background: '#000000' }}
         >
-          <button
-            onClick={() => router.push('/')}
-            className="text-sm flex items-center gap-2 transition-colors hover:text-[#4B9BF5]"
-            style={{ color: 'rgba(240,240,240,0.5)' }}
-          >
-            <span>&#8592;</span> Proyectos
-          </button>
+          <div className="flex items-center gap-2.5">
+            <img src="/logo.png" alt="Sustenta Futuro" style={{ height: '28px', width: 'auto' }} />
+            <span className="text-white font-semibold tracking-tight" style={{ fontFamily: 'var(--font-montserrat)' }}>
+              Sustenta Futuro
+            </span>
+          </div>
+          <div className="flex items-center gap-5">
+            <span className="text-sm font-medium" style={{ color: '#4B9BF5' }}>Leads</span>
+            <button onClick={() => router.push('/propuestas')} className="text-sm transition-opacity hover:opacity-70" style={{ color: 'rgba(240,240,240,0.5)' }}>Propuestas</button>
+            <button onClick={() => router.push('/proyectos')} className="text-sm transition-opacity hover:opacity-70" style={{ color: 'rgba(240,240,240,0.5)' }}>Proyectos</button>
+            {isAdmin && <button onClick={() => router.push('/usuarios')} className="text-sm transition-opacity hover:opacity-70" style={{ color: 'rgba(240,240,240,0.5)' }}>Usuarios</button>}
+            {isAdmin && <button onClick={() => router.push('/configuracion')} className="text-sm transition-opacity hover:opacity-70" style={{ color: 'rgba(240,240,240,0.5)' }}>Config. Landing</button>}
+            <button onClick={handleLogout} className="text-sm transition-opacity hover:opacity-70" style={{ color: 'rgba(240,240,240,0.5)' }}>Cerrar sesión</button>
+          </div>
         </header>
         <main className="px-6 py-8 max-w-4xl mx-auto">
           <div
@@ -338,7 +352,7 @@ export default function LeadDetailPage() {
               color: '#f87171',
             }}
           >
-            {error ?? 'Proyecto no encontrado.'}
+            {error ?? 'Lead no encontrado.'}
           </div>
         </main>
       </div>
@@ -355,32 +369,19 @@ export default function LeadDetailPage() {
         className="border-b px-6 py-4 flex items-center justify-between"
         style={{ borderColor: 'rgba(255,255,255,0.08)', background: '#000000' }}
       >
-        <button
-          onClick={() => router.push('/')}
-          className="text-sm flex items-center gap-2 transition-opacity hover:opacity-70"
-          style={{ color: 'rgba(240,240,240,0.5)' }}
-        >
-          <span aria-hidden="true">&#8592;</span> Proyectos
-        </button>
+        <div className="flex items-center gap-2.5">
+          <img src="/logo.png" alt="Sustenta Futuro" style={{ height: '28px', width: 'auto' }} />
+          <span className="text-white font-semibold tracking-tight" style={{ fontFamily: 'var(--font-montserrat)' }}>
+            Sustenta Futuro
+          </span>
+        </div>
         <div className="flex items-center gap-5">
-          {isAdmin && (
-            <button
-              onClick={() => router.push('/usuarios')}
-              className="text-sm transition-opacity hover:opacity-70"
-              style={{ color: 'rgba(240,240,240,0.5)' }}
-            >
-              Usuarios
-            </button>
-          )}
-          <div className="flex items-center gap-2.5">
-            <img src="/logo.png" alt="Sustenta Futuro" style={{ height: '28px', width: 'auto' }} />
-            <span
-              className="text-white font-semibold tracking-tight"
-              style={{ fontFamily: 'var(--font-montserrat)' }}
-            >
-              Sustenta Futuro
-            </span>
-          </div>
+          <span className="text-sm font-medium" style={{ color: '#4B9BF5' }}>Leads</span>
+          <button onClick={() => router.push('/propuestas')} className="text-sm transition-opacity hover:opacity-70" style={{ color: 'rgba(240,240,240,0.5)' }}>Propuestas</button>
+          <button onClick={() => router.push('/proyectos')} className="text-sm transition-opacity hover:opacity-70" style={{ color: 'rgba(240,240,240,0.5)' }}>Proyectos</button>
+          {isAdmin && <button onClick={() => router.push('/usuarios')} className="text-sm transition-opacity hover:opacity-70" style={{ color: 'rgba(240,240,240,0.5)' }}>Usuarios</button>}
+          {isAdmin && <button onClick={() => router.push('/configuracion')} className="text-sm transition-opacity hover:opacity-70" style={{ color: 'rgba(240,240,240,0.5)' }}>Config. Landing</button>}
+          <button onClick={handleLogout} className="text-sm transition-opacity hover:opacity-70" style={{ color: 'rgba(240,240,240,0.5)' }}>Cerrar sesión</button>
         </div>
       </header>
 

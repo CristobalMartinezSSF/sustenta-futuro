@@ -329,30 +329,12 @@ export default function ConfiguracionPage() {
           </span>
         </div>
         <div className="flex items-center gap-5">
-          <button
-            onClick={() => router.push('/')}
-            className="text-sm transition-opacity hover:opacity-70"
-            style={{ color: 'rgba(240,240,240,0.5)' }}
-          >
-            Proyectos
-          </button>
-          <button
-            onClick={() => router.push('/usuarios')}
-            className="text-sm transition-opacity hover:opacity-70"
-            style={{ color: 'rgba(240,240,240,0.5)' }}
-          >
-            Usuarios
-          </button>
-          <span className="text-sm font-medium" style={{ color: '#4B9BF5' }}>
-            Configuracion
-          </span>
-          <button
-            onClick={handleLogout}
-            className="text-sm transition-opacity hover:opacity-70"
-            style={{ color: 'rgba(240,240,240,0.5)' }}
-          >
-            Cerrar sesion
-          </button>
+          <button onClick={() => router.push('/')} className="text-sm transition-opacity hover:opacity-70" style={{ color: 'rgba(240,240,240,0.5)' }}>Leads</button>
+          <button onClick={() => router.push('/propuestas')} className="text-sm transition-opacity hover:opacity-70" style={{ color: 'rgba(240,240,240,0.5)' }}>Propuestas</button>
+          <button onClick={() => router.push('/proyectos')} className="text-sm transition-opacity hover:opacity-70" style={{ color: 'rgba(240,240,240,0.5)' }}>Proyectos</button>
+          <button onClick={() => router.push('/usuarios')} className="text-sm transition-opacity hover:opacity-70" style={{ color: 'rgba(240,240,240,0.5)' }}>Usuarios</button>
+          <span className="text-sm font-medium" style={{ color: '#4B9BF5' }}>Config. Landing</span>
+          <button onClick={handleLogout} className="text-sm transition-opacity hover:opacity-70" style={{ color: 'rgba(240,240,240,0.5)' }}>Cerrar sesión</button>
         </div>
       </header>
 

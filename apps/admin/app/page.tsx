@@ -394,7 +394,7 @@ function CreateProjectModal({
               className="rounded-lg px-4 py-2 text-sm font-medium transition-opacity disabled:opacity-40"
               style={{ background: '#4B9BF5', color: '#ffffff' }}
             >
-              {submitting ? 'Creando...' : 'Crear proyecto'}
+              {submitting ? 'Creando...' : 'Agregar lead'}
             </button>
           </div>
         </form>
@@ -498,6 +498,23 @@ export default function DashboardPage() {
           </span>
         </div>
         <div className="flex items-center gap-5">
+          <span className="text-sm font-medium" style={{ color: '#4B9BF5' }}>
+            Leads
+          </span>
+          <button
+            onClick={() => router.push('/propuestas')}
+            className="text-sm transition-opacity hover:opacity-70"
+            style={{ color: 'rgba(240,240,240,0.5)' }}
+          >
+            Propuestas
+          </button>
+          <button
+            onClick={() => router.push('/proyectos')}
+            className="text-sm transition-opacity hover:opacity-70"
+            style={{ color: 'rgba(240,240,240,0.5)' }}
+          >
+            Proyectos
+          </button>
           {isAdmin && (
             <button
               onClick={() => router.push('/usuarios')}
@@ -513,7 +530,7 @@ export default function DashboardPage() {
               className="text-sm transition-opacity hover:opacity-70"
               style={{ color: 'rgba(240,240,240,0.5)' }}
             >
-              Configuración
+              Config. Landing
             </button>
           )}
           <button
@@ -530,7 +547,7 @@ export default function DashboardPage() {
       <main className="px-6 py-8 max-w-7xl mx-auto">
         <div className="mb-6 flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-xl font-semibold text-white">Proyectos</h1>
+            <h1 className="text-xl font-semibold text-white">Leads</h1>
             <p className="text-sm mt-0.5" style={{ color: 'rgba(240,240,240,0.4)' }}>
               Solicitudes recibidas desde el sitio web
             </p>
@@ -540,7 +557,7 @@ export default function DashboardPage() {
             className="flex-shrink-0 rounded-lg px-4 py-2 text-sm font-medium transition-opacity hover:opacity-85"
             style={{ background: '#4B9BF5', color: '#ffffff' }}
           >
-            Crear proyecto
+            Agregar lead
           </button>
         </div>
 
@@ -598,7 +615,7 @@ export default function DashboardPage() {
                       className="px-4 py-16 text-center text-sm"
                       style={{ color: 'rgba(240,240,240,0.3)' }}
                     >
-                      No hay proyectos registrados aún.
+                      No hay leads registrados aún.
                     </td>
                   </tr>
                 ) : (

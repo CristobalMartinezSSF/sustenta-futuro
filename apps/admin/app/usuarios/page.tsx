@@ -456,26 +456,12 @@ export default function UsuariosPage() {
           </span>
         </div>
         <div className="flex items-center gap-5">
-          <button
-            onClick={() => router.push('/')}
-            className="text-sm transition-opacity hover:opacity-70"
-            style={{ color: 'rgba(240,240,240,0.5)' }}
-          >
-            Proyectos
-          </button>
-          <span
-            className="text-sm font-medium"
-            style={{ color: '#4B9BF5' }}
-          >
-            Usuarios
-          </span>
-          <button
-            onClick={handleLogout}
-            className="text-sm transition-opacity hover:opacity-70"
-            style={{ color: 'rgba(240,240,240,0.5)' }}
-          >
-            Cerrar sesion
-          </button>
+          <button onClick={() => router.push('/')} className="text-sm transition-opacity hover:opacity-70" style={{ color: 'rgba(240,240,240,0.5)' }}>Leads</button>
+          <button onClick={() => router.push('/propuestas')} className="text-sm transition-opacity hover:opacity-70" style={{ color: 'rgba(240,240,240,0.5)' }}>Propuestas</button>
+          <button onClick={() => router.push('/proyectos')} className="text-sm transition-opacity hover:opacity-70" style={{ color: 'rgba(240,240,240,0.5)' }}>Proyectos</button>
+          <span className="text-sm font-medium" style={{ color: '#4B9BF5' }}>Usuarios</span>
+          <button onClick={() => router.push('/configuracion')} className="text-sm transition-opacity hover:opacity-70" style={{ color: 'rgba(240,240,240,0.5)' }}>Config. Landing</button>
+          <button onClick={handleLogout} className="text-sm transition-opacity hover:opacity-70" style={{ color: 'rgba(240,240,240,0.5)' }}>Cerrar sesión</button>
         </div>
       </header>
 

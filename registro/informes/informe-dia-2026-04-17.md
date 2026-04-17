@@ -165,6 +165,9 @@ Vi que usas USD en la cotización del Conector DT y UF en la propuesta de Buk.
 **5. ¿Quieres avanzar con la automatización PDF + IA?**
 El siguiente paso sería que al completar el levantamiento, la IA (Claude) genere automáticamente el borrador de la propuesta con el formato de tus documentos actuales, y luego se exporte como PDF para enviar al cliente por email.
 
+**6. ¿Incorporamos los informes de avance dentro del admin panel o seguimos enviándolos por correo?**
+El panel admin está pensado para escalar como gestor central de la empresa. Tendría sentido incorporar una sección de informes/avances directamente en el sistema, donde quede registro de lo trabajado cada jornada, en lugar de enviarlo por correo. Esto permitiría tener todo en un solo lugar — leads, propuestas, proyectos e historial de trabajo — y facilitaría la gestión a medida que el equipo crezca. La alternativa es mantener el correo como canal de reporte mientras el sistema madura. ¿Cuál prefieres?
+
 ---
 
 *Informe generado el 17 de abril de 2026 — Cristóbal Martínez*

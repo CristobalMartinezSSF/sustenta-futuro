@@ -19,7 +19,8 @@ Jornada enfocada en implementar el flujo central del sistema de gestión: **Lead
 
 | Bloque | Actividad |
 |---|---|
-| 09:00 – 13:00 | Creación cuenta Héctor en admin · Transcripción de 5 audios OGG con Whisper · Análisis del feedback · Identificación de 9 puntos de acción · Reestructura del menú de navegación (todas las páginas) · Nuevas tablas SQL (propuestas, proyectos, levantamiento_respuestas) |
+| 09:00 – 11:00 | Testeos generales del sistema · Creación cuenta Héctor en el admin (hector.molt@sustentafuturo.com, rol admin) · Refinamiento de detalles del panel admin |
+| 11:00 – 13:00 | Transcripción de 5 audios OGG con Whisper · Análisis del feedback · Identificación de 9 puntos de acción · Reestructura del menú de navegación (todas las páginas) · Nuevas tablas SQL (propuestas, proyectos, levantamiento_respuestas) |
 | 13:00 – 14:00 | Colación |
 | 14:00 – 16:30 | Implementación completa del flujo Leads → Propuestas → Proyectos · Página /propuestas con estados y auto-creación de proyecto al aprobar · Página /proyectos · Levantamiento de 10 preguntas en detalle de lead · Documentación del flujo · Lectura de propuesta y cotización de referencia de Héctor · Generación de este informe |
 

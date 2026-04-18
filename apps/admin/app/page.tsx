@@ -23,13 +23,13 @@ interface Lead {
 }
 
 const STATUS_LABELS: Record<LeadStatus, string> = {
-  new: 'Sin iniciar',
-  reviewing: 'Esperando reunión',
-  contacted: 'En prototipado',
-  qualified: 'En propuesta',
-  proposal_pending: 'En desarrollo',
-  won: 'Completado',
-  lost: 'Cancelado',
+  new: 'Nuevo contacto',
+  reviewing: 'Reunión inicial',
+  contacted: 'Levantamiento',
+  qualified: 'Propuesta creada',
+  proposal_pending: 'En negociación',
+  won: 'Ganado',
+  lost: 'Perdido',
 }
 
 const STATUS_COLORS: Record<LeadStatus, { bg: string; text: string; border: string }> = {

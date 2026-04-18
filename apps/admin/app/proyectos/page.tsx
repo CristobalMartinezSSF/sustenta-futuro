@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 
-type ProjectStatus = 'active' | 'paused' | 'completed' | 'cancelled'
+type ProjectStatus = 'active' | 'en_desarrollo' | 'en_entrega' | 'completed' | 'cancelled'
 
 interface Proyecto {
   id: string
@@ -21,17 +21,19 @@ interface Proyecto {
 }
 
 const STATUS_LABELS: Record<ProjectStatus, string> = {
-  active: 'Activo',
-  paused: 'Pausado',
-  completed: 'Completado',
-  cancelled: 'Cancelado',
+  active:       'Activo',
+  en_desarrollo: 'En desarrollo',
+  en_entrega:   'En entrega',
+  completed:    'Completado',
+  cancelled:    'Cancelado',
 }
 
 const STATUS_COLORS: Record<ProjectStatus, { bg: string; text: string; border: string }> = {
-  active:    { bg: 'rgba(74,222,128,0.1)',  text: '#4ade80', border: 'rgba(74,222,128,0.2)' },
-  paused:    { bg: 'rgba(251,191,36,0.1)',  text: '#fbbf24', border: 'rgba(251,191,36,0.2)' },
-  completed: { bg: 'rgba(96,165,250,0.1)',  text: '#60a5fa', border: 'rgba(96,165,250,0.2)' },
-  cancelled: { bg: 'rgba(248,113,113,0.1)', text: '#f87171', border: 'rgba(248,113,113,0.2)' },
+  active:        { bg: 'rgba(74,222,128,0.1)',  text: '#4ade80', border: 'rgba(74,222,128,0.2)' },
+  en_desarrollo: { bg: 'rgba(251,191,36,0.1)',  text: '#fbbf24', border: 'rgba(251,191,36,0.2)' },
+  en_entrega:    { bg: 'rgba(168,85,247,0.1)',  text: '#c084fc', border: 'rgba(168,85,247,0.2)' },
+  completed:     { bg: 'rgba(96,165,250,0.1)',  text: '#60a5fa', border: 'rgba(96,165,250,0.2)' },
+  cancelled:     { bg: 'rgba(248,113,113,0.1)', text: '#f87171', border: 'rgba(248,113,113,0.2)' },
 }
 
 function formatCurrency(value: number | null): string {

@@ -44,13 +44,13 @@ interface LevantamientoRespuesta {
 }
 
 const STATUS_LABELS: Record<LeadStatus, string> = {
-  new: 'Sin iniciar',
-  reviewing: 'Esperando reunion',
-  contacted: 'En prototipado',
-  qualified: 'En propuesta',
-  proposal_pending: 'En desarrollo',
-  won: 'Completado',
-  lost: 'Cancelado',
+  new: 'Nuevo contacto',
+  reviewing: 'Reunión inicial',
+  contacted: 'Levantamiento',
+  qualified: 'Propuesta creada',
+  proposal_pending: 'En negociación',
+  won: 'Ganado',
+  lost: 'Perdido',
 }
 
 const STATUS_COLORS: Record<LeadStatus, { bg: string; text: string; border: string }> = {
@@ -596,7 +596,7 @@ export default function LeadDetailPage() {
           style={{ background: '#0a0a0a', borderColor: 'rgba(255,255,255,0.08)' }}
         >
           <p className="text-xs font-medium uppercase tracking-wider mb-4" style={{ color: 'rgba(240,240,240,0.35)' }}>
-            Fase del proyecto
+            Etapa del lead
           </p>
           <div className="flex items-start gap-0 overflow-x-auto pb-1">
             {PIPELINE_STEPS.map((step, idx) => {

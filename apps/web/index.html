@@ -2913,8 +2913,8 @@
   <section id="diferenciadores">
     <div class="container">
       <span class="section-label reveal">Por qué elegirnos</span>
-      <h2 class="section-title reveal">Sin letra chica.<br />Sin riesgo de entrada.</h2>
-      <p class="section-sub reveal">Demostramos valor antes de cualquier contrato.</p>
+      <h2 class="section-title reveal">Compromiso real.<br />Resultados medibles.</h2>
+      <p class="section-sub reveal">Evaluación, plan claro y ejecución transparente desde el primer día.</p>
 
       <div class="dif-grid">
         <div class="dif-item reveal">
@@ -3434,7 +3434,7 @@
         <div class="footer-links">
           <p class="footer-links-title">Contacto</p>
           <a href="mailto:contacto@sustentafuturo.com">contacto@sustentafuturo.com</a>
-          <a href="tel:+56942441395">+56 9 4244 1395</a>
+          <!-- Phone removed per Hector: premature for MVP -->
           <a href="#">Santiago, Chile</a>
         </div>
         <div class="footer-links">
@@ -3506,11 +3506,8 @@
     // Note: initOrganicSphere, initProductSection are called in the block below
 
     // ── Form submit ──
-    // ⚠️ TEMPORAL: conexión directa a Supabase desde el frontend.
-    // La anon key es pública por diseño pero esto DEBE migrarse a FastAPI
-    // antes de producción real. Ver nota crítica en informe W16.
-    const SUPABASE_URL = 'https://rddbfflzhdwhefrkpkcj.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_o-aVjnZDAIZa7bs8nAaiXQ_Cs8U7tgw';
+    // Sends leads to FastAPI backend on Render (no direct DB access)
+    const API_URL = 'https://sustenta-futuro-api.onrender.com';
 
     async function handleSubmit(e) {
       e.preventDefault();
@@ -3541,14 +3538,9 @@
       Object.keys(payload).forEach(k => payload[k] === undefined && delete payload[k]);
 
       try {
-        const res = await fetch(`${SUPABASE_URL}/rest/v1/leads`, {
+        const res = await fetch(`${API_URL}/leads/`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': SUPABASE_ANON_KEY,
-            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-            'Prefer': 'return=minimal',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
         });
 

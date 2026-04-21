@@ -20,12 +20,6 @@ const TEXTURE_TARGETS = [
   { id: 'contacto',      label: 'Contacto' },
 ]
 
-const MAP_LABELS: Record<string, string> = {
-  base:      'Base (color)',
-  normal:    'Normal map',
-  roughness: 'Roughness map',
-  spec:      'Specular map',
-}
 
 interface ConfigRow {
   section: string
@@ -762,25 +756,16 @@ export default function ConfiguracionPage() {
               </p>
             </div>
 
-            <div className="flex flex-col gap-8">
+            <div className="flex flex-col gap-4">
               {TEXTURE_TARGETS.map(({ id, label }) => (
-                <div key={id} className="flex flex-col gap-3">
-                  <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#4B9BF5' }}>
-                    {label}
-                  </p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {Object.entries(MAP_LABELS).map(([mapType, mapLabel]) => (
-                      <TextureSlot
-                        key={mapType}
-                        label={mapLabel}
-                        url={get('textures', `${id}_${mapType}`)}
-                        uploading={!!uploadingTexture[`${id}_${mapType}`]}
-                        onUpload={(file) => handleTextureUpload(id, mapType, file)}
-                        onClear={() => clearTexture(id, mapType)}
-                      />
-                    ))}
-                  </div>
-                </div>
+                <TextureSlot
+                  key={id}
+                  label={label}
+                  url={get('textures', `${id}_base`)}
+                  uploading={!!uploadingTexture[`${id}_base`]}
+                  onUpload={(file) => handleTextureUpload(id, 'base', file)}
+                  onClear={() => clearTexture(id, 'base')}
+                />
               ))}
             </div>
           </div>

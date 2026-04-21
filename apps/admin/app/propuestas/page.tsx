@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 
@@ -593,7 +593,7 @@ function CreatePropuestaModal({
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
-export default function PropuestasPage() {
+function PropuestasPageInner() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -975,5 +975,13 @@ export default function PropuestasPage() {
         />
       )}
     </div>
+  )
+}
+
+export default function PropuestasPage() {
+  return (
+    <Suspense>
+      <PropuestasPageInner />
+    </Suspense>
   )
 }

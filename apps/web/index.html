@@ -4142,14 +4142,20 @@
     const TEXTURE_API = 'https://sustenta-futuro-api.onrender.com/landing/textures';
 
     async function loadTextures() {
-      try {
-        const res = await fetch(TEXTURE_API);
-        if (!res.ok) return;
-        const data = await res.json();
-        Object.entries(data).forEach(([sectionId, maps]) => {
-          if (maps && maps.base) applyTexture(sectionId, maps);
-        });
-      } catch (_) { /* silently fail — textures are optional */ }
+      // Retry up to 3 times — Render free tier can take 30-50s on cold start
+      for (let attempt = 0; attempt < 3; attempt++) {
+        try {
+          const res = await fetch(TEXTURE_API, { signal: AbortSignal.timeout(60000) });
+          if (!res.ok) return;
+          const data = await res.json();
+          let applied = 0;
+          Object.entries(data).forEach(([sectionId, maps]) => {
+            if (maps && maps.base) { applyTexture(sectionId, maps); applied++; }
+          });
+          if (applied > 0) return; // success
+        } catch (_) { /* retry */ }
+        await new Promise(r => setTimeout(r, 3000));
+      }
     }
 
     function applyTexture(sectionId, maps) {

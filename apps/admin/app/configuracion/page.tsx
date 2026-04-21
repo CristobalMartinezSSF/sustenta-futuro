@@ -4,6 +4,29 @@ import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 
+// ---- Texture section definitions ----
+
+const TEXTURE_TARGETS = [
+  { id: 'navbar',        label: 'Barra superior (Navbar)' },
+  { id: 'hero',          label: 'Hero' },
+  { id: 'sincon',        label: 'Antes / Después' },
+  { id: 'producto',      label: 'Servicios (Globe)' },
+  { id: 'proceso',       label: 'Cómo Trabajamos' },
+  { id: 'testimonios',   label: 'Testimonios' },
+  { id: 'diferenciadores', label: 'Por qué Elegirnos' },
+  { id: 'nosotros',      label: 'Quiénes Somos' },
+  { id: 'legal',         label: 'Cumplimiento Legal' },
+  { id: 'faq',           label: 'FAQ' },
+  { id: 'contacto',      label: 'Contacto' },
+]
+
+const MAP_LABELS: Record<string, string> = {
+  base:      'Base (color)',
+  normal:    'Normal map',
+  roughness: 'Roughness map',
+  spec:      'Specular map',
+}
+
 interface ConfigRow {
   section: string
   key: string
@@ -101,6 +124,86 @@ function SectionCard({
   )
 }
 
+// ---- TextureSlot ----
+
+function TextureSlot({
+  label,
+  url,
+  uploading,
+  onUpload,
+  onClear,
+}: {
+  label: string
+  url: string
+  uploading: boolean
+  onUpload: (file: File) => void
+  onClear: () => void
+}) {
+  const inputRef = useRef<HTMLInputElement>(null)
+  return (
+    <div className="flex flex-col gap-1.5">
+      <span className="text-xs" style={LABEL_STYLE}>{label}</span>
+      <div className="flex gap-2 items-center">
+        <div
+          className="rounded-lg flex-1 flex items-center justify-center overflow-hidden"
+          style={{
+            width: '56px',
+            height: '56px',
+            minWidth: '56px',
+            border: '1px solid rgba(255,255,255,0.08)',
+            background: url ? 'transparent' : '#111',
+            flexShrink: 0,
+          }}
+        >
+          {url ? (
+            <img src={url} alt={label} className="object-cover w-full h-full rounded-lg" />
+          ) : (
+            <span style={{ color: 'rgba(240,240,240,0.2)', fontSize: '10px' }}>vacío</span>
+          )}
+        </div>
+        <div className="flex flex-col gap-1.5 flex-1 min-w-0">
+          <input
+            type="text"
+            value={url}
+            readOnly
+            placeholder="Sin textura"
+            className="rounded-lg px-3 py-1.5 text-xs outline-none w-full truncate"
+            style={{ ...INPUT_STYLE, color: 'rgba(240,240,240,0.45)' }}
+          />
+          <div className="flex gap-1.5">
+            <button
+              type="button"
+              disabled={uploading}
+              onClick={() => inputRef.current?.click()}
+              className="rounded-md px-2.5 py-1 text-xs transition-opacity hover:opacity-70 disabled:opacity-40"
+              style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(240,240,240,0.7)' }}
+            >
+              {uploading ? 'Subiendo...' : 'Subir'}
+            </button>
+            {url && (
+              <button
+                type="button"
+                onClick={onClear}
+                className="rounded-md px-2.5 py-1 text-xs transition-opacity hover:opacity-70"
+                style={{ background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.15)', color: '#f87171' }}
+              >
+                Quitar
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => { const f = e.target.files?.[0]; if (f) onUpload(f) }}
+      />
+    </div>
+  )
+}
+
 // ---- Main page ----
 
 export default function ConfiguracionPage() {
@@ -124,6 +227,9 @@ export default function ConfiguracionPage() {
   // Image upload ref
   const photoInputRef = useRef<HTMLInputElement>(null)
   const [uploadingPhoto, setUploadingPhoto] = useState(false)
+
+  // Texture upload state: key = `${sectionId}_${mapType}`
+  const [uploadingTexture, setUploadingTexture] = useState<Record<string, boolean>>({})
 
   // ---- Auth + load ----
 
@@ -273,6 +379,45 @@ export default function ConfiguracionPage() {
     } finally {
       setUploadingPhoto(false)
     }
+  }
+
+  async function handleTextureUpload(sectionId: string, mapType: string, file: File) {
+    const key = `${sectionId}_${mapType}`
+    setUploadingTexture((p) => ({ ...p, [key]: true }))
+    try {
+      const supabase = createClient()
+      const ext = file.name.split('.').pop() ?? 'png'
+      const filename = `textures/${sectionId}/${mapType}-${Date.now()}.${ext}`
+      const { error: uploadError } = await supabase.storage
+        .from('landing-images')
+        .upload(filename, file, { upsert: true })
+      if (uploadError) {
+        alert(`Error al subir textura: ${uploadError.message}`)
+        return
+      }
+      const { data: urlData } = supabase.storage
+        .from('landing-images')
+        .getPublicUrl(filename)
+      if (urlData?.publicUrl) {
+        set('textures', key, urlData.publicUrl)
+        // Persist immediately
+        const supabase2 = createClient()
+        await supabase2
+          .from('landing_config')
+          .upsert([{ section: 'textures', key, value: urlData.publicUrl }], { onConflict: 'section,key' })
+      }
+    } finally {
+      setUploadingTexture((p) => ({ ...p, [key]: false }))
+    }
+  }
+
+  async function clearTexture(sectionId: string, mapType: string) {
+    const key = `${sectionId}_${mapType}`
+    set('textures', key, '')
+    const supabase = createClient()
+    await supabase
+      .from('landing_config')
+      .upsert([{ section: 'textures', key, value: '' }], { onConflict: 'section,key' })
   }
 
   async function handleLogout() {
@@ -603,6 +748,42 @@ export default function ConfiguracionPage() {
               </div>
             ))}
           </SectionCard>
+          {/* ---- TEXTURAS ---- */}
+          <div
+            className="rounded-xl border p-6"
+            style={{ background: '#0a0a0a', borderColor: 'rgba(255,255,255,0.08)' }}
+          >
+            <div className="mb-5">
+              <h2 className="text-sm font-semibold text-white uppercase tracking-wider">
+                Texturas de secciones
+              </h2>
+              <p className="text-xs mt-1" style={{ color: 'rgba(240,240,240,0.4)' }}>
+                Asigna una textura a cada sección y a la barra superior. Los cambios se guardan al instante.
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-8">
+              {TEXTURE_TARGETS.map(({ id, label }) => (
+                <div key={id} className="flex flex-col gap-3">
+                  <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#4B9BF5' }}>
+                    {label}
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {Object.entries(MAP_LABELS).map(([mapType, mapLabel]) => (
+                      <TextureSlot
+                        key={mapType}
+                        label={mapLabel}
+                        url={get('textures', `${id}_${mapType}`)}
+                        uploading={!!uploadingTexture[`${id}_${mapType}`]}
+                        onUpload={(file) => handleTextureUpload(id, mapType, file)}
+                        onClear={() => clearTexture(id, mapType)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </main>
     </div>

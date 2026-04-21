@@ -5,7 +5,7 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routers import leads
+from app.routers import landing, leads
 
 app = FastAPI(
     title="Sustenta Futuro API",
@@ -27,6 +27,7 @@ app.add_middleware(
 )
 
 app.include_router(leads.router)
+app.include_router(landing.router)
 
 
 @app.get("/health", tags=["health"])

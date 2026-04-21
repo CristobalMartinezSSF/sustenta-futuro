@@ -4172,6 +4172,8 @@
       // Roughness controls opacity (0–1). Default 0.18.
       const roughnessOpacity = maps.roughness ? 0.25 : 0.18;
 
+      const isNavbar = sectionId === 'navbar';
+
       // Base texture overlay
       const overlay = document.createElement('div');
       overlay.className = 'sf-tex';
@@ -4181,11 +4183,15 @@
         'pointer-events:none',
         'z-index:0',
         `background-image:url(${maps.base})`,
-        'background-repeat:repeat',
-        'background-size:300px auto',
+        isNavbar ? 'background-repeat:no-repeat' : 'background-repeat:repeat',
+        isNavbar ? 'background-size:cover'        : 'background-size:300px auto',
+        isNavbar ? 'background-position:center'   : '',
         'opacity:1',
         'mix-blend-mode:normal',
       ].join(';');
+
+      // Navbar needs overflow:hidden to respect border-radius:100px
+      if (isNavbar) el.style.overflow = 'hidden';
 
       // Ensure section is relatively positioned so overlay is contained
       const pos = getComputedStyle(el).position;

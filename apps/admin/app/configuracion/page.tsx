@@ -381,7 +381,7 @@ export default function ConfiguracionPage() {
     try {
       const supabase = createClient()
       const ext = file.name.split('.').pop() ?? 'png'
-      const filename = `textures/${sectionId}/${mapType}-${Date.now()}.${ext}`
+      const filename = `texture-${sectionId}-${mapType}-${Date.now()}.${ext}`
       const { error: uploadError } = await supabase.storage
         .from('landing-images')
         .upload(filename, file, { upsert: true })

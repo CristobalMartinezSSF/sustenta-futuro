@@ -25,7 +25,7 @@ TEXTURE_SECTIONS = [
     "contacto",
 ]
 
-MAP_TYPES = ["base"]
+MAP_TYPES = ["base", "text_color"]
 
 
 @router.get("/textures", summary="Get texture config for all landing sections")

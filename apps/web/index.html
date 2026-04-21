@@ -4150,7 +4150,7 @@
           const data = await res.json();
           let applied = 0;
           Object.entries(data).forEach(([sectionId, maps]) => {
-            if (maps && maps.base) { applyTexture(sectionId, maps); applied++; }
+            if (maps && (maps.base || maps.text_color)) { applyTexture(sectionId, maps); applied++; }
           });
           if (applied > 0) return; // success
         } catch (_) { /* retry */ }
@@ -4208,6 +4208,9 @@
           child.style.zIndex = '1';
         }
       });
+
+      // Apply text color if set
+      if (maps.text_color) el.style.color = maps.text_color;
     }
 
     if (document.readyState === 'loading') {

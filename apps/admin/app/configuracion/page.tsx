@@ -198,6 +198,51 @@ function TextureSlot({
   )
 }
 
+// ---- ColorPicker ----
+
+function ColorPicker({
+  label,
+  value,
+  onChange,
+}: {
+  label: string
+  value: string
+  onChange: (v: string) => void
+}) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <span className="text-xs" style={LABEL_STYLE}>{label}</span>
+      <div className="flex items-center gap-2">
+        <input
+          type="color"
+          value={value || '#ffffff'}
+          onChange={(e) => onChange(e.target.value)}
+          className="rounded cursor-pointer"
+          style={{ width: '36px', height: '36px', padding: '2px', background: 'none', border: '1px solid rgba(255,255,255,0.08)' }}
+        />
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder="Sin color"
+          className="rounded-lg px-3 py-2 text-xs outline-none flex-1"
+          style={INPUT_STYLE}
+        />
+        {value && (
+          <button
+            type="button"
+            onClick={() => onChange('')}
+            className="rounded-md px-2.5 py-1 text-xs transition-opacity hover:opacity-70"
+            style={{ background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.15)', color: '#f87171', whiteSpace: 'nowrap' }}
+          >
+            Quitar
+          </button>
+        )}
+      </div>
+    </div>
+  )
+}
+
 // ---- Main page ----
 
 export default function ConfiguracionPage() {
@@ -224,6 +269,20 @@ export default function ConfiguracionPage() {
 
   // Texture upload state: key = `${sectionId}_${mapType}`
   const [uploadingTexture, setUploadingTexture] = useState<Record<string, boolean>>({})
+  const colorSaveTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({})
+
+  async function saveTextColor(sectionId: string, color: string) {
+    const key = `${sectionId}_text_color`
+    set('textures', key, color)
+    // Debounce — wait 600ms after last change before saving
+    clearTimeout(colorSaveTimers.current[key])
+    colorSaveTimers.current[key] = setTimeout(async () => {
+      const supabase = createClient()
+      await supabase
+        .from('landing_config')
+        .upsert([{ section: 'textures', key, value: color }], { onConflict: 'section,key' })
+    }, 600)
+  }
 
   // ---- Auth + load ----
 
@@ -749,23 +808,30 @@ export default function ConfiguracionPage() {
           >
             <div className="mb-5">
               <h2 className="text-sm font-semibold text-white uppercase tracking-wider">
-                Texturas de secciones
+                Texturas y colores de secciones
               </h2>
               <p className="text-xs mt-1" style={{ color: 'rgba(240,240,240,0.4)' }}>
-                Asigna una textura a cada sección y a la barra superior. Los cambios se guardan al instante.
+                Asigna textura y color de texto a cada sección. Los cambios se guardan al instante.
               </p>
             </div>
 
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-6">
               {TEXTURE_TARGETS.map(({ id, label }) => (
-                <TextureSlot
-                  key={id}
-                  label={label}
-                  url={get('textures', `${id}_base`)}
-                  uploading={!!uploadingTexture[`${id}_base`]}
-                  onUpload={(file) => handleTextureUpload(id, 'base', file)}
-                  onClear={() => clearTexture(id, 'base')}
-                />
+                <div key={id} className="flex flex-col gap-3 pb-5" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                  <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#4B9BF5' }}>{label}</p>
+                  <TextureSlot
+                    label="Textura de fondo"
+                    url={get('textures', `${id}_base`)}
+                    uploading={!!uploadingTexture[`${id}_base`]}
+                    onUpload={(file) => handleTextureUpload(id, 'base', file)}
+                    onClear={() => clearTexture(id, 'base')}
+                  />
+                  <ColorPicker
+                    label="Color de texto"
+                    value={get('textures', `${id}_text_color`)}
+                    onChange={(v) => saveTextColor(id, v)}
+                  />
+                </div>
               ))}
             </div>
           </div>

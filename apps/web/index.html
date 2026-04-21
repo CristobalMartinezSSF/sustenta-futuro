@@ -4159,7 +4159,10 @@
     }
 
     function applyTexture(sectionId, maps) {
-      const el = document.getElementById(sectionId);
+      // For navbar, target the inner <nav> (the visual pill), not the full-width wrapper
+      const el = sectionId === 'navbar'
+        ? document.querySelector('#navbar nav')
+        : document.getElementById(sectionId);
       if (!el) return;
 
       // Remove previous overlay if any

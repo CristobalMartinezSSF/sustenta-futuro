@@ -4209,8 +4209,18 @@
         }
       });
 
-      // Apply text color if set
-      if (maps.text_color) el.style.color = maps.text_color;
+      // Apply text color — inject a scoped <style> rule to override CSS specificity
+      if (maps.text_color) {
+        const styleId = `sf-color-${sectionId}`;
+        let styleEl = document.getElementById(styleId);
+        if (!styleEl) {
+          styleEl = document.createElement('style');
+          styleEl.id = styleId;
+          document.head.appendChild(styleEl);
+        }
+        const selector = sectionId === 'navbar' ? '#navbar nav, #navbar nav *' : `#${sectionId}, #${sectionId} *`;
+        styleEl.textContent = `${selector} { color: ${maps.text_color} !important; }`;
+      }
     }
 
     if (document.readyState === 'loading') {

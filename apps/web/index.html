@@ -1066,221 +1066,135 @@
 
     /* ─────────────────── PRODUCTO PINNEABLE ─────────────────── */
     #producto {
-      height: 600vh;
+      padding: var(--section-py) 0;
       position: relative;
     }
 
-    .prod-sticky {
-      height: 100vh;
-      width: 100%;
+    .exp-cards-wrap {
       display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      overflow: hidden;
-      background: var(--bg);
+      gap: 12px;
+      height: 460px;
+      width: 100%;
+      margin-top: 3rem;
     }
 
-    .prod-header-1 {
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
+    .exp-card {
+      flex: 1;
+      height: 100%;
+      border-radius: 20px;
+      overflow: hidden;
+      cursor: pointer;
+      position: relative;
+      background: rgba(8,8,8,0.92);
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.04) inset;
+      transition: flex 0.55s cubic-bezier(0.4, 0, 0.2, 1);
       display: flex;
       flex-direction: column;
-      align-items: center;
-      z-index: 4;
-      pointer-events: none;
-      text-align: center;
+      justify-content: flex-end;
+      padding: 2rem 1.8rem;
     }
 
-    .prod-header-1 span {
-      font-family: 'Montserrat', sans-serif;
-      font-size: clamp(3rem, 8vw, 7rem);
-      font-weight: 900;
-      letter-spacing: -0.04em;
-      line-height: 0.95;
-      color: var(--text);
-    }
-
-    .prod-marquee {
-      position: absolute;
-      top: 50%; left: 0; right: 0;
-      transform: translateY(-50%);
-      overflow: hidden;
-      z-index: 3;
-      pointer-events: none;
-      white-space: nowrap;
-    }
-
-    .marquee-track {
-      display: inline-flex;
-      animation: marquee-scroll 16s linear infinite;
-    }
-
-    .marquee-track span {
-      font-family: 'Montserrat', sans-serif;
-      font-size: clamp(2.4rem, 6vw, 5.5rem);
-      font-weight: 900;
-      letter-spacing: -0.03em;
-      color: transparent;
-      -webkit-text-stroke: 1px rgba(255,255,255,0.18);
-      padding-right: 2rem;
-    }
-
-    @keyframes marquee-scroll {
-      from { transform: translateX(0); }
-      to   { transform: translateX(-50%); }
-    }
-
-    .prod-mask {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      clip-path: circle(0% at 50% 50%);
-      z-index: 5;
-      background: var(--bg);
-    }
-
-    #sphere-canvas {
-      width: min(500px, 82vw);
-      height: min(500px, 82vw);
-      display: block;
-    }
-
-    /* service cards — alternating left/right */
-    .srv-display {
-      position: absolute;
-      inset: 0;
-      z-index: 10;
-      pointer-events: none;
-    }
-
-    .srv-item {
-      position: absolute;
-      top: 50%;
-      width: 260px;
-      background: rgba(8,8,8,0.92);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 16px;
-      padding: 1.8rem 2rem;
-      opacity: 0;
-      backdrop-filter: blur(20px);
-      overflow: hidden;
-      -webkit-backdrop-filter: blur(20px);
-      box-shadow: 0 0 0 1px rgba(255,255,255,0.04) inset;
-    }
-
-    /* right cards: just beside the globe */
-    .srv-item[data-srv="0"],
-    .srv-item[data-srv="2"],
-    .srv-item[data-srv="4"] {
-      left: calc(50% + 275px);
-      margin-top: -100px;
-    }
-
-    /* left cards: just beside the globe */
-    .srv-item[data-srv="1"],
-    .srv-item[data-srv="3"] {
-      right: calc(50% + 275px);
-      margin-top: -100px;
-    }
-
-    /* Accent glow strip at top of each service card */
-    .srv-item::before {
+    .exp-card::before {
       content: '';
       position: absolute;
       top: 0; left: 0; right: 0;
       height: 2px;
-      background: linear-gradient(90deg, transparent, var(--srv-accent, rgba(255,255,255,0.25)), transparent);
+      background: linear-gradient(90deg, transparent, var(--ec-accent, rgba(255,255,255,0.2)), transparent);
     }
 
-    /* Subtle corner glow */
-    .srv-item::after {
+    .exp-card::after {
       content: '';
       position: absolute;
-      top: -40px; right: -40px;
-      width: 100px; height: 100px;
+      top: -60px; left: 50%; transform: translateX(-50%);
+      width: 160px; height: 160px;
       border-radius: 50%;
-      background: var(--srv-accent, rgba(255,255,255,0.06));
-      opacity: 0.12;
-      filter: blur(30px);
+      background: var(--ec-accent, rgba(255,255,255,0.1));
+      opacity: 0;
+      filter: blur(60px);
+      transition: opacity 0.5s ease;
       pointer-events: none;
     }
 
-    .srv-item[data-srv="0"] { --srv-accent: rgba(100,180,255,0.4); }
-    .srv-item[data-srv="1"] { --srv-accent: rgba(160,120,255,0.4); }
-    .srv-item[data-srv="2"] { --srv-accent: rgba(80,220,180,0.4); }
-    .srv-item[data-srv="3"] { --srv-accent: rgba(255,180,60,0.4); }
-    .srv-item[data-srv="4"] { --srv-accent: rgba(255,100,130,0.4); }
+    .exp-card.active::after { opacity: 0.22; }
+    .exp-card.active { flex: 3.5; }
 
-    .srv-icon {
-      width: 36px; height: 36px;
+    .exp-card[data-ec="0"] { --ec-accent: rgba(100,180,255,0.7); }
+    .exp-card[data-ec="1"] { --ec-accent: rgba(160,120,255,0.7); }
+    .exp-card[data-ec="2"] { --ec-accent: rgba(80,220,180,0.7); }
+    .exp-card[data-ec="3"] { --ec-accent: rgba(255,180,60,0.7); }
+    .exp-card[data-ec="4"] { --ec-accent: rgba(255,100,130,0.7); }
+
+    .ec-num {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.6rem;
+      position: relative; z-index: 1;
+    }
+
+    .ec-icon {
+      width: 38px; height: 38px;
       border-radius: 10px;
       background: rgba(255,255,255,0.06);
       border: 1px solid rgba(255,255,255,0.1);
       display: flex; align-items: center; justify-content: center;
-      margin-bottom: 0.75rem;
+      margin-bottom: 0.9rem;
       position: relative; z-index: 1;
+      flex-shrink: 0;
     }
 
-    .srv-icon svg {
+    .ec-icon svg {
       width: 18px; height: 18px;
       stroke: currentColor; fill: none;
       stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
       color: var(--text);
     }
 
-    .srv-num {
+    .ec-title {
       font-family: 'Montserrat', sans-serif;
-      font-size: 0.65rem;
-      font-weight: 700;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      margin-bottom: 0.75rem;
-      position: relative; z-index: 1;
-    }
-
-    .srv-item h3 {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 1.3rem;
+      font-size: 1.1rem;
       font-weight: 800;
       letter-spacing: -0.02em;
-      line-height: 1.2;
       color: var(--text);
       margin-bottom: 0.7rem;
       position: relative; z-index: 1;
     }
 
-    .srv-item p {
+    .ec-desc {
       font-size: 0.85rem;
       color: var(--text-muted);
       line-height: 1.65;
       position: relative; z-index: 1;
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+      transition: max-height 0.45s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease 0.12s;
     }
 
-    @media (max-width: 1200px) {
-      .srv-item[data-srv="0"], .srv-item[data-srv="2"], .srv-item[data-srv="4"] { left: auto; right: 2%; }
-      .srv-item[data-srv="1"], .srv-item[data-srv="3"] { right: auto; left: 2%; }
-      .srv-item { width: 200px; padding: 1.4rem 1.5rem; }
-    }
-
-    @media (max-width: 900px) {
-      .srv-item {
-        top: auto !important;
-        bottom: 5%;
-        left: 50% !important;
-        right: auto !important;
-        margin-top: 0 !important;
-        transform: translateX(-50%);
-        width: min(300px, 76vw);
-      }
+    .exp-card.active .ec-desc {
+      max-height: 200px;
+      opacity: 1;
     }
 
     @media (max-width: 768px) {
-      #producto { height: 520vh; }
+      .exp-cards-wrap {
+        flex-direction: column;
+        height: auto;
+        gap: 10px;
+      }
+      .exp-card {
+        flex: none !important;
+        height: 72px;
+        padding: 1.4rem 1.6rem;
+        transition: height 0.5s cubic-bezier(0.4,0,0.2,1);
+      }
+      .exp-card.active {
+        height: 260px;
+      }
     }
 
     /* ─────────────────── FANCY TEXT ─────────────────── */
@@ -2757,16 +2671,6 @@
     }
     [data-theme="light"] .tp-divider { background: rgba(0,0,0,0.12); }
 
-    /* Globe invert in light mode */
-    [data-theme="light"] #sphere-canvas { filter: invert(1); }
-
-    /* srv-item has hardcoded dark bg — force light text in light mode */
-    [data-theme="light"] .srv-item {
-      border-color: rgba(255,255,255,0.15);
-    }
-    [data-theme="light"] .srv-num { color: rgba(240,240,240,0.55); }
-    [data-theme="light"] .srv-item h3 { color: rgba(240,240,240,0.95); }
-    [data-theme="light"] .srv-item p  { color: rgba(240,240,240,0.6); }
 
     /* Shimmer button in light mode */
     /* Light: botón negro con arco blanco — se ve sobre fondo claro */
@@ -2935,69 +2839,53 @@
     </div>
   </section>
 
-  <!-- PRODUCTO PINNEABLE -->
   <section id="producto">
-    <div class="prod-sticky">
-
-      <div class="prod-header-1" aria-hidden="true">
-        <span>Automatización</span>
-        <span>Inteligente</span>
-      </div>
-
-      <div class="prod-marquee" aria-hidden="true">
-        <div class="marquee-track">
-          <span>Potencia tu operación · Libera tu talento · Ingeniería de mañana · </span>
-          <span>Potencia tu operación · Libera tu talento · Ingeniería de mañana · </span>
-        </div>
-      </div>
-
-      <div class="prod-mask">
-        <canvas id="sphere-canvas"></canvas>
-      </div>
-
-      <div class="srv-display" aria-live="polite">
-        <div class="srv-item" data-srv="0">
-          <div class="srv-icon">
+    <div class="container">
+      <span class="section-label reveal">Nuestros Servicios</span>
+      <h2 class="section-title reveal">Soluciones que<br />mueven tu negocio</h2>
+      <p class="section-sub reveal">Cinco áreas de especialización integradas para automatizar, escalar y diferenciar tu operación.</p>
+      <div class="exp-cards-wrap">
+        <div class="exp-card active" data-ec="0">
+          <div class="ec-num">01 / WEB</div>
+          <div class="ec-icon">
             <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
           </div>
-          <div class="srv-num">01 / WEB</div>
-          <h3>Diseño y Desarrollo Web</h3>
-          <p>Plataformas web corporativas de alto rendimiento. Diseñamos ecosistemas digitales enfocados en velocidad, seguridad y máxima conversión de clientes.</p>
+          <h3 class="ec-title">Diseño y Desarrollo Web</h3>
+          <p class="ec-desc">Plataformas web corporativas de alto rendimiento. Diseñamos ecosistemas digitales enfocados en velocidad, seguridad y máxima conversión de clientes.</p>
         </div>
-        <div class="srv-item" data-srv="1">
-          <div class="srv-icon">
+        <div class="exp-card" data-ec="1">
+          <div class="ec-num">02 / DEV</div>
+          <div class="ec-icon">
             <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/><polyline points="10 8 14 12 10 16"/></svg>
           </div>
-          <div class="srv-num">02 / DEV</div>
-          <h3>Desarrollo de Software</h3>
-          <p>Digitalización del core de tu negocio. Arquitecturas a medida que se integran a tu operación actual, eliminando silos de información y preparadas para escalar.</p>
+          <h3 class="ec-title">Desarrollo de Software</h3>
+          <p class="ec-desc">Digitalización del core de tu negocio. Arquitecturas a medida que se integran a tu operación actual, eliminando silos de información y preparadas para escalar.</p>
         </div>
-        <div class="srv-item" data-srv="2">
-          <div class="srv-icon">
+        <div class="exp-card" data-ec="2">
+          <div class="ec-num">03 / APP</div>
+          <div class="ec-icon">
             <svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
           </div>
-          <div class="srv-num">03 / APP</div>
-          <h3>Aplicaciones Móviles</h3>
-          <p>Ecosistemas móviles nativos para iOS y Android. Llevamos la operación de tu equipo y el contacto con tus clientes directamente a sus manos, en tiempo real.</p>
+          <h3 class="ec-title">Aplicaciones Móviles</h3>
+          <p class="ec-desc">Ecosistemas móviles nativos para iOS y Android. Llevamos la operación de tu equipo y el contacto con tus clientes directamente a sus manos, en tiempo real.</p>
         </div>
-        <div class="srv-item" data-srv="3">
-          <div class="srv-icon">
+        <div class="exp-card" data-ec="3">
+          <div class="ec-num">04 / AUTO</div>
+          <div class="ec-icon">
             <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
           </div>
-          <div class="srv-num">04 / AUTO</div>
-          <h3>Automatizaciones</h3>
-          <p>Orquestación de procesos con IA. Conectamos tus sistemas y eliminamos el trabajo manual repetitivo para que tu equipo se enfoque en lo que realmente genera valor.</p>
+          <h3 class="ec-title">Automatizaciones</h3>
+          <p class="ec-desc">Orquestación de procesos con IA. Conectamos tus sistemas y eliminamos el trabajo manual repetitivo para que tu equipo se enfoque en lo que realmente genera valor.</p>
         </div>
-        <div class="srv-item" data-srv="4">
-          <div class="srv-icon">
+        <div class="exp-card" data-ec="4">
+          <div class="ec-num">05 / BOT</div>
+          <div class="ec-icon">
             <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/><path d="M8 10h.01"/><path d="M12 10h.01"/><path d="M16 10h.01"/></svg>
           </div>
-          <div class="srv-num">05 / BOT</div>
-          <h3>Chatbots y Landing Pages</h3>
-          <p>Asistentes de IA y embudos de conversión. Agentes conversacionales 24/7 y plataformas de captura estratégicas para optimizar tu adquisición de clientes.</p>
+          <h3 class="ec-title">Chatbots y Landing Pages</h3>
+          <p class="ec-desc">Asistentes de IA y embudos de conversión. Agentes conversacionales 24/7 y plataformas de captura estratégicas para optimizar tu adquisición de clientes.</p>
         </div>
       </div>
-
     </div>
   </section>
 
@@ -3534,8 +3422,6 @@
 
     // ── GSAP scroll animations (loaded via CDN below) ──
     window.addEventListener('load', () => { initOrganicNet(); initGSAP(); });
-    // Note: initOrganicSphere, initProductSection are called in the block below
-
     // ── Form submit ──
     // Sends leads to FastAPI backend on Render (no direct DB access)
     const API_URL = 'https://sustenta-futuro-api.onrender.com';
@@ -3722,81 +3608,6 @@
 
   <!-- Lenis smooth scroll -->
   <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
-  <!-- cobe globe via ESM -->
-  <script type="module">
-    import createGlobe from 'https://esm.sh/cobe@0.6.3';
-
-    /* Init del globe — se ejecuta automáticamente al cargar el ESM */
-    window.__cobeInit = function () {
-      const canvas = document.getElementById('sphere-canvas');
-      if (!canvas) return;
-
-      let width       = canvas.offsetWidth || 460;
-      let phi         = 5.76;
-      let theta       = 0.28;
-      let scrollTheta = 0;
-      let isVisible   = false;
-      let globe       = null;
-
-      window._setSphereScroll = (p) => { scrollTheta = p * 0.4; };
-
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-
-      function startGlobe() {
-        if (globe) return;
-        width = canvas.offsetWidth || width;
-        globe = createGlobe(canvas, {
-          devicePixelRatio: dpr,
-          width:  width * dpr,
-          height: width * dpr,
-          phi,
-          theta,
-          dark: 1,
-          diffuse: 1.4,
-          mapSamples: 8000,        /* reducido: misma calidad, mucho menos GPU */
-          mapBrightness: 7,
-          baseColor:   [0.06, 0.06, 0.06],
-          markerColor: [1.00, 1.00, 1.00],
-          glowColor:   [0.40, 0.40, 0.40],
-          markers: [
-            { location: [-33.4, -70.6], size: 0.09 },
-            { location: [-12.0, -77.0], size: 0.06 },
-            { location: [  4.7, -74.1], size: 0.06 },
-            { location: [-23.5, -46.6], size: 0.07 },
-            { location: [-34.6, -58.4], size: 0.07 },
-            { location: [ -0.2, -78.5], size: 0.05 },
-            { location: [-34.9, -56.2], size: 0.05 },
-          ],
-          onRender (state) {
-            if (!isVisible) return;   /* pausa cuando no está en pantalla */
-            phi   += 0.003;
-            state.phi   = phi;
-            state.theta = theta + scrollTheta;
-            width = canvas.offsetWidth || width;
-            state.width  = width * dpr;
-            state.height = width * dpr;
-          },
-        });
-        canvas.style.opacity    = '1';
-        canvas.style.transition = 'opacity 1.2s ease';
-      }
-
-      /* Solo renderizar cuando la sección es visible */
-      const observer = new IntersectionObserver(
-        (entries) => {
-          isVisible = entries[0].isIntersecting;
-          if (isVisible) startGlobe();   /* inicializar al primer avistamiento */
-        },
-        { threshold: 0.1 }
-      );
-      observer.observe(canvas);
-
-      window.addEventListener('beforeunload', () => { globe && globe.destroy(); });
-    };
-
-    /* Auto-init — no espera window.load */
-    window.__cobeInit();
-  </script>
   <!-- GSAP + ScrollTrigger -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
@@ -3876,72 +3687,6 @@
   /* ── Lenis removido — ScrollTrigger maneja el scroll nativamente ── */
   function initLenis() { /* no-op */ }
 
-  /* ── Globe: cobe se auto-inicializa desde el ESM ── */
-  function initOrganicSphere() { /* no-op — cobe inicia solo */ }
-
-  /* ── Scroll-pinned product section ── */
-  function initProductSection() {
-    if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      document.querySelectorAll('.srv-item').forEach(el => {
-        el.style.opacity = '1'; el.style.transform = 'none';
-      });
-      document.querySelector('.prod-mask') && (document.querySelector('.prod-mask').style.clipPath = 'circle(40% at 50% 50%)');
-      return;
-    }
-
-    const section = document.getElementById('producto');
-    if (!section) return;
-
-    gsap.set('.prod-marquee', { xPercent: 110, opacity: 0 });
-    // right cards start from right, left cards from left
-    gsap.set('.srv-item[data-srv="0"], .srv-item[data-srv="2"], .srv-item[data-srv="4"]', { opacity: 0, x: 60 });
-    gsap.set('.srv-item[data-srv="1"], .srv-item[data-srv="3"]', { opacity: 0, x: -60 });
-
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: section,
-        start: 'top top',
-        end: 'bottom bottom',
-        scrub: 1.4,
-        pin: '.prod-sticky',
-        anticipatePin: 1,
-      }
-    });
-
-    tl
-      .to('.prod-header-1',  { xPercent: -115, opacity: 0, duration: 0.22, ease: 'power2.in' }, 0)
-      .to('.prod-marquee',   { xPercent: 0, opacity: 1, duration: 0.24, ease: 'power2.out' }, 0.06)
-      .fromTo('.prod-mask',
-        { clipPath: 'circle(0% at 50% 50%)' },
-        { clipPath: 'circle(38% at 50% 50%)', duration: 0.28, ease: 'power2.out' },
-        0.22)
-      .fromTo('#sphere-canvas', { opacity: 0, scale: 0.82 }, { opacity: 1, scale: 1, duration: 0.20, ease: 'power2.out' }, 0.36)
-      // Servicio 1 — derecha entra, sale a la derecha
-      .to('.srv-item[data-srv="0"]', { opacity: 1, x: 0, duration: 0.22, ease: 'power2.out' }, 0.52)
-      .to('.srv-item[data-srv="0"]', { opacity: 0, x: 60, duration: 0.18, ease: 'power2.in' }, 0.82)
-      // Servicio 2 — izquierda entra, sale a la izquierda
-      .to('.srv-item[data-srv="1"]', { opacity: 1, x: 0, duration: 0.22, ease: 'power2.out' }, 0.90)
-      .to('.srv-item[data-srv="1"]', { opacity: 0, x: -60, duration: 0.18, ease: 'power2.in' }, 1.20)
-      // Servicio 3 — derecha entra, sale a la derecha
-      .to('.srv-item[data-srv="2"]', { opacity: 1, x: 0, duration: 0.22, ease: 'power2.out' }, 1.28)
-      .to('.srv-item[data-srv="2"]', { opacity: 0, x: 60, duration: 0.18, ease: 'power2.in' }, 1.58)
-      // Servicio 4 — izquierda entra, sale a la izquierda
-      .to('.srv-item[data-srv="3"]', { opacity: 1, x: 0, duration: 0.22, ease: 'power2.out' }, 1.66)
-      .to('.srv-item[data-srv="3"]', { opacity: 0, x: -60, duration: 0.18, ease: 'power2.in' }, 1.96)
-      // Servicio 5 — derecha entra, queda visible al final
-      .to('.srv-item[data-srv="4"]', { opacity: 1, x: 0, duration: 0.22, ease: 'power2.out' }, 2.04)
-      .to('.srv-item[data-srv="4"]', { opacity: 0, x: 60, duration: 0.18, ease: 'power2.in' }, 2.34);
-
-    ScrollTrigger.create({
-      trigger: section,
-      start: 'top top',
-      end: 'bottom bottom',
-      onUpdate: (self) => {
-        if (window._setSphereScroll) window._setSphereScroll(self.progress);
-      }
-    });
-  }
 
   function initLayeredButtons() {
     document.querySelectorAll('.btn-layered').forEach(btn => {
@@ -4136,8 +3881,6 @@
 
   window.addEventListener('load', () => {
     initLenis();
-    initOrganicSphere();
-    initProductSection();
     initLayeredButtons();
     initExpandableCards();
     initTestimonials();

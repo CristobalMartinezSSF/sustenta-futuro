@@ -20,6 +20,80 @@ const TEXTURE_TARGETS = [
   { id: 'contacto',      label: 'Contacto' },
 ]
 
+// Per-element color targets for each section
+const ELEMENT_TARGETS: Record<string, Array<{ key: string; label: string }>> = {
+  navbar: [
+    { key: 'brand_color',         label: 'Nombre empresa (SUSTENTA FUTURO)' },
+    { key: 'links_color',         label: 'Links de navegación (Nosotros, Proceso)' },
+    { key: 'cta_color',           label: 'Botón Conversemos' },
+  ],
+  hero: [
+    { key: 'h1_color',            label: 'Título — "Potencia tu operación."' },
+    { key: 'gradient_color',      label: 'Subtítulo — "Libera tu talento."' },
+    { key: 'p_color',             label: 'Párrafo de descripción' },
+    { key: 'badge_color',         label: 'Badge (Sustenta Futuro)' },
+    { key: 'cta_primary_color',   label: 'Botón Conversemos' },
+    { key: 'cta_secondary_color', label: 'Botón Explorar' },
+  ],
+  sincon: [
+    { key: 'label_color',  label: 'Label (Antes / Después)' },
+    { key: 'title_color',  label: 'Título' },
+    { key: 'sub_color',    label: 'Párrafo introductorio' },
+    { key: 'sin_color',    label: 'Columna "Sin Sustenta Futuro"' },
+    { key: 'con_color',    label: 'Columna "Con Sustenta Futuro"' },
+  ],
+  producto: [
+    { key: 'label_color',  label: 'Label (Nuestros Servicios)' },
+    { key: 'title_color',  label: 'Título' },
+    { key: 'sub_color',    label: 'Subtítulo' },
+    { key: 'cards_color',  label: 'Tarjetas de servicios' },
+  ],
+  proceso: [
+    { key: 'label_color',  label: 'Label (Cómo trabajamos)' },
+    { key: 'title_color',  label: 'Título' },
+    { key: 'sub_color',    label: 'Subtítulo' },
+    { key: 'steps_color',  label: 'Pasos (Diagnóstico, Diseño, etc.)' },
+  ],
+  testimonios: [
+    { key: 'label_color',  label: 'Label (Clientes)' },
+    { key: 'title_color',  label: 'Título' },
+    { key: 'sub_color',    label: 'Subtítulo' },
+    { key: 'cards_color',  label: 'Tarjetas de testimonios' },
+  ],
+  diferenciadores: [
+    { key: 'label_color',  label: 'Label (Por qué elegirnos)' },
+    { key: 'title_color',  label: 'Título' },
+    { key: 'sub_color',    label: 'Subtítulo' },
+    { key: 'items_color',  label: 'Items de diferenciadores' },
+  ],
+  nosotros: [
+    { key: 'label_color',      label: 'Label (Quiénes somos)' },
+    { key: 'title_color',      label: 'Título (h2)' },
+    { key: 'paragraphs_color', label: 'Párrafos' },
+    { key: 'name_color',       label: 'Nombre del fundador' },
+  ],
+  legal: [
+    { key: 'label_color',  label: 'Label (Cumplimiento Legal)' },
+    { key: 'title_color',  label: 'Título' },
+    { key: 'sub_color',    label: 'Subtítulo' },
+    { key: 'cards_color',  label: 'Tarjetas legales' },
+  ],
+  faq: [
+    { key: 'label_color',     label: 'Label (Preguntas frecuentes)' },
+    { key: 'title_color',     label: 'Título' },
+    { key: 'questions_color', label: 'Preguntas' },
+    { key: 'answers_color',   label: 'Respuestas' },
+  ],
+  contacto: [
+    { key: 'label_color',       label: 'Label (Contacto)' },
+    { key: 'title_color',       label: 'Título' },
+    { key: 'sub_color',         label: 'Subtítulo' },
+    { key: 'benefits_color',    label: 'Lista de beneficios (checks)' },
+    { key: 'form_title_color',  label: 'Título del formulario' },
+    { key: 'form_labels_color', label: 'Labels del formulario' },
+  ],
+}
+
 
 interface ConfigRow {
   section: string
@@ -271,16 +345,15 @@ export default function ConfiguracionPage() {
   const [uploadingTexture, setUploadingTexture] = useState<Record<string, boolean>>({})
   const colorSaveTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({})
 
-  async function saveTextColor(sectionId: string, color: string) {
-    const key = `${sectionId}_text_color`
-    set('textures', key, color)
+  async function saveElementColor(fullKey: string, color: string) {
+    set('textures', fullKey, color)
     // Debounce — wait 600ms after last change before saving
-    clearTimeout(colorSaveTimers.current[key])
-    colorSaveTimers.current[key] = setTimeout(async () => {
+    clearTimeout(colorSaveTimers.current[fullKey])
+    colorSaveTimers.current[fullKey] = setTimeout(async () => {
       const supabase = createClient()
       await supabase
         .from('landing_config')
-        .upsert([{ section: 'textures', key, value: color }], { onConflict: 'section,key' })
+        .upsert([{ section: 'textures', key: fullKey, value: color }], { onConflict: 'section,key' })
     }, 600)
   }
 
@@ -826,11 +899,14 @@ export default function ConfiguracionPage() {
                     onUpload={(file) => handleTextureUpload(id, 'base', file)}
                     onClear={() => clearTexture(id, 'base')}
                   />
-                  <ColorPicker
-                    label="Color de texto"
-                    value={get('textures', `${id}_text_color`)}
-                    onChange={(v) => saveTextColor(id, v)}
-                  />
+                  {(ELEMENT_TARGETS[id] ?? []).map(({ key, label: elemLabel }) => (
+                    <ColorPicker
+                      key={key}
+                      label={elemLabel}
+                      value={get('textures', `${id}_${key}`)}
+                      onChange={(v) => saveElementColor(`${id}_${key}`, v)}
+                    />
+                  ))}
                 </div>
               ))}
             </div>

@@ -25,15 +25,13 @@ TEXTURE_SECTIONS = [
     "contacto",
 ]
 
-MAP_TYPES = ["base", "text_color"]
-
-
 @router.get("/textures", summary="Get texture config for all landing sections")
 def get_textures() -> dict[str, Any]:
-    """Return texture URLs for all landing page sections.
+    """Return texture and color config for all landing page sections.
 
     Reads from landing_config where section='textures'.
-    Returns a dict keyed by section id, each with base/normal/roughness/spec URLs.
+    Returns a dict keyed by section id with all stored map types (base, text_color,
+    element-specific colors like brand_color, h1_color, etc.).
     """
     try:
         with get_client() as client:
@@ -51,7 +49,7 @@ def get_textures() -> dict[str, Any]:
 
     rows = response.json()
 
-    # Build result: { hero: { base: url, normal: url, ... }, ... }
+    # Build result: { hero: { base: url, h1_color: '#fff', ... }, ... }
     result: dict[str, dict[str, str]] = {s: {} for s in TEXTURE_SECTIONS}
 
     for row in rows:
@@ -60,8 +58,10 @@ def get_textures() -> dict[str, Any]:
         if not value:
             continue
         for section in TEXTURE_SECTIONS:
-            for map_type in MAP_TYPES:
-                if key == f"{section}_{map_type}":
-                    result[section][map_type] = value
+            prefix = f"{section}_"
+            if key.startswith(prefix):
+                map_key = key[len(prefix):]
+                result[section][map_key] = value
+                break
 
     return result

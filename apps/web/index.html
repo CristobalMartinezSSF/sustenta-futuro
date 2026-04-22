@@ -4141,6 +4141,91 @@
   (function () {
     const TEXTURE_API = 'https://sustenta-futuro-api.onrender.com/landing/textures';
 
+    // Maps element-specific color keys to their CSS selectors
+    const ELEMENT_SELECTORS = {
+      navbar: {
+        brand_color:           '#navbar .nav-brand-text',
+        links_color:           '#navbar .nav-links a:not(.nav-cta)',
+        cta_color:             '#navbar .nav-cta, #navbar .nav-cta *',
+        text_color:            '#navbar nav, #navbar nav *',
+      },
+      hero: {
+        h1_color:              '#hero h1',
+        gradient_color:        '#hero .gradient-text',
+        p_color:               '#hero p',
+        badge_color:           '#hero .hero-badge, #hero .hero-badge *',
+        cta_primary_color:     '#hero .btn-primary, #hero .btn-primary *',
+        cta_secondary_color:   '#hero .btn-secondary',
+        text_color:            '#hero, #hero *',
+      },
+      sincon: {
+        label_color:           '#sincon .section-label',
+        title_color:           '#sincon .section-title',
+        sub_color:             '#sincon .section-sub',
+        sin_color:             '#sincon .sincon-col.sin, #sincon .sincon-col.sin *',
+        con_color:             '#sincon .sincon-col.con, #sincon .sincon-col.con *',
+        text_color:            '#sincon, #sincon *',
+      },
+      producto: {
+        label_color:           '#producto .section-label',
+        title_color:           '#producto .section-title',
+        sub_color:             '#producto .section-sub',
+        cards_color:           '#producto .exp-card, #producto .exp-card *',
+        text_color:            '#producto, #producto *',
+      },
+      proceso: {
+        label_color:           '#proceso .section-label',
+        title_color:           '#proceso .section-title',
+        sub_color:             '#proceso .section-sub',
+        steps_color:           '#proceso .paso, #proceso .paso *',
+        text_color:            '#proceso, #proceso *',
+      },
+      testimonios: {
+        label_color:           '#testimonios .section-label',
+        title_color:           '#testimonios .section-title',
+        sub_color:             '#testimonios .section-sub',
+        cards_color:           '#testimonios .tc-card, #testimonios .tc-card *',
+        text_color:            '#testimonios, #testimonios *',
+      },
+      diferenciadores: {
+        label_color:           '#diferenciadores .section-label',
+        title_color:           '#diferenciadores .section-title',
+        sub_color:             '#diferenciadores .section-sub',
+        items_color:           '#diferenciadores .dif-item, #diferenciadores .dif-item *',
+        text_color:            '#diferenciadores, #diferenciadores *',
+      },
+      nosotros: {
+        label_color:           '#nosotros .section-label',
+        title_color:           '#nosotros h2',
+        paragraphs_color:      '#nosotros .nosotros-text p',
+        name_color:            '#nosotros .nosotros-placeholder span',
+        text_color:            '#nosotros, #nosotros *',
+      },
+      legal: {
+        label_color:           '#legal .section-label',
+        title_color:           '#legal .section-title',
+        sub_color:             '#legal .section-sub',
+        cards_color:           '#legal .legal-card, #legal .legal-card *',
+        text_color:            '#legal, #legal *',
+      },
+      faq: {
+        label_color:           '#faq .section-label',
+        title_color:           '#faq .section-title',
+        questions_color:       '#faq .faq-question',
+        answers_color:         '#faq .faq-answer-inner',
+        text_color:            '#faq, #faq *',
+      },
+      contacto: {
+        label_color:           '#contacto .section-label',
+        title_color:           '#contacto .section-title',
+        sub_color:             '#contacto .section-sub',
+        benefits_color:        '#contacto .cb-item',
+        form_title_color:      '#contacto .form-card h3',
+        form_labels_color:     '#contacto .form-group label',
+        text_color:            '#contacto, #contacto *',
+      },
+    };
+
     async function loadTextures() {
       // Retry up to 3 times — Render free tier can take 30-50s on cold start
       for (let attempt = 0; attempt < 3; attempt++) {
@@ -4209,18 +4294,21 @@
         }
       });
 
-      // Apply text color — inject a scoped <style> rule to override CSS specificity
-      if (maps.text_color) {
-        const styleId = `sf-color-${sectionId}`;
+      // Apply per-element colors — inject scoped <style> rules to override CSS specificity
+      const colorMap = ELEMENT_SELECTORS[sectionId] || {};
+      Object.entries(maps).forEach(([mapKey, color]) => {
+        if (mapKey === 'base' || !color) return;
+        const selector = colorMap[mapKey];
+        if (!selector) return;
+        const styleId = `sf-color-${sectionId}-${mapKey}`;
         let styleEl = document.getElementById(styleId);
         if (!styleEl) {
           styleEl = document.createElement('style');
           styleEl.id = styleId;
           document.head.appendChild(styleEl);
         }
-        const selector = sectionId === 'navbar' ? '#navbar nav, #navbar nav *' : `#${sectionId}, #${sectionId} *`;
-        styleEl.textContent = `${selector} { color: ${maps.text_color} !important; }`;
-      }
+        styleEl.textContent = `${selector} { color: ${color} !important; }`;
+      });
     }
 
     if (document.readyState === 'loading') {

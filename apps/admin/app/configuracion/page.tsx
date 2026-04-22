@@ -9,6 +9,7 @@ import { createClient } from '@/lib/supabase'
 const TEXTURE_TARGETS = [
   { id: 'navbar',        label: 'Barra superior (Navbar)' },
   { id: 'hero',          label: 'Hero' },
+  { id: 'statscount',    label: 'Estadísticas (80%, 24/7, 100%)' },
   { id: 'sincon',        label: 'Antes / Después' },
   { id: 'producto',      label: 'Servicios (Globe)' },
   { id: 'proceso',       label: 'Cómo Trabajamos' },
@@ -34,6 +35,10 @@ const ELEMENT_TARGETS: Record<string, Array<{ key: string; label: string }>> = {
     { key: 'badge_color',         label: 'Badge (Sustenta Futuro)' },
     { key: 'cta_primary_color',   label: 'Botón Conversemos' },
     { key: 'cta_secondary_color', label: 'Botón Explorar' },
+  ],
+  statscount: [
+    { key: 'nums_color',   label: 'Números (80%, 24/7, 100%)' },
+    { key: 'labels_color', label: 'Textos descriptivos' },
   ],
   sincon: [
     { key: 'label_color',  label: 'Label (Antes / Después)' },

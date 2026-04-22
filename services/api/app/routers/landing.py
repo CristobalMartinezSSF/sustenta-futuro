@@ -14,6 +14,7 @@ router = APIRouter(prefix="/landing", tags=["landing"])
 TEXTURE_SECTIONS = [
     "navbar",
     "hero",
+    "statscount",
     "sincon",
     "producto",
     "proceso",

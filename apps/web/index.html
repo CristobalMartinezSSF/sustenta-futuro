@@ -256,15 +256,16 @@
       animation: fadeUp 600ms var(--ease-out) both 420ms;
     }
 
-    /* ─────────────────── HERO CENTERED ─────────────────── */
+    /* ─────────────────── HERO TWO-COLUMN ─────────────────── */
     .hero-inner {
       position: relative;
       z-index: 3;
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
       align-items: center;
-      text-align: center;
-      max-width: 860px;
+      justify-content: space-between;
+      gap: 3rem;
+      max-width: 1100px;
       width: 100%;
       margin: 0 auto;
     }
@@ -272,95 +273,79 @@
     .hero-content {
       display: flex;
       flex-direction: column;
-      align-items: center;
+      align-items: flex-start;
+      max-width: 580px;
     }
 
     #hero h1 {
       font-size: clamp(3rem, 6.5vw, 5.2rem);
+      text-align: left;
     }
 
     #hero p {
-      text-align: center;
-      margin-left: auto;
-      margin-right: auto;
+      text-align: left;
+      margin-left: 0;
+      margin-right: 0;
     }
 
-    /* ─────────────────── FLOATING STATS ─────────────────── */
-    /* ─────────────────── STATSCOUNT ─────────────────── */
-    #statscount {
-      padding: 3.5rem 5%;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .sc-grid {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      max-width: 860px;
-      margin: 0 auto;
-    }
-
-    .sc-item {
-      flex: 1;
+    /* ─────────────────── HERO STAT BUBBLES ─────────────────── */
+    .hero-stats {
       display: flex;
       flex-direction: column;
-      align-items: center;
-      text-align: center;
-      padding: 1.5rem 2rem;
-      gap: 0.55rem;
+      gap: 0.85rem;
+      flex-shrink: 0;
+    }
+
+    .hero-stat-card {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 14px;
+      padding: 0.9rem 1.25rem;
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      box-shadow: inset 0 1px 0 var(--glass-glow), 0 4px 20px rgba(0,0,0,0.3);
       opacity: 0;
-      transform: translateY(20px);
+      transform: translateX(16px);
       transition: opacity 500ms var(--ease-out), transform 500ms var(--ease-out);
     }
 
-    .sc-item.sc-visible { opacity: 1; transform: translateY(0); }
-    .sc-item:nth-child(1) { transition-delay: 0ms; }
-    .sc-item:nth-child(3) { transition-delay: 120ms; }
-    .sc-item:nth-child(5) { transition-delay: 240ms; }
+    .hero-stat-card.hsc-visible { opacity: 1; transform: translateX(0); }
+    .hero-stat-card:nth-child(1) { transition-delay: 0ms; }
+    .hero-stat-card:nth-child(2) { transition-delay: 110ms; }
+    .hero-stat-card:nth-child(3) { transition-delay: 220ms; }
 
-    .sc-divider {
-      width: 1px;
-      height: 64px;
-      background: var(--border);
-      flex-shrink: 0;
-      transform: scaleY(0);
-      transform-origin: center;
-      transition: transform 600ms var(--ease-out) 80ms;
-    }
-
-    .sc-divider.sc-visible { transform: scaleY(1); }
-
-    .sc-num {
+    .hsc-num {
       font-family: 'Montserrat', sans-serif;
-      font-size: clamp(2.6rem, 5vw, 4rem);
+      font-size: 1.6rem;
       font-weight: 900;
       color: var(--text);
       letter-spacing: -0.04em;
       line-height: 1;
     }
 
-    .sc-num em {
-      font-style: normal;
-      color: var(--text-muted);
-      font-size: 0.72em;
-    }
+    .hsc-num em { font-style: normal; color: var(--cta); }
 
-    #statscount .sc-item p {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      line-height: 1.55;
-      max-width: 150px;
+    .hero-stat-card p {
+      font-size: 0.7rem;
+      color: var(--text-subtle);
+      white-space: nowrap;
+      font-family: 'Inter', sans-serif;
       margin: 0;
     }
 
-    @media (max-width: 640px) {
-      .sc-grid { flex-direction: column; gap: 1.5rem; }
-      .sc-divider {
-        width: 40px; height: 1px;
-        transform: scaleX(0);
-        transform-origin: left;
-      }
-      .sc-divider.sc-visible { transform: scaleX(1); }
+    @media (max-width: 900px) {
+      .hero-inner { flex-direction: column; align-items: center; }
+      .hero-content { align-items: center; max-width: 100%; }
+      #hero h1 { text-align: center; }
+      #hero p { text-align: center; margin-left: auto; margin-right: auto; }
+      .hero-stats { flex-direction: row; flex-wrap: wrap; justify-content: center; }
+    }
+
+    @media (max-width: 580px) {
+      .hero-stats { display: none; }
     }
 
     /* ─────────────────── BUTTONS ─────────────────── */
@@ -2600,25 +2585,17 @@
           <a href="#producto" class="btn-secondary">Explorar</a>
         </div>
       </div>
-    </div>
-  </section>
-
-  <!-- STATSCOUNT -->
-  <section id="statscount">
-    <div class="container">
-      <div class="sc-grid">
-        <div class="sc-item">
-          <span class="sc-num" data-prefix="hasta " data-target="80" data-suffix="%">hasta 80%</span>
+      <div class="hero-stats" aria-hidden="true">
+        <div class="hero-stat-card">
+          <span class="hsc-num" data-prefix="hasta " data-target="80" data-suffix="%">hasta 80%</span>
           <!-- CMS:metrics-metric_1_label:START --><p>ahorro de tiempo en tareas repetitivas</p><!-- CMS:metrics-metric_1_label:END -->
         </div>
-        <div class="sc-divider" aria-hidden="true"></div>
-        <div class="sc-item">
-          <span class="sc-num">24<em>/7</em></span>
+        <div class="hero-stat-card">
+          <span class="hsc-num">24<em>/7</em></span>
           <!-- CMS:metrics-metric_2_label:START --><p>disponibilidad sin interrupciones</p><!-- CMS:metrics-metric_2_label:END -->
         </div>
-        <div class="sc-divider" aria-hidden="true"></div>
-        <div class="sc-item">
-          <span class="sc-num" data-target="100" data-suffix="%">100%</span>
+        <div class="hero-stat-card">
+          <span class="hsc-num" data-target="100" data-suffix="%">100%</span>
           <!-- CMS:metrics-metric_3_label:START --><p>personalización y soporte técnico ágil</p><!-- CMS:metrics-metric_3_label:END -->
         </div>
       </div>
@@ -3747,10 +3724,9 @@
   }, { passive: true });
 
   function initStatsCount() {
-    const nums     = document.querySelectorAll('.sc-num[data-target]');
-    const items    = document.querySelectorAll('.sc-item');
-    const dividers = document.querySelectorAll('.sc-divider');
-    if (!items.length) return;
+    const nums  = document.querySelectorAll('.hsc-num[data-target]');
+    const cards = document.querySelectorAll('.hero-stat-card');
+    if (!cards.length) return;
 
     function animateCount(el) {
       const target   = parseInt(el.dataset.target, 10);
@@ -3770,13 +3746,12 @@
     const obs = new IntersectionObserver(entries => {
       if (fired || !entries.some(e => e.isIntersecting)) return;
       fired = true;
-      items.forEach(el    => el.classList.add('sc-visible'));
-      dividers.forEach(el => el.classList.add('sc-visible'));
-      nums.forEach(el     => animateCount(el));
+      cards.forEach(el => el.classList.add('hsc-visible'));
+      nums.forEach(el  => animateCount(el));
       obs.disconnect();
-    }, { threshold: 0.3 });
+    }, { threshold: 0.2 });
 
-    items.forEach(el => obs.observe(el));
+    cards.forEach(el => obs.observe(el));
   }
 
   function initCustomSelects() {
@@ -4010,11 +3985,6 @@
         cta_primary_color:     '#hero .btn-primary, #hero .btn-primary *',
         cta_secondary_color:   '#hero .btn-secondary',
         text_color:            '#hero, #hero *',
-      },
-      statscount: {
-        nums_color:            '#statscount .sc-num',
-        labels_color:          '#statscount .sc-item p',
-        text_color:            '#statscount, #statscount *',
       },
       sincon: {
         label_color:           '#sincon .section-label',

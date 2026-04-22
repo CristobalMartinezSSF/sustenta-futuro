@@ -286,47 +286,81 @@
     }
 
     /* ─────────────────── FLOATING STATS ─────────────────── */
-    .hero-float-stat {
-      position: absolute;
-      z-index: 4;
-      display: flex;
-      flex-direction: column;
-      gap: 0.2rem;
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-border);
-      border-radius: 14px;
-      padding: 0.9rem 1.25rem;
-      backdrop-filter: var(--glass-blur);
-      -webkit-backdrop-filter: var(--glass-blur);
-      box-shadow: inset 0 1px 0 var(--glass-glow), 0 4px 20px rgba(0,0,0,0.3);
-      pointer-events: none;
-      will-change: transform;
+    /* ─────────────────── STATSCOUNT ─────────────────── */
+    #statscount {
+      padding: 3.5rem 5%;
+      border-bottom: 1px solid var(--border);
     }
 
-    .hfs-num {
+    .sc-grid {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    .sc-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 1.5rem 2rem;
+      gap: 0.55rem;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 500ms var(--ease-out), transform 500ms var(--ease-out);
+    }
+
+    .sc-item.sc-visible { opacity: 1; transform: translateY(0); }
+    .sc-item:nth-child(1) { transition-delay: 0ms; }
+    .sc-item:nth-child(3) { transition-delay: 120ms; }
+    .sc-item:nth-child(5) { transition-delay: 240ms; }
+
+    .sc-divider {
+      width: 1px;
+      height: 64px;
+      background: var(--border);
+      flex-shrink: 0;
+      transform: scaleY(0);
+      transform-origin: center;
+      transition: transform 600ms var(--ease-out) 80ms;
+    }
+
+    .sc-divider.sc-visible { transform: scaleY(1); }
+
+    .sc-num {
       font-family: 'Montserrat', sans-serif;
-      font-size: 1.6rem;
+      font-size: clamp(2.6rem, 5vw, 4rem);
       font-weight: 900;
       color: var(--text);
       letter-spacing: -0.04em;
       line-height: 1;
     }
 
-    .hfs-num em { font-style: normal; color: var(--cta); }
-
-    .hfs-label {
-      font-size: 0.7rem;
-      color: var(--text-subtle);
-      white-space: nowrap;
-      font-family: 'Inter', sans-serif;
+    .sc-num em {
+      font-style: normal;
+      color: var(--text-muted);
+      font-size: 0.72em;
     }
 
-    .hfs-1 { top: 26%; left: 14%; }
-    .hfs-2 { top: 42%; right: 14%; }
-    .hfs-3 { bottom: 24%; left: 15%; }
+    #statscount .sc-item p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+      max-width: 150px;
+      margin: 0;
+    }
 
-    @media (max-width: 1024px) {
-      .hero-float-stat { display: none; }
+    @media (max-width: 640px) {
+      .sc-grid { flex-direction: column; gap: 1.5rem; }
+      .sc-divider {
+        width: 40px; height: 1px;
+        transform: scaleX(0);
+        transform-origin: left;
+      }
+      .sc-divider.sc-visible { transform: scaleX(1); }
     }
 
     /* ─────────────────── BUTTONS ─────────────────── */
@@ -2543,20 +2577,6 @@
     <div class="orb orb-orange"></div>
     <div class="orb orb-blue"></div>
 
-    <!-- Floating stats (desktop only) -->
-    <div class="hero-float-stat hfs-1" aria-hidden="true">
-      <span class="hfs-num">80<em>%</em></span>
-      <span class="hfs-label">ahorro de tiempo</span>
-    </div>
-    <div class="hero-float-stat hfs-2" aria-hidden="true">
-      <span class="hfs-num">24<em>/7</em></span>
-      <span class="hfs-label">disponibilidad</span>
-    </div>
-    <div class="hero-float-stat hfs-3" aria-hidden="true">
-      <span class="hfs-num">100<em>%</em></span>
-      <span class="hfs-label">personalización</span>
-    </div>
-
     <div class="hero-inner">
       <div class="hero-content">
         <span class="hero-badge">
@@ -2578,6 +2598,28 @@
         <div class="hero-actions">
           <a href="#contacto" class="btn-primary btn-shimmer"><span>Conversemos</span></a>
           <a href="#producto" class="btn-secondary">Explorar</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATSCOUNT -->
+  <section id="statscount">
+    <div class="container">
+      <div class="sc-grid">
+        <div class="sc-item">
+          <span class="sc-num" data-target="80" data-suffix="%">80%</span>
+          <!-- CMS:metrics-metric_1_label:START --><p>ahorro de tiempo en tareas repetitivas</p><!-- CMS:metrics-metric_1_label:END -->
+        </div>
+        <div class="sc-divider" aria-hidden="true"></div>
+        <div class="sc-item">
+          <span class="sc-num">24<em>/7</em></span>
+          <!-- CMS:metrics-metric_2_label:START --><p>disponibilidad sin interrupciones</p><!-- CMS:metrics-metric_2_label:END -->
+        </div>
+        <div class="sc-divider" aria-hidden="true"></div>
+        <div class="sc-item">
+          <span class="sc-num" data-target="100" data-suffix="%">100%</span>
+          <!-- CMS:metrics-metric_3_label:START --><p>personalización y soporte técnico ágil</p><!-- CMS:metrics-metric_3_label:END -->
         </div>
       </div>
     </div>
@@ -3468,15 +3510,6 @@
       });
     });
 
-    // ── Floating stat pills drift ──
-    document.querySelectorAll('.hero-float-stat').forEach((pill, i) => {
-      const [x, y] = [[-12,-8],[10,14],[-8,12]][i] || [0,8];
-      gsap.to(pill, {
-        x, y, ease: 'none',
-        scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: 1.2 }
-      });
-    });
-
     // ── Bento card 3D mouse tilt ──
     // NOTE: .reveal/.bento-card opacity is controlled by IntersectionObserver CSS system.
     // GSAP only handles the mouse-tilt transform here — no opacity conflict.
@@ -3699,6 +3732,7 @@
     initTestimonials();
     initFancyText();
     initCustomSelects();
+    initStatsCount();
   });
 
   /* ── Refresh ScrollTrigger + re-init product section on resize ── */
@@ -3711,6 +3745,38 @@
       }
     }, 250);
   }, { passive: true });
+
+  function initStatsCount() {
+    const nums     = document.querySelectorAll('.sc-num[data-target]');
+    const items    = document.querySelectorAll('.sc-item');
+    const dividers = document.querySelectorAll('.sc-divider');
+    if (!items.length) return;
+
+    function animateCount(el) {
+      const target   = parseInt(el.dataset.target, 10);
+      const suffix   = el.dataset.suffix || '';
+      const duration = 1600;
+      const t0       = performance.now();
+      function tick(now) {
+        const p = Math.min((now - t0) / duration, 1);
+        el.textContent = Math.round((1 - Math.pow(1 - p, 3)) * target) + suffix;
+        if (p < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    }
+
+    let fired = false;
+    const obs = new IntersectionObserver(entries => {
+      if (fired || !entries.some(e => e.isIntersecting)) return;
+      fired = true;
+      items.forEach(el    => el.classList.add('sc-visible'));
+      dividers.forEach(el => el.classList.add('sc-visible'));
+      nums.forEach(el     => animateCount(el));
+      obs.disconnect();
+    }, { threshold: 0.3 });
+
+    items.forEach(el => obs.observe(el));
+  }
 
   function initCustomSelects() {
     document.querySelectorAll('.sf-select').forEach(select => {

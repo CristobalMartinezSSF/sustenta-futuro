@@ -2608,7 +2608,7 @@
     <div class="container">
       <div class="sc-grid">
         <div class="sc-item">
-          <span class="sc-num" data-target="80" data-suffix="%">80%</span>
+          <span class="sc-num" data-prefix="hasta " data-target="80" data-suffix="%">hasta 80%</span>
           <!-- CMS:metrics-metric_1_label:START --><p>ahorro de tiempo en tareas repetitivas</p><!-- CMS:metrics-metric_1_label:END -->
         </div>
         <div class="sc-divider" aria-hidden="true"></div>
@@ -3754,12 +3754,13 @@
 
     function animateCount(el) {
       const target   = parseInt(el.dataset.target, 10);
+      const prefix   = el.dataset.prefix || '';
       const suffix   = el.dataset.suffix || '';
       const duration = 1600;
       const t0       = performance.now();
       function tick(now) {
         const p = Math.min((now - t0) / duration, 1);
-        el.textContent = Math.round((1 - Math.pow(1 - p, 3)) * target) + suffix;
+        el.textContent = prefix + Math.round((1 - Math.pow(1 - p, 3)) * target) + suffix;
         if (p < 1) requestAnimationFrame(tick);
       }
       requestAnimationFrame(tick);

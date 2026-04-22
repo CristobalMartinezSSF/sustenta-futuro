@@ -1498,8 +1498,6 @@
       transform: none;
     }
 
-    [data-theme="light"] .tc-dot { background: rgba(0,0,0,0.22); }
-    [data-theme="light"] .tc-dot.active { background: var(--accent); }
 
     @media (max-width: 768px) {
       .tc-card { padding: 1.8rem; }
@@ -2516,182 +2514,6 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    /* Light mode */
-    [data-theme="light"] .sf-select__trigger {
-      background: rgba(0,0,0,0.04);
-      border-color: rgba(0,0,0,0.12);
-    }
-    [data-theme="light"] .sf-select__trigger:hover { border-color: rgba(0,0,0,0.22); }
-    [data-theme="light"] .sf-select.open .sf-select__trigger,
-    [data-theme="light"] .sf-select__trigger:focus-visible {
-      border-color: rgba(0,0,0,0.40);
-      box-shadow: 0 0 0 3px rgba(0,0,0,0.06);
-    }
-    [data-theme="light"] .sf-select__dropdown {
-      background: #ffffff;
-      border-color: rgba(0,0,0,0.10);
-      box-shadow: 0 8px 32px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.8);
-    }
-    [data-theme="light"] .sf-select__item:hover { background: rgba(0,0,0,0.05); }
-    [data-theme="light"] .sf-select__item.selected:hover { background: rgba(0,0,0,0.07); }
-
-    /* ── Theme Switch ── */
-    .theme-switch {
-      position: relative;
-      display: inline-flex;
-      align-items: center;
-      height: 32px;
-      width: 56px;
-      padding: 4px;
-      border-radius: 100px;
-      border: 1px solid var(--glass-border);
-      background: var(--glass-bg);
-      backdrop-filter: var(--glass-blur);
-      -webkit-backdrop-filter: var(--glass-blur);
-      cursor: pointer;
-      user-select: none;
-      transition: border-color 200ms ease;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-    }
-    .theme-switch:hover { border-color: var(--glass-border-h); }
-    .theme-switch__slider {
-      position: absolute;
-      top: 4px;
-      left: 4px;
-      width: 24px;
-      height: 24px;
-      border-radius: 100px;
-      background: rgba(255,255,255,0.15);
-      transition: left 200ms cubic-bezier(0.4, 0, 0.2, 1);
-      z-index: 0;
-      pointer-events: none;
-    }
-    .theme-switch__btn {
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 24px;
-      height: 24px;
-      flex-shrink: 0;
-      border: none;
-      background: transparent;
-      cursor: pointer;
-      z-index: 1;
-      color: var(--text-subtle);
-      transition: color 200ms ease;
-      padding: 0;
-      border-radius: 100px;
-    }
-    .theme-switch__btn:hover { color: var(--text-muted); }
-    .theme-switch__btn.active { color: var(--text); }
-    .theme-switch__btn svg { width: 14px; height: 14px; }
-
-    /* ── Light theme overrides ── */
-    [data-theme="light"] {
-      --bg:           #F8F8F6;
-      --bg-1:         #EFEFEC;
-      --bg-card:      rgba(0,0,0,0.03);
-      --bg-card-h:    rgba(0,0,0,0.06);
-      --border:       rgba(0,0,0,0.09);
-      --border-h:     rgba(0,0,0,0.18);
-      --text:         #0A0A0A;
-      --text-muted:   rgba(10,10,10,0.55);
-      --text-subtle:  rgba(10,10,10,0.30);
-      --accent:       #0A0A0A;
-      --accent-dim:   rgba(0,0,0,0.06);
-      --cta:          #0A0A0A;
-      --cta-dim:      rgba(0,0,0,0.08);
-      --cta-hover:    rgba(30,30,30,1);
-      --glass-bg:       rgba(248,248,246,0.75);
-      --glass-bg-hover: rgba(248,248,246,0.90);
-      --glass-border:   rgba(0,0,0,0.10);
-      --glass-border-h: rgba(0,0,0,0.20);
-      --glass-glow:     rgba(0,0,0,0.04);
-    }
-    [data-theme="light"] body { background: var(--bg); }
-    [data-theme="light"] .gradient-text { color: rgba(10,10,10,0.5); }
-
-    /* Cards — fondo blanco explícito */
-    [data-theme="light"] .bento-card,
-    [data-theme="light"] .exp-card {
-      background: rgba(255,255,255,0.92);
-      border-color: rgba(0,0,0,0.08);
-      box-shadow: 0 1px 12px rgba(0,0,0,0.06);
-    }
-    [data-theme="light"] .bento-card:hover,
-    [data-theme="light"] .exp-card:hover {
-      background: rgba(255,255,255,1);
-      border-color: rgba(0,0,0,0.14);
-    }
-    [data-theme="light"] .exp-card.active {
-      border-color: rgba(0,0,0,0.16);
-    }
-
-    /* Íconos de tarjeta */
-    [data-theme="light"] .bento-icon,
-    [data-theme="light"] .exp-card-icon {
-      background: rgba(0,0,0,0.05);
-      border-color: rgba(0,0,0,0.10);
-    }
-
-    /* Badges / stats */
-    [data-theme="light"] .bento-stat,
-    [data-theme="light"] .exp-card-stat {
-      color: #0A0A0A;
-      background: rgba(0,0,0,0.06);
-      border-color: rgba(0,0,0,0.12);
-    }
-
-    /* Formulario en light mode */
-    [data-theme="light"] .form-group input,
-    [data-theme="light"] .form-group select,
-    [data-theme="light"] .form-group textarea {
-      background: rgba(0,0,0,0.04);
-      border-color: rgba(0,0,0,0.12);
-      color: #0A0A0A;
-    }
-    [data-theme="light"] .form-group input::placeholder,
-    [data-theme="light"] .form-group textarea::placeholder { color: rgba(0,0,0,0.35); }
-    [data-theme="light"] .form-group input:focus,
-    [data-theme="light"] .form-group select:focus,
-    [data-theme="light"] .form-group textarea:focus {
-      border-color: rgba(0,0,0,0.40);
-      box-shadow: 0 0 0 3px rgba(0,0,0,0.06);
-    }
-
-    /* Tooltips del globe */
-    [data-theme="light"] .prod-tooltip {
-      background: rgba(255,255,255,0.92);
-      border-color: rgba(0,0,0,0.10);
-    }
-    [data-theme="light"] .tp-icon {
-      background: rgba(0,0,0,0.05);
-      border-color: rgba(0,0,0,0.10);
-    }
-    [data-theme="light"] .tp-divider { background: rgba(0,0,0,0.12); }
-
-
-    /* Shimmer button in light mode */
-    /* Light: botón negro con arco blanco — se ve sobre fondo claro */
-    [data-theme="light"] .btn-shimmer {
-      background: #111;
-      color: #fff;
-      --shimmer-color: rgba(255,255,255,0.9);
-      box-shadow:
-        0 0 6px  rgba(0,0,0,0.20),
-        0 0 18px rgba(0,0,0,0.10);
-    }
-    [data-theme="light"] .btn-shimmer:hover {
-      box-shadow:
-        0 0 10px rgba(0,0,0,0.35),
-        0 0 24px rgba(0,0,0,0.18),
-        0 0 48px rgba(0,0,0,0.10);
-    }
-    [data-theme="light"] .btn-shimmer::after { background: #111; }
-
-    /* Theme switch slider in light mode */
-    [data-theme="light"] .theme-switch__slider { background: rgba(0,0,0,0.12); }
   </style>
 </head>
 <body>
@@ -2706,15 +2528,6 @@
       <div class="nav-links">
         <a href="#nosotros">Nosotros</a>
         <a href="#proceso">Proceso</a>
-        <div class="theme-switch" id="theme-switch" role="group" aria-label="Cambiar tema">
-          <div class="theme-switch__slider" id="ts-slider"></div>
-          <button class="theme-switch__btn active" data-theme="dark" aria-label="Tema oscuro">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-          </button>
-          <button class="theme-switch__btn" data-theme="light" aria-label="Tema claro">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-          </button>
-        </div>
         <a href="#contacto" class="nav-cta btn-shimmer"><span>Conversemos</span></a>
       </div>
     </nav>
@@ -3886,7 +3699,6 @@
     initTestimonials();
     initFancyText();
     initCustomSelects();
-    initThemeSwitch();
   });
 
   /* ── Refresh ScrollTrigger + re-init product section on resize ── */
@@ -3955,32 +3767,6 @@
     document.addEventListener('click', () => {
       document.querySelectorAll('.sf-select.open').forEach(s => s.classList.remove('open'));
     });
-  }
-
-  function initThemeSwitch() {
-    const sw      = document.getElementById('theme-switch');
-    const slider  = document.getElementById('ts-slider');
-    if (!sw || !slider) return;
-
-    const STORAGE_KEY = 'sf-theme';
-    const btns = sw.querySelectorAll('.theme-switch__btn');
-
-    function applyTheme(theme) {
-      document.documentElement.setAttribute('data-theme', theme);
-      localStorage.setItem(STORAGE_KEY, theme);
-
-      btns.forEach(b => b.classList.toggle('active', b.dataset.theme === theme));
-
-      /* Slide: dark → 4px, light → 28px (spec exacto ScrollX) */
-      slider.style.left = theme === 'light' ? '28px' : '4px';
-    }
-
-    btns.forEach(btn => {
-      btn.addEventListener('click', () => applyTheme(btn.dataset.theme));
-    });
-
-    /* Restore saved or default dark */
-    applyTheme(localStorage.getItem(STORAGE_KEY) || 'dark');
   }
 
   /* ── FAQ accordion ── */

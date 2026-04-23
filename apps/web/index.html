@@ -299,12 +299,6 @@
       box-shadow: inset 0 1px 0 var(--glass-glow), 0 4px 20px rgba(0,0,0,0.3);
       pointer-events: none;
       will-change: transform;
-      opacity: 1;
-      transition: opacity 300ms ease;
-    }
-
-    .hero-float-stat.hfs-hidden {
-      opacity: 0;
     }
 
     .hfs-num {
@@ -3717,15 +3711,6 @@
     }, 250);
   }, { passive: true });
 
-  // ── Floating stat pills — hide when hero leaves viewport ──
-  const _pills = document.querySelectorAll('.hero-float-stat');
-  ScrollTrigger.create({
-    trigger: '#hero',
-    start: 'top top',
-    end: 'bottom top',
-    onLeave: () => _pills.forEach(p => p.classList.add('hfs-hidden')),
-    onEnterBack: () => _pills.forEach(p => p.classList.remove('hfs-hidden')),
-  });
 
   function initStatsCount() {
     const nums = document.querySelectorAll('.hfs-num[data-target]');

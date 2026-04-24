@@ -28,7 +28,7 @@ function wrapValue(section: string, key: string, value: string): string {
     return `<p>\n          ${text}\n        </p>`
   }
   if (section === 'metrics' && key.endsWith('_label')) {
-    return `<p>${text}</p>`
+    return `<span class="hfs-label">${text}</span>`
   }
   if (section === 'nosotros' && (key === 'text_1' || key === 'text_2')) {
     return `<p>${text}</p>`

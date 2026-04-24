@@ -312,6 +312,14 @@
 
     .hfs-num em { font-style: normal; color: var(--cta); }
 
+    .hfs-prefix {
+      font-size: 0.65rem;
+      color: var(--text-subtle);
+      font-family: 'Inter', sans-serif;
+      text-transform: lowercase;
+      letter-spacing: 0.04em;
+    }
+
     .hfs-label {
       font-size: 0.7rem;
       color: var(--text-subtle);
@@ -2571,16 +2579,19 @@
 
     <!-- Floating stats (desktop only) -->
     <div class="hero-float-stat hfs-1" aria-hidden="true">
-      <span class="hfs-num" data-prefix="hasta " data-target="80" data-suffix="%">hasta 80%</span>
+      <span class="hfs-prefix">hasta</span>
+      <span class="hfs-num" data-target="80" data-suffix="%">80%</span>
       <!-- CMS:metrics-metric_1_label:START --><span class="hfs-label">ahorro de tiempo</span><!-- CMS:metrics-metric_1_label:END -->
     </div>
     <div class="hero-float-stat hfs-2" aria-hidden="true">
+      <span class="hfs-prefix">disponibilidad</span>
       <span class="hfs-num">24<em>/7</em></span>
-      <!-- CMS:metrics-metric_2_label:START --><span class="hfs-label">disponibilidad sin interrupciones</span><!-- CMS:metrics-metric_2_label:END -->
+      <!-- CMS:metrics-metric_2_label:START --><span class="hfs-label">sin interrupciones</span><!-- CMS:metrics-metric_2_label:END -->
     </div>
     <div class="hero-float-stat hfs-3" aria-hidden="true">
+      <span class="hfs-prefix">personalización</span>
       <span class="hfs-num" data-target="100" data-suffix="%">100%</span>
-      <!-- CMS:metrics-metric_3_label:START --><span class="hfs-label">personalización</span><!-- CMS:metrics-metric_3_label:END -->
+      <!-- CMS:metrics-metric_3_label:START --><span class="hfs-label">y soporte</span><!-- CMS:metrics-metric_3_label:END -->
     </div>
   </section>
 

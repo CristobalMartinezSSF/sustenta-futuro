@@ -3301,7 +3301,7 @@
     paths.forEach(d => {
       const p = document.createElementNS(ns, 'path');
       p.setAttribute('d', d);
-      p.setAttribute('stroke', '#617F8A');
+      p.setAttribute('stroke', '#3aaa35');
       p.setAttribute('stroke-opacity', '0.12');
       p.setAttribute('stroke-width', '0.2');
       p.setAttribute('fill', 'none');
@@ -3314,7 +3314,7 @@
       if (i % 2 !== 0) return;
       const dur   = (Math.random() * 3 + 2.5).toFixed(2);
       const delay = (Math.random() * 6).toFixed(2);
-      const color = i % 4 === 0 ? '#617F8A' : '#7BA3AE';
+      const color = i % 4 === 0 ? '#3aaa35' : '#7BA3AE';
       const p = document.createElementNS(ns, 'path');
       p.setAttribute('d', d);
       p.setAttribute('pathLength', '1');

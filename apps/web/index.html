@@ -131,15 +131,7 @@
     }
 
     .nav-cta {
-      background: #000 !important;
-      color: #fff !important;
-      font-weight: 700 !important;
-      padding: 0.55rem 1.25rem !important;
-      transition: background 180ms ease, transform 160ms var(--ease-out) !important;
-    }
-
-    @media (hover: hover) and (pointer: fine) {
-      .nav-cta:hover { background: #111 !important; }
+      font-weight: 700;
     }
 
     .nav-cta:active { transform: scale(0.96); }
@@ -2343,16 +2335,16 @@
       .chat-fab   { bottom: 1.5rem; left: 1rem; }
     }
 
-    /* ── Animated Shimmer Button ── */
+    /* ── Botón Conversemos (navbar + hero) ── */
     .btn-shimmer {
-      position: relative;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       padding: 0.65rem 1.55rem;
       border-radius: 100px;
-      background: #000;           /* capa base visible en el ring */
-      color: #fff;
+      background: transparent;
+      border: 1.5px solid #7BA3AE;
+      color: #7BA3AE;
       font-family: 'Montserrat', sans-serif;
       font-weight: 700;
       font-size: 0.82rem;
@@ -2360,104 +2352,26 @@
       text-transform: uppercase;
       text-decoration: none;
       cursor: pointer;
-      border: none;
-      overflow: hidden;           /* recorta el disco giratorio */
-      transition: box-shadow 400ms ease, transform 0.15s ease;
-      --shimmer-color: rgba(255,255,255,0.9);
-      --speed: 3s;
-      --cut: 1.5px;
-      box-shadow:
-        0 0 6px  rgba(255,255,255,0.20),
-        0 0 20px rgba(255,255,255,0.10);
+      box-shadow: none;
+      transition: background 220ms ease, color 220ms ease, transform 0.15s ease;
     }
-    .btn-shimmer:hover {
-      box-shadow:
-        0 0 8px  rgba(255,255,255,0.60),
-        0 0 24px rgba(255,255,255,0.30),
-        0 0 50px rgba(255,255,255,0.14);
+    .btn-shimmer span { color: inherit; }
+    @media (hover: hover) and (pointer: fine) {
+      .btn-shimmer:hover {
+        background: #7BA3AE;
+        color: #ffffff;
+      }
     }
-    .btn-shimmer:active { transform: translateY(1px); }
-
-    /* Disco giratorio — capa 1 */
-    .btn-shimmer::before {
-      content: '';
-      position: absolute;
-      top: 50%; left: 50%;
-      width: 200%; aspect-ratio: 1;
-      background: conic-gradient(
-        from 0deg,
-        transparent 0deg,
-        var(--shimmer-color) 60deg,
-        transparent 120deg
-      );
-      transform: translate(-50%, -50%) rotate(0deg);
-      animation: btn-spin-continuous var(--speed) infinite linear;
-      will-change: transform;
-      filter: blur(1px);
-    }
-
-    /* Fondo interior — capa 2, tapa el centro del disco */
-    .btn-shimmer::after {
-      content: '';
-      position: absolute;
-      inset: var(--cut);
-      border-radius: 100px;
-      background: #000;
-    }
-
-    /* Texto — capa 3, siempre encima */
-    .btn-shimmer span {
-      position: relative;
-      z-index: 1;
-    }
-
-    @keyframes btn-spin-continuous {
-      to { transform: translate(-50%, -50%) rotate(360deg); }
+    .btn-shimmer:active {
+      background: #7BA3AE;
+      color: #ffffff;
+      transform: translateY(1px);
     }
 
     /* Nav variant — ligeramente más pequeño */
     .nav-cta.btn-shimmer {
       padding: 0.5rem 1.2rem;
       font-size: 0.78rem;
-    }
-
-    /* Conversemos (navbar + hero) — Pantone 7542, outline limpio */
-    /* Reemplaza la estructura shimmer por border directo         */
-    #navbar .nav-cta.btn-shimmer,
-    #hero .btn-primary.btn-shimmer {
-      background: transparent !important;
-      border: 1.5px solid #7BA3AE !important;
-      box-shadow: none !important;
-      transition: background 220ms ease, color 220ms ease, transform 0.15s ease !important;
-    }
-    #navbar .nav-cta.btn-shimmer::before,
-    #hero .btn-primary.btn-shimmer::before,
-    #navbar .nav-cta.btn-shimmer::after,
-    #hero .btn-primary.btn-shimmer::after {
-      display: none !important;
-    }
-    #navbar .nav-cta.btn-shimmer span,
-    #hero .btn-primary.btn-shimmer span {
-      color: #7BA3AE !important;
-      transition: color 220ms ease;
-    }
-    @media (hover: hover) and (pointer: fine) {
-      #navbar .nav-cta.btn-shimmer:hover,
-      #hero .btn-primary.btn-shimmer:hover {
-        background: #7BA3AE !important;
-      }
-      #navbar .nav-cta.btn-shimmer:hover span,
-      #hero .btn-primary.btn-shimmer:hover span {
-        color: #ffffff !important;
-      }
-    }
-    #navbar .nav-cta.btn-shimmer:active,
-    #hero .btn-primary.btn-shimmer:active {
-      background: #7BA3AE !important;
-    }
-    #navbar .nav-cta.btn-shimmer:active span,
-    #hero .btn-primary.btn-shimmer:active span {
-      color: #ffffff !important;
     }
 
     /* ── Custom Select (ScrollX style) ── */

@@ -1089,136 +1089,96 @@
       color: var(--text-subtle);
     }
 
-    /* ─────────────────── PRODUCTO PINNEABLE ─────────────────── */
-    #producto {
-      position: relative;
-    }
+    /* ─────────────────── LAYER STACK (producto) ─────────────────── */
+    #producto { position: relative; }
 
-    .exp-cards-wrap {
-      display: flex;
-      gap: 12px;
-      height: 460px;
-      width: 100%;
-      margin-top: 3rem;
-    }
-
-    .exp-card {
-      flex: 1;
-      height: 100%;
-      border-radius: 20px;
-      overflow: hidden;
-      cursor: pointer;
+    .ls-stage {
       position: relative;
-      background: rgba(8,8,8,0.92);
-      border: 1px solid rgba(255,255,255,0.08);
-      box-shadow: 0 0 0 1px rgba(255,255,255,0.04) inset;
-      transition: flex 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+      width: 340px;
+      height: 420px;
+      margin: 3rem auto 0;
+      user-select: none;
+      cursor: grab;
+    }
+    .ls-stage.is-dragging { cursor: grabbing; }
+
+    .ls-card {
+      position: absolute;
+      inset: 0;
+      border-radius: 24px;
+      padding: 2.4rem;
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
-      padding: 2rem 1.8rem;
+      background: #ffffff;
+      border: 1px solid rgba(97,127,138,0.18);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.06), 0 1px 4px rgba(0,0,0,0.04);
+      will-change: transform, opacity;
+      transition: transform 0.42s cubic-bezier(0.32, 0, 0.67, 0), opacity 0.3s ease;
+      transform-origin: bottom center;
     }
+    .ls-card.is-dragging { transition: none; }
 
-    .exp-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--ec-accent, rgba(255,255,255,0.2)), transparent);
-    }
-
-    .exp-card::after {
-      content: '';
-      position: absolute;
-      top: -60px; left: 50%; transform: translateX(-50%);
-      width: 160px; height: 160px;
-      border-radius: 50%;
-      background: var(--ec-accent, rgba(255,255,255,0.1));
-      opacity: 0;
-      filter: blur(60px);
-      transition: opacity 0.5s ease;
-      pointer-events: none;
-    }
-
-    .exp-card.active::after { opacity: 0.22; }
-    .exp-card.active { flex: 3.5; }
-
-    .exp-card[data-ec="0"] { --ec-accent: rgba(100,180,255,0.7); }
-    .exp-card[data-ec="1"] { --ec-accent: rgba(160,120,255,0.7); }
-    .exp-card[data-ec="2"] { --ec-accent: rgba(80,220,180,0.7); }
-    .exp-card[data-ec="3"] { --ec-accent: rgba(255,180,60,0.7); }
-    .exp-card[data-ec="4"] { --ec-accent: rgba(255,100,130,0.7); }
-
-    .ec-num {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 0.6rem;
-      font-weight: 700;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--text-muted);
+    .ls-card-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      color: rgba(69,90,100,0.38);
       margin-bottom: 0.6rem;
-      position: relative; z-index: 1;
     }
-
-    .ec-icon {
-      width: 38px; height: 38px;
-      border-radius: 10px;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.1);
+    .ls-card-icon {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      background: rgba(97,127,138,0.08);
+      border: 1px solid rgba(97,127,138,0.15);
       display: flex; align-items: center; justify-content: center;
-      margin-bottom: 0.9rem;
-      position: relative; z-index: 1;
-      flex-shrink: 0;
+      margin-bottom: 1.2rem;
     }
-
-    .ec-icon svg {
-      width: 18px; height: 18px;
-      stroke: currentColor; fill: none;
+    .ls-card-icon svg {
+      width: 20px; height: 20px;
+      stroke: #617F8A; fill: none;
       stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
-      color: var(--text);
     }
-
-    .ec-title {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 1.1rem;
+    .ls-card h3 {
+      font-size: 1.25rem;
       font-weight: 800;
+      color: #617F8A;
+      margin-bottom: 0.8rem;
       letter-spacing: -0.02em;
-      color: var(--text);
-      margin-bottom: 0.7rem;
-      position: relative; z-index: 1;
     }
-
-    .ec-desc {
-      font-size: 0.85rem;
-      color: var(--text-muted);
+    .ls-card p {
+      font-size: 0.87rem;
       line-height: 1.65;
-      position: relative; z-index: 1;
-      max-height: 0;
-      overflow: hidden;
-      opacity: 0;
-      transition: max-height 0.45s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease 0.12s;
+      color: #455A64;
     }
 
-    .exp-card.active .ec-desc {
-      max-height: 200px;
-      opacity: 1;
+    .ls-controls {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.6rem;
+      margin-top: 1.5rem;
+    }
+    .ls-dots { display: flex; gap: 0.45rem; }
+    .ls-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: rgba(97,127,138,0.25);
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      transition: background 250ms ease, transform 250ms ease;
+    }
+    .ls-dot.active { background: #617F8A; transform: scale(1.4); }
+    .ls-hint {
+      font-size: 0.68rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(69,90,100,0.38);
     }
 
     @media (max-width: 768px) {
-      .exp-cards-wrap {
-        flex-direction: column;
-        height: auto;
-        gap: 10px;
-      }
-      .exp-card {
-        flex: none !important;
-        height: 72px;
-        padding: 1.4rem 1.6rem;
-        transition: height 0.5s cubic-bezier(0.4,0,0.2,1);
-      }
-      .exp-card.active {
-        height: 260px;
-      }
+      .ls-stage { width: calc(100vw - 3rem); }
     }
 
     /* ─────────────────── FANCY TEXT ─────────────────── */
@@ -2651,47 +2611,57 @@
       <span class="section-label reveal">Nuestros Servicios</span>
       <h2 class="section-title reveal">Soluciones que<br />mueven tu negocio</h2>
       <p class="section-sub reveal">Cinco áreas de especialización integradas para automatizar, escalar y diferenciar tu operación.</p>
-      <div class="exp-cards-wrap">
-        <div class="exp-card active" data-ec="0">
-          <div class="ec-num">01 / WEB</div>
-          <div class="ec-icon">
+      <div class="ls-stage" id="ls-stage">
+        <div class="ls-card">
+          <div class="ls-card-num">01 / WEB</div>
+          <div class="ls-card-icon">
             <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
           </div>
-          <h3 class="ec-title">Diseño y Desarrollo Web</h3>
-          <p class="ec-desc">Plataformas web corporativas de alto rendimiento. Diseñamos ecosistemas digitales enfocados en velocidad, seguridad y máxima conversión de clientes.</p>
+          <h3>Diseño y Desarrollo Web</h3>
+          <p>Plataformas web corporativas de alto rendimiento. Diseñamos ecosistemas digitales enfocados en velocidad, seguridad y máxima conversión de clientes.</p>
         </div>
-        <div class="exp-card" data-ec="1">
-          <div class="ec-num">02 / DEV</div>
-          <div class="ec-icon">
+        <div class="ls-card">
+          <div class="ls-card-num">02 / DEV</div>
+          <div class="ls-card-icon">
             <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/><polyline points="10 8 14 12 10 16"/></svg>
           </div>
-          <h3 class="ec-title">Desarrollo de Software</h3>
-          <p class="ec-desc">Digitalización del core de tu negocio. Arquitecturas a medida que se integran a tu operación actual, eliminando silos de información y preparadas para escalar.</p>
+          <h3>Desarrollo de Software</h3>
+          <p>Digitalización del core de tu negocio. Arquitecturas a medida que se integran a tu operación actual, eliminando silos de información y preparadas para escalar.</p>
         </div>
-        <div class="exp-card" data-ec="2">
-          <div class="ec-num">03 / APP</div>
-          <div class="ec-icon">
+        <div class="ls-card">
+          <div class="ls-card-num">03 / APP</div>
+          <div class="ls-card-icon">
             <svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
           </div>
-          <h3 class="ec-title">Aplicaciones Móviles</h3>
-          <p class="ec-desc">Ecosistemas móviles nativos para iOS y Android. Llevamos la operación de tu equipo y el contacto con tus clientes directamente a sus manos, en tiempo real.</p>
+          <h3>Aplicaciones Móviles</h3>
+          <p>Ecosistemas móviles nativos para iOS y Android. Llevamos la operación de tu equipo y el contacto con tus clientes directamente a sus manos, en tiempo real.</p>
         </div>
-        <div class="exp-card" data-ec="3">
-          <div class="ec-num">04 / AUTO</div>
-          <div class="ec-icon">
+        <div class="ls-card">
+          <div class="ls-card-num">04 / AUTO</div>
+          <div class="ls-card-icon">
             <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
           </div>
-          <h3 class="ec-title">Automatizaciones</h3>
-          <p class="ec-desc">Orquestación de procesos con IA. Conectamos tus sistemas y eliminamos el trabajo manual repetitivo para que tu equipo se enfoque en lo que realmente genera valor.</p>
+          <h3>Automatizaciones</h3>
+          <p>Orquestación de procesos con IA. Conectamos tus sistemas y eliminamos el trabajo manual repetitivo para que tu equipo se enfoque en lo que realmente genera valor.</p>
         </div>
-        <div class="exp-card" data-ec="4">
-          <div class="ec-num">05 / BOT</div>
-          <div class="ec-icon">
+        <div class="ls-card">
+          <div class="ls-card-num">05 / BOT</div>
+          <div class="ls-card-icon">
             <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/><path d="M8 10h.01"/><path d="M12 10h.01"/><path d="M16 10h.01"/></svg>
           </div>
-          <h3 class="ec-title">Chatbots y Landing Pages</h3>
-          <p class="ec-desc">Asistentes de IA y embudos de conversión. Agentes conversacionales 24/7 y plataformas de captura estratégicas para optimizar tu adquisición de clientes.</p>
+          <h3>Chatbots y Landing Pages</h3>
+          <p>Asistentes de IA y embudos de conversión. Agentes conversacionales 24/7 y plataformas de captura estratégicas para optimizar tu adquisición de clientes.</p>
         </div>
+      </div>
+      <div class="ls-controls">
+        <div class="ls-dots">
+          <button class="ls-dot active" aria-label="Servicio 1"></button>
+          <button class="ls-dot" aria-label="Servicio 2"></button>
+          <button class="ls-dot" aria-label="Servicio 3"></button>
+          <button class="ls-dot" aria-label="Servicio 4"></button>
+          <button class="ls-dot" aria-label="Servicio 5"></button>
+        </div>
+        <span class="ls-hint">arrastra para explorar</span>
       </div>
     </div>
   </section>
@@ -3541,26 +3511,83 @@
     });
   }
 
-  function initExpandableCards() {
-    const cards = document.querySelectorAll('.exp-card');
-    if (!cards.length) return;
+  function initLayerStack() {
+    const stage = document.getElementById('ls-stage');
+    if (!stage) return;
+    const cards = Array.from(stage.querySelectorAll('.ls-card'));
+    const dots  = Array.from(document.querySelectorAll('.ls-dot'));
+    const total = cards.length;
+    let current = 0, dragging = false, startX = 0, dragDelta = 0;
 
-    function activate(index) {
-      cards.forEach((c, i) => {
-        c.classList.toggle('active', i === index);
+    function applyState(delta) {
+      const W = stage.offsetWidth || 340;
+      cards.forEach((card, i) => {
+        const d = i - current;
+        let tx = 0, ty = 0, sc = 1, rot = 0, op = 1, z = total - i;
+        if (d < 0) {
+          tx = -120; rot = -8; op = 0; z = 0;
+        } else if (d === 0) {
+          tx = (delta / W) * 100;
+          rot = delta * -0.04;
+          z = total + 2;
+        } else {
+          const pull = delta > 0 ? 0 : Math.min(1, Math.abs(delta) / (W * 0.5));
+          ty = (d - pull) * 22;
+          sc = Math.max(0.82, 1 - (d - pull) * 0.05);
+          op = d <= 3 ? 1 : 0;
+          z  = total + 2 - d;
+          if (ty > 66) { ty = 66; op = 0; }
+        }
+        card.style.zIndex   = z;
+        card.style.opacity  = op;
+        card.style.transform = `translateX(${tx}%) translateY(${ty}px) scale(${sc}) rotate(${rot}deg)`;
       });
     }
 
-    cards.forEach((card, i) => {
-      card.addEventListener('mouseenter', () => activate(i));
-      card.addEventListener('focus',      () => activate(i));
-      card.addEventListener('click',      () => activate(i));
+    function goTo(index) {
+      current = Math.max(0, Math.min(total - 1, index));
+      dragDelta = 0;
+      applyState(0);
+      dots.forEach((d, i) => d.classList.toggle('active', i === current));
+    }
+
+    stage.addEventListener('mousedown', e => {
+      dragging = true; startX = e.clientX;
+      stage.classList.add('is-dragging');
+      cards[current]?.classList.add('is-dragging');
+    });
+    window.addEventListener('mousemove', e => {
+      if (!dragging) return;
+      dragDelta = e.clientX - startX;
+      applyState(dragDelta);
+    });
+    window.addEventListener('mouseup', () => {
+      if (!dragging) return;
+      dragging = false;
+      stage.classList.remove('is-dragging');
+      cards[current]?.classList.remove('is-dragging');
+      if (dragDelta < -80 && current < total - 1) goTo(current + 1);
+      else if (dragDelta > 80 && current > 0)     goTo(current - 1);
+      else goTo(current);
     });
 
-    // Touch: tap to expand
-    cards.forEach((card, i) => {
-      card.addEventListener('touchstart', () => activate(i), { passive: true });
-    });
+    stage.addEventListener('touchstart', e => {
+      startX = e.touches[0].clientX;
+      cards[current]?.classList.add('is-dragging');
+    }, { passive: true });
+    stage.addEventListener('touchmove', e => {
+      dragDelta = e.touches[0].clientX - startX;
+      applyState(dragDelta);
+    }, { passive: true });
+    stage.addEventListener('touchend', () => {
+      cards[current]?.classList.remove('is-dragging');
+      if (dragDelta < -80 && current < total - 1) goTo(current + 1);
+      else if (dragDelta > 80 && current > 0)     goTo(current - 1);
+      else goTo(current);
+    }, { passive: true });
+
+    dots.forEach((dot, i) => dot.addEventListener('click', () => goTo(i)));
+    applyState(0);
   }
 
   /* ── Testimonial carousel ── */
@@ -3677,7 +3704,7 @@
   window.addEventListener('load', () => {
     initLenis();
     initLayeredButtons();
-    initExpandableCards();
+    initLayerStack();
     initTestimonials();
     initFancyText();
     initCustomSelects();

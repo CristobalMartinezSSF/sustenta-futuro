@@ -341,6 +341,10 @@ export default function ConfiguracionPage() {
   const photoInputRef = useRef<HTMLInputElement>(null)
   const [uploadingPhoto, setUploadingPhoto] = useState(false)
 
+  // Testimonial avatar upload refs
+  const avatarInputRefs = useRef<(HTMLInputElement | null)[]>([null, null, null])
+  const [uploadingAvatar, setUploadingAvatar] = useState<Record<number, boolean>>({})
+
   // Texture upload state: key = `${sectionId}_${mapType}`
   const [uploadingTexture, setUploadingTexture] = useState<Record<string, boolean>>({})
   const colorSaveTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({})
@@ -504,6 +508,30 @@ export default function ConfiguracionPage() {
       }
     } finally {
       setUploadingPhoto(false)
+    }
+  }
+
+  async function handleAvatarPhotoUpload(n: number, file: File) {
+    setUploadingAvatar((p) => ({ ...p, [n]: true }))
+    try {
+      const supabase = createClient()
+      const ext = file.name.split('.').pop() ?? 'jpg'
+      const filename = `testimonio-${n}-${Date.now()}.${ext}`
+      const { error: uploadError } = await supabase.storage
+        .from('landing-images')
+        .upload(filename, file, { upsert: true })
+      if (uploadError) {
+        alert(`Error al subir imagen: ${uploadError.message}`)
+        return
+      }
+      const { data: urlData } = supabase.storage
+        .from('landing-images')
+        .getPublicUrl(filename)
+      if (urlData?.publicUrl) {
+        set('testimonios', `tc_${n}_photo_url`, urlData.publicUrl)
+      }
+    } finally {
+      setUploadingAvatar((p) => ({ ...p, [n]: false }))
     }
   }
 
@@ -823,12 +851,15 @@ export default function ConfiguracionPage() {
                 'tc_1_text',
                 'tc_1_name',
                 'tc_1_role',
+                'tc_1_photo_url',
                 'tc_2_text',
                 'tc_2_name',
                 'tc_2_role',
+                'tc_2_photo_url',
                 'tc_3_text',
                 'tc_3_name',
                 'tc_3_role',
+                'tc_3_photo_url',
               ])
             }
             saving={!!saving['testimonios']}
@@ -869,6 +900,74 @@ export default function ConfiguracionPage() {
                     value={get('testimonios', `tc_${n}_role`)}
                     onChange={(v) => set('testimonios', `tc_${n}_role`, v)}
                     placeholder="Gerente, Empresa S.A."
+                  />
+                </div>
+                {/* Avatar photo */}
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs" style={LABEL_STYLE}>
+                    Foto del autor (reemplaza las iniciales)
+                  </label>
+                  <div className="flex gap-2 items-center">
+                    <div
+                      className="rounded-full overflow-hidden flex-shrink-0 flex items-center justify-center"
+                      style={{
+                        width: '42px',
+                        height: '42px',
+                        border: '1px solid rgba(255,255,255,0.08)',
+                        background: get('testimonios', `tc_${n}_photo_url`) ? 'transparent' : '#111',
+                      }}
+                    >
+                      {get('testimonios', `tc_${n}_photo_url`) ? (
+                        <img
+                          src={get('testimonios', `tc_${n}_photo_url`)}
+                          alt=""
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span style={{ color: 'rgba(240,240,240,0.25)', fontSize: '10px', fontWeight: 800, fontFamily: 'monospace' }}>
+                          {(get('testimonios', `tc_${n}_name`) || 'GF')
+                            .trim().split(/\s+/).map((w: string) => w[0]?.toUpperCase() ?? '').join('').slice(0, 2) || 'GF'}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex flex-col gap-1.5 flex-1 min-w-0">
+                      <input
+                        type="text"
+                        value={get('testimonios', `tc_${n}_photo_url`)}
+                        readOnly
+                        placeholder="Sin foto"
+                        className="rounded-lg px-3 py-1.5 text-xs outline-none w-full truncate"
+                        style={{ ...INPUT_STYLE, color: 'rgba(240,240,240,0.45)' }}
+                      />
+                      <div className="flex gap-1.5">
+                        <button
+                          type="button"
+                          disabled={!!uploadingAvatar[n]}
+                          onClick={() => avatarInputRefs.current[n - 1]?.click()}
+                          className="rounded-md px-2.5 py-1 text-xs transition-opacity hover:opacity-70 disabled:opacity-40"
+                          style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(240,240,240,0.7)' }}
+                        >
+                          {uploadingAvatar[n] ? 'Subiendo...' : 'Subir foto'}
+                        </button>
+                        {get('testimonios', `tc_${n}_photo_url`) && (
+                          <button
+                            type="button"
+                            onClick={() => set('testimonios', `tc_${n}_photo_url`, '')}
+                            className="rounded-md px-2.5 py-1 text-xs transition-opacity hover:opacity-70"
+                            style={{ background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.15)', color: '#f87171' }}
+                          >
+                            Quitar
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <input
+                    ref={(el) => { avatarInputRefs.current[n - 1] = el }}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => { const f = e.target.files?.[0]; if (f) handleAvatarPhotoUpload(n, f) }}
                   />
                 </div>
               </div>

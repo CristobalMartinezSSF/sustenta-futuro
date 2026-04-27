@@ -69,6 +69,19 @@ export async function POST(): Promise<Response> {
 
     const configRows = (rows ?? []) as ConfigRow[]
 
+    // Pre-build testimonial names for initials fallback
+    const testimonialsNames: Record<number, string> = {}
+    for (const row of configRows) {
+      if (row.section === 'testimonios') {
+        const m = row.key.match(/^tc_(\d)_name$/)
+        if (m) testimonialsNames[parseInt(m[1])] = row.value ?? ''
+      }
+    }
+
+    function getInitials(name: string): string {
+      return name.trim().split(/\s+/).map((w) => w[0]?.toUpperCase() ?? '').join('').slice(0, 2) || 'GF'
+    }
+
     // 2. Read current index.html from GitHub
     const getRes = await fetch(
       `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${GITHUB_PATH}?ref=${GITHUB_BRANCH}`,
@@ -100,6 +113,20 @@ export async function POST(): Promise<Response> {
     for (const row of configRows) {
       const cmsKey = `${row.section}-${row.key}`
       const value = row.value ?? ''
+
+      // Testimonial avatar photo: inject img or revert to initials
+      if (row.section === 'testimonios' && row.key.match(/^tc_(\d)_photo_url$/)) {
+        const m = row.key.match(/^tc_(\d)_photo_url$/)!
+        const n = parseInt(m[1])
+        const cmsKey = `testimonios-tc_${n}_photo`
+        if (value) {
+          const imgTag = `<img src="${value}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;" />`
+          html = applyCms(html, cmsKey, imgTag)
+        } else {
+          html = applyCms(html, cmsKey, getInitials(testimonialsNames[n] ?? ''))
+        }
+        continue
+      }
 
       // Founder photo: skip if empty (keep SVG placeholder), inject img if URL present
       if (row.section === 'nosotros' && row.key === 'founder_photo_url') {

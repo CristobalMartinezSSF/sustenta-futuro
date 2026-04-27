@@ -168,14 +168,19 @@
       overflow: hidden;
     }
 
-    /* Prism canvas */
-    #prism-canvas {
+    /* Beams upstream SVG */
+    #beams-bg {
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
       pointer-events: none;
       z-index: 1;
+    }
+
+    @keyframes beam-up {
+      from { stroke-dashoffset: 1.35; }
+      to   { stroke-dashoffset: -0.35; }
     }
 
     /* orb glows */
@@ -209,7 +214,7 @@
       content: '';
       position: absolute;
       inset: 0;
-      background-image: radial-gradient(circle, rgba(255,255,255,0.07) 1px, transparent 1px);
+      background-image: radial-gradient(circle, rgba(97,127,138,0.18) 1px, transparent 1px);
       background-size: 28px 28px;
       pointer-events: none;
       mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
@@ -2489,7 +2494,10 @@
 
   <!-- HERO -->
   <section id="hero">
-    <canvas id="prism-canvas" aria-hidden="true"></canvas>
+    <svg id="beams-bg" aria-hidden="true" viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <g id="beams-static" opacity="1"></g>
+      <g id="beams-anim"></g>
+    </svg>
     <div class="orb orb-green"></div>
     <div class="orb orb-orange"></div>
     <div class="orb orb-blue"></div>
@@ -3200,7 +3208,7 @@
     });
 
     // ── GSAP scroll animations (loaded via CDN below) ──
-    window.addEventListener('load', () => { initOrganicNet(); initGSAP(); });
+    window.addEventListener('load', () => { initBeamsUpstream(); initGSAP(); });
     // ── Form submit ──
     // Sends leads to FastAPI backend on Render (no direct DB access)
     const API_URL = 'https://sustenta-futuro-api.onrender.com';
@@ -3261,127 +3269,65 @@
 
   <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
 
-  <!-- Organic Intelligence canvas -->
+  <!-- Beams Upstream background -->
   <script>
-  function initOrganicNet() {
-    const canvas = document.getElementById('prism-canvas');
-    if (!canvas) return;
+  function initBeamsUpstream() {
+    const svg = document.getElementById('beams-bg');
+    if (!svg) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-    const ctx = canvas.getContext('2d');
-    let W, H;
-    let mouse = { x: -999, y: -999 };
-    let nodes = [];
-    let t = 0;
+    const staticG = svg.querySelector('#beams-static');
+    const animG   = svg.querySelector('#beams-anim');
+    const ns      = 'http://www.w3.org/2000/svg';
 
-    function resize() {
-      W = canvas.width  = window.innerWidth;
-      H = canvas.height = canvas.parentElement
-        ? canvas.parentElement.offsetHeight || window.innerHeight
-        : window.innerHeight;
-      buildNodes();
-    }
+    function r(range) { return (Math.random() - 0.5) * range; }
 
-    function buildNodes() {
-      const count = Math.min(72, Math.max(32, Math.floor(W * H / 10500)));
-      nodes = Array.from({ length: count }, () => ({
-        x:      Math.random() * W,
-        y:      Math.random() * H,
-        vx:     (Math.random() - 0.5) * 0.42,
-        vy:     (Math.random() - 0.5) * 0.42,
-        r:      Math.random() * 2.4 + 0.9,
-        phase:  Math.random() * Math.PI * 2,
-        bright: Math.random() < 0.18,
-      }));
-    }
+    const paths = [];
+    const SECTIONS = 12;
 
-    window.addEventListener('resize', () => { resize(); });
-    resize();
-    setTimeout(resize, 100);
-
-    window.addEventListener('mousemove', e => {
-      mouse.x = e.clientX;
-      mouse.y = e.clientY;
-    }, { passive: true });
-
-    const CONNECT  = 158;
-    const M_RADIUS = 135;
-    const M_FORCE  = 0.07;
-
-    let netRunning = true;
-    function resumeNet() {
-      if (!netRunning) { netRunning = true; requestAnimationFrame(draw); }
-    }
-
-    function draw() {
-      if (!netRunning) return;
-      ctx.clearRect(0, 0, W, H);
-      t += 0.007;
-
-      const heroH = H || window.innerHeight;
-      const alpha = Math.max(0, 1 - window.scrollY / (heroH * 0.78));
-      if (alpha <= 0) { netRunning = false; return; }
-      ctx.globalAlpha = alpha;
-
-      // Physics
-      nodes.forEach(n => {
-        const dx = mouse.x - n.x, dy = mouse.y - n.y;
-        const md = Math.sqrt(dx * dx + dy * dy);
-        if (md < M_RADIUS && md > 0) {
-          const f = (1 - md / M_RADIUS) * M_FORCE;
-          n.vx += (dx / md) * f;
-          n.vy += (dy / md) * f;
-        }
-        n.vx *= 0.972;
-        n.vy *= 0.972;
-        n.x = (n.x + n.vx + W) % W;
-        n.y = (n.y + n.vy + H) % H;
-      });
-
-      // Connections
-      for (let i = 0; i < nodes.length; i++) {
-        for (let j = i + 1; j < nodes.length; j++) {
-          const a = nodes[i], b = nodes[j];
-          const dx = a.x - b.x, dy = a.y - b.y;
-          const d  = Math.sqrt(dx * dx + dy * dy);
-          if (d < CONNECT) {
-            const la = (1 - d / CONNECT) * 0.40;
-            ctx.strokeStyle = `rgba(255,255,255,${la})`;
-            ctx.lineWidth   = 1;
-            ctx.beginPath();
-            ctx.moveTo(a.x, a.y);
-            ctx.lineTo(b.x, b.y);
-            ctx.stroke();
-          }
-        }
+    for (let s = 0; s < SECTIONS; s++) {
+      const baseX = (s * 100) / (SECTIONS - 1);
+      for (let v = 0; v < 4; v++) {
+        const sx  = baseX + r(15);
+        const mx1 = sx + r(20);
+        const mx2 = sx + r(25);
+        const ex  = sx + r(30);
+        paths.push(`M${sx} 100C${sx} 100 ${mx1} 75 ${mx1} 50C${mx1} 50 ${mx2} 25 ${mx2} 12C${mx2} 12 ${ex} 5 ${ex} 0`);
+        paths.push(`M${sx} 100C${sx} 100 ${sx+5} 80 ${mx1} 60C${mx1} 60 ${mx2} 35 ${mx2} 15C${mx2} 15 ${ex} 3 ${ex} -2`);
       }
-
-      // Nodes
-      nodes.forEach(n => {
-        const pulse = 0.5 + Math.sin(t * 1.85 + n.phase) * 0.5;
-        if (n.bright) {
-          ctx.save();
-          ctx.shadowBlur  = 16;
-          ctx.shadowColor = 'rgba(255,255,255,0.5)';
-          ctx.fillStyle   = `rgba(255,255,255,${0.5 + pulse * 0.5})`;
-          ctx.beginPath();
-          ctx.arc(n.x, n.y, n.r * (1.3 + pulse * 0.55), 0, Math.PI * 2);
-          ctx.fill();
-          ctx.restore();
-        } else {
-          ctx.fillStyle = `rgba(180,180,180,${0.22 + pulse * 0.22})`;
-          ctx.beginPath();
-          ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      });
-
-      ctx.globalAlpha = 1;
-      requestAnimationFrame(draw);
     }
 
-    window.addEventListener('scroll', resumeNet, { passive: true });
-    requestAnimationFrame(draw);
+    // Static faint paths
+    paths.forEach(d => {
+      const p = document.createElementNS(ns, 'path');
+      p.setAttribute('d', d);
+      p.setAttribute('stroke', '#617F8A');
+      p.setAttribute('stroke-opacity', '0.12');
+      p.setAttribute('stroke-width', '0.2');
+      p.setAttribute('fill', 'none');
+      p.setAttribute('vector-effect', 'non-scaling-stroke');
+      staticG.appendChild(p);
+    });
+
+    // Animated glowing beams (every other path)
+    paths.forEach((d, i) => {
+      if (i % 2 !== 0) return;
+      const dur   = (Math.random() * 3 + 2.5).toFixed(2);
+      const delay = (Math.random() * 6).toFixed(2);
+      const color = i % 4 === 0 ? '#617F8A' : '#7BA3AE';
+      const p = document.createElementNS(ns, 'path');
+      p.setAttribute('d', d);
+      p.setAttribute('pathLength', '1');
+      p.setAttribute('stroke', color);
+      p.setAttribute('stroke-opacity', '0.65');
+      p.setAttribute('stroke-width', '0.35');
+      p.setAttribute('stroke-linecap', 'round');
+      p.setAttribute('fill', 'none');
+      p.setAttribute('vector-effect', 'non-scaling-stroke');
+      p.setAttribute('stroke-dasharray', '0.35 0.65');
+      p.style.animation = `beam-up ${dur}s linear ${delay}s infinite`;
+      animG.appendChild(p);
+    });
   }
   </script>
 

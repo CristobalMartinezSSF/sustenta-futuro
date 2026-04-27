@@ -178,10 +178,6 @@
       z-index: 1;
     }
 
-    @keyframes beam-up {
-      from { stroke-dashoffset: 1.35; }
-      to   { stroke-dashoffset: -0.35; }
-    }
 
     /* orb glows */
     .orb {
@@ -2494,10 +2490,7 @@
 
   <!-- HERO -->
   <section id="hero">
-    <svg id="beams-bg" aria-hidden="true" viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-      <g id="beams-static" opacity="1"></g>
-      <g id="beams-anim"></g>
-    </svg>
+    <canvas id="beams-bg" aria-hidden="true"></canvas>
     <div class="orb orb-green"></div>
     <div class="orb orb-orange"></div>
     <div class="orb orb-blue"></div>
@@ -3269,65 +3262,96 @@
 
   <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
 
-  <!-- Beams Upstream background -->
+  <!-- Spark Waves background -->
   <script>
   function initBeamsUpstream() {
-    const svg = document.getElementById('beams-bg');
-    if (!svg) return;
+    const canvas = document.getElementById('beams-bg');
+    if (!canvas || !canvas.getContext) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-    const staticG = svg.querySelector('#beams-static');
-    const animG   = svg.querySelector('#beams-anim');
-    const ns      = 'http://www.w3.org/2000/svg';
+    const ctx = canvas.getContext('2d');
 
-    function r(range) { return (Math.random() - 0.5) * range; }
+    const SPARK_COLOR    = '#3aaa35';
+    const SPARK_SIZE     = 12;
+    const SPARK_COUNT    = 28;
+    const DURATION       = 4500;
+    const WAVE_INTERVAL  = 1400;
+    const RINGS_PER_WAVE = 6;
+    const RING_SPACING   = 55;
+    const ENABLE_INWARD  = true;
 
-    const paths = [];
-    const SECTIONS = 12;
+    let W, H, cx, cy, maxR;
+    let waves    = [];
+    let lastWave = -Infinity;
 
-    for (let s = 0; s < SECTIONS; s++) {
-      const baseX = (s * 100) / (SECTIONS - 1);
-      for (let v = 0; v < 4; v++) {
-        const sx  = baseX + r(15);
-        const mx1 = sx + r(20);
-        const mx2 = sx + r(25);
-        const ex  = sx + r(30);
-        paths.push(`M${sx} 100C${sx} 100 ${mx1} 75 ${mx1} 50C${mx1} 50 ${mx2} 25 ${mx2} 12C${mx2} 12 ${ex} 5 ${ex} 0`);
-        paths.push(`M${sx} 100C${sx} 100 ${sx+5} 80 ${mx1} 60C${mx1} 60 ${mx2} 35 ${mx2} 15C${mx2} 15 ${ex} 3 ${ex} -2`);
+    function resize() {
+      const hero = canvas.parentElement;
+      W = canvas.width  = hero ? hero.offsetWidth  : window.innerWidth;
+      H = canvas.height = hero ? hero.offsetHeight : window.innerHeight;
+      cx = W / 2;
+      cy = H / 2;
+      maxR = Math.sqrt(cx * cx + cy * cy) * 1.1;
+    }
+
+    window.addEventListener('resize', resize, { passive: true });
+    resize();
+
+    function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
+
+    function spawnWave(now) {
+      for (let r = 0; r < RINGS_PER_WAVE; r++) {
+        const t0 = now + r * RING_SPACING;
+        waves.push({ t0, outward: true });
+        if (ENABLE_INWARD) waves.push({ t0, outward: false });
       }
     }
 
-    // Static faint paths
-    paths.forEach(d => {
-      const p = document.createElementNS(ns, 'path');
-      p.setAttribute('d', d);
-      p.setAttribute('stroke', '#3aaa35');
-      p.setAttribute('stroke-opacity', '0.12');
-      p.setAttribute('stroke-width', '0.2');
-      p.setAttribute('fill', 'none');
-      p.setAttribute('vector-effect', 'non-scaling-stroke');
-      staticG.appendChild(p);
-    });
+    function draw(now) {
+      ctx.clearRect(0, 0, W, H);
 
-    // Animated glowing beams (every other path)
-    paths.forEach((d, i) => {
-      if (i % 2 !== 0) return;
-      const dur   = (Math.random() * 3 + 2.5).toFixed(2);
-      const delay = (Math.random() * 6).toFixed(2);
-      const color = i % 4 === 0 ? '#3aaa35' : '#7BA3AE';
-      const p = document.createElementNS(ns, 'path');
-      p.setAttribute('d', d);
-      p.setAttribute('pathLength', '1');
-      p.setAttribute('stroke', color);
-      p.setAttribute('stroke-opacity', '0.65');
-      p.setAttribute('stroke-width', '0.35');
-      p.setAttribute('stroke-linecap', 'round');
-      p.setAttribute('fill', 'none');
-      p.setAttribute('vector-effect', 'non-scaling-stroke');
-      p.setAttribute('stroke-dasharray', '0.35 0.65');
-      p.style.animation = `beam-up ${dur}s linear ${delay}s infinite`;
-      animG.appendChild(p);
-    });
+      if (now - lastWave > WAVE_INTERVAL) {
+        spawnWave(now);
+        lastWave = now;
+      }
+
+      waves = waves.filter(wave => {
+        const elapsed = now - wave.t0;
+        if (elapsed < 0) return true;
+        const t = elapsed / DURATION;
+        if (t > 1) return false;
+
+        const progress = easeOut(t);
+        const radius   = wave.outward
+          ? progress * maxR
+          : maxR - progress * maxR;
+        const opacity  = t < 0.6 ? 1 : 1 - (t - 0.6) / 0.4;
+
+        ctx.save();
+        ctx.globalAlpha = opacity * 0.65;
+        ctx.strokeStyle = SPARK_COLOR;
+        ctx.shadowColor = SPARK_COLOR;
+        ctx.shadowBlur  = 10;
+        ctx.lineWidth   = 1.5;
+        ctx.lineCap     = 'round';
+
+        for (let i = 0; i < SPARK_COUNT; i++) {
+          const angle = (i / SPARK_COUNT) * Math.PI * 2;
+          const cos   = Math.cos(angle);
+          const sin   = Math.sin(angle);
+          const dir   = wave.outward ? 1 : -1;
+          ctx.beginPath();
+          ctx.moveTo(cx + cos * radius, cy + sin * radius);
+          ctx.lineTo(cx + cos * (radius + dir * SPARK_SIZE), cy + sin * (radius + dir * SPARK_SIZE));
+          ctx.stroke();
+        }
+        ctx.restore();
+        return true;
+      });
+
+      requestAnimationFrame(draw);
+    }
+
+    requestAnimationFrame(draw);
   }
   </script>
 

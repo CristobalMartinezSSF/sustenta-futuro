@@ -6,12 +6,43 @@
   <title>Sustenta Futuro</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <style>
+    @font-face {
+      font-family: 'Indiana';
+      src: url('fonts/205TF-Indiana-Regular.otf') format('opentype');
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Indiana';
+      src: url('fonts/205TF-Indiana-Italic.otf') format('opentype');
+      font-weight: 400;
+      font-style: italic;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Indiana';
+      src: url('fonts/205TF-Indiana-Light.otf') format('opentype');
+      font-weight: 300;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Indiana';
+      src: url('fonts/205TF-Indiana-LightItalic.otf') format('opentype');
+      font-weight: 300;
+      font-style: italic;
+      font-display: swap;
+    }
+
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     html { scroll-snap-type: y mandatory; }
     body { zoom: 1.25; }
     #navbar { zoom: 1.2; }
     .hero-float-stat { zoom: 0.8; }
+
+    a, button { font-family: 'Indiana', sans-serif; }
 
     :root {
       --bg:           #D4DEE5;

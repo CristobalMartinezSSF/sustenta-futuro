@@ -2421,6 +2421,40 @@
       font-size: 0.78rem;
     }
 
+    /* Nav CTA — mismo estilo que hero: Pantone 7542 outline/fill */
+    #navbar .nav-cta.btn-shimmer {
+      background: #7BA3AE !important;
+      box-shadow: none !important;
+      --shimmer-color: rgba(255,255,255,0.6);
+    }
+    #navbar .nav-cta.btn-shimmer::after {
+      background: #D4DEE5 !important;
+      transition: background 220ms ease;
+    }
+    #navbar .nav-cta.btn-shimmer span {
+      color: #7BA3AE !important;
+      transition: color 220ms ease;
+    }
+    @media (hover: hover) and (pointer: fine) {
+      #navbar .nav-cta.btn-shimmer:hover::after {
+        background: #7BA3AE !important;
+      }
+      #navbar .nav-cta.btn-shimmer:hover span {
+        color: #ffffff !important;
+      }
+      #navbar .nav-cta.btn-shimmer:hover {
+        box-shadow:
+          0 0 8px  rgba(123,163,174,0.50),
+          0 0 24px rgba(123,163,174,0.25) !important;
+      }
+    }
+    #navbar .nav-cta.btn-shimmer:active::after {
+      background: #7BA3AE !important;
+    }
+    #navbar .nav-cta.btn-shimmer:active span {
+      color: #ffffff !important;
+    }
+
     /* Hero CTA — Pantone 7542 (#7BA3AE) */
     /* Default: fondo = bg de página, borde = 7542              */
     /* Hover:   fondo = 7542, texto blanco                      */

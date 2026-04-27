@@ -2421,75 +2421,43 @@
       font-size: 0.78rem;
     }
 
-    /* Nav CTA — mismo estilo que hero: Pantone 7542 outline/fill */
-    #navbar .nav-cta.btn-shimmer {
-      background: #7BA3AE !important;
-      box-shadow: none !important;
-      --shimmer-color: rgba(255,255,255,0.6);
-    }
-    #navbar .nav-cta.btn-shimmer::after {
+    /* Conversemos (navbar + hero) — Pantone 7542, outline limpio */
+    /* Reemplaza la estructura shimmer por border directo         */
+    #navbar .nav-cta.btn-shimmer,
+    #hero .btn-primary.btn-shimmer {
       background: transparent !important;
-      transition: background 220ms ease;
+      border: 1.5px solid #7BA3AE !important;
+      box-shadow: none !important;
+      transition: background 220ms ease, color 220ms ease, transform 0.15s ease !important;
     }
-    #navbar .nav-cta.btn-shimmer span {
+    #navbar .nav-cta.btn-shimmer::before,
+    #hero .btn-primary.btn-shimmer::before,
+    #navbar .nav-cta.btn-shimmer::after,
+    #hero .btn-primary.btn-shimmer::after {
+      display: none !important;
+    }
+    #navbar .nav-cta.btn-shimmer span,
+    #hero .btn-primary.btn-shimmer span {
       color: #7BA3AE !important;
       transition: color 220ms ease;
     }
     @media (hover: hover) and (pointer: fine) {
-      #navbar .nav-cta.btn-shimmer:hover::after {
+      #navbar .nav-cta.btn-shimmer:hover,
+      #hero .btn-primary.btn-shimmer:hover {
         background: #7BA3AE !important;
       }
-      #navbar .nav-cta.btn-shimmer:hover span {
+      #navbar .nav-cta.btn-shimmer:hover span,
+      #hero .btn-primary.btn-shimmer:hover span {
         color: #ffffff !important;
       }
-      #navbar .nav-cta.btn-shimmer:hover {
-        box-shadow:
-          0 0 8px  rgba(123,163,174,0.50),
-          0 0 24px rgba(123,163,174,0.25) !important;
-      }
     }
-    #navbar .nav-cta.btn-shimmer:active::after {
+    #navbar .nav-cta.btn-shimmer:active,
+    #hero .btn-primary.btn-shimmer:active {
       background: #7BA3AE !important;
     }
-    #navbar .nav-cta.btn-shimmer:active span {
-      color: #ffffff !important;
-    }
-
-    /* Hero CTA — Pantone 7542 (#7BA3AE) */
-    /* Default: fondo = bg de página, borde = 7542              */
-    /* Hover:   fondo = 7542, texto blanco                      */
-    #hero .btn-primary.btn-shimmer {
-      background: #7BA3AE;           /* anillo / borde visible */
-      box-shadow: none;
-      --shimmer-color: rgba(255,255,255,0.6);
-      transition: box-shadow 300ms ease, transform 0.15s ease;
-    }
-    #hero .btn-primary.btn-shimmer::after {
-      background: transparent;       /* transparente — se ve el fondo */
-      transition: background 220ms ease;
-    }
-    #hero .btn-primary.btn-shimmer span {
-      color: #7BA3AE;                /* texto = color del borde en reposo */
-      transition: color 220ms ease;
-    }
-    @media (hover: hover) and (pointer: fine) {
-      #hero .btn-primary.btn-shimmer:hover::after {
-        background: #7BA3AE;         /* relleno sólido al hacer hover */
-      }
-      #hero .btn-primary.btn-shimmer:hover span {
-        color: #ffffff;
-      }
-      #hero .btn-primary.btn-shimmer:hover {
-        box-shadow:
-          0 0 8px  rgba(123,163,174,0.50),
-          0 0 24px rgba(123,163,174,0.25);
-      }
-    }
-    #hero .btn-primary.btn-shimmer:active::after {
-      background: #7BA3AE;
-    }
+    #navbar .nav-cta.btn-shimmer:active span,
     #hero .btn-primary.btn-shimmer:active span {
-      color: #ffffff;
+      color: #ffffff !important;
     }
 
     /* ── Custom Select (ScrollX style) ── */

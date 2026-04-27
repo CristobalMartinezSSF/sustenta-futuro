@@ -3456,14 +3456,14 @@
     const gallery = document.getElementById('gallery-3d');
     if (!gallery) return;
 
-    // Semicircle: 5 cards at angles -80°,-40°,0°,40°,80° on a circle of radius R=80vmin
-    // x = R·sin(θ),  z = R·(cos(θ)−1),  rotateY = −θ
+    // Semicircle: 5 cards at -80°,-40°,0°,40°,80° on R=260px
+    // x = R·sin(θ),  z = −R·(1−cos(θ)),  rotateY = −θ
     const positions = {
-      'svc-0': { tx: '0',        tz: '0',         ry: '0deg'   },
-      'svc-1': { tx: '-51vmin',  tz: '-19vmin',   ry: '40deg'  },
-      'svc-2': { tx: '51vmin',   tz: '-19vmin',   ry: '-40deg' },
-      'svc-3': { tx: '-79vmin',  tz: '-66vmin',   ry: '80deg'  },
-      'svc-4': { tx: '79vmin',   tz: '-66vmin',   ry: '-80deg' },
+      'svc-0': { tx: '0',       tz: '0',       ry: '0deg'   },
+      'svc-1': { tx: '-167px',  tz: '-61px',   ry: '40deg'  },
+      'svc-2': { tx: '167px',   tz: '-61px',   ry: '-40deg' },
+      'svc-3': { tx: '-256px',  tz: '-215px',  ry: '80deg'  },
+      'svc-4': { tx: '256px',   tz: '-215px',  ry: '-80deg' },
     };
 
     // Apply initial 3D positions

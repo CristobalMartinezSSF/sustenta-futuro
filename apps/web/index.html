@@ -1090,94 +1090,113 @@
       color: var(--text-subtle);
     }
 
-    /* ─────────────────── 3D GALLERY (producto) ─────────────────── */
+    /* ─────────────────── VOYAGE SLIDER (producto) ─────────────────── */
     #producto { position: relative; }
 
-    .gallery-wrap {
-      perspective: 1400px;
-      display: grid;
-      place-items: center;
-      margin-top: 3rem;
-      height: 70vmin;
-      max-height: 480px;
-      user-select: none;
+    .voyage-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 2.5rem auto 0;
+      gap: 0.5rem;
     }
 
-    .gallery-3d {
+    .vs-btn {
+      border: none; background: none; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center;
+      opacity: 0.55; transition: opacity 250ms; z-index: 10; flex-shrink: 0;
+    }
+    .vs-btn svg { width: 36px; height: 36px; stroke: #455A64; }
+    .vs-btn:hover { opacity: 1; }
+    .vs-btn:focus { outline: none; }
+
+    .vs-stage {
       position: relative;
-      transform-style: preserve-3d;
-      width: 44vmin;
-      max-width: 300px;
-      height: 70vmin;
-      max-height: 480px;
-      transition: transform 500ms ease;
+      width: min(85vw, 900px);
+      height: min(50vw, 420px);
+      perspective: 1200px;
     }
 
-    .svc-article {
+    /* Individual slide — all 5 always visible */
+    .vs-slide {
       position: absolute;
-      inset: 0;
-      -webkit-box-reflect: below 40px linear-gradient(transparent, rgba(97,127,138,0.08));
+      width: min(18vw, 180px);
+      aspect-ratio: 2 / 3;
+      top: 50%; left: 50%;
+      margin-left: calc(min(18vw, 180px) / -2);
+      margin-top: calc(min(18vw, 180px) * 1.5 / -2);
+      user-select: none;
+      transition: transform 700ms cubic-bezier(0.4, 0, 0.2, 1),
+                  opacity 700ms ease,
+                  filter 700ms ease;
     }
-    .svc-article button {
-      border: 0;
-      outline: 0;
-      cursor: pointer;
-      width: 100%;
-      height: 100%;
+
+    /* ── Position-based transforms ── */
+    .vs-slide[data-pos="0"] {
+      transform: translateX(0) rotateY(0deg) scale(1.15);
+      z-index: 5; opacity: 1; filter: brightness(1);
+      pointer-events: auto;
+    }
+    .vs-slide[data-pos="1"] {
+      transform: translateX(calc(min(18vw, 180px) * 1.1)) rotateY(-35deg) scale(0.95);
+      z-index: 4; opacity: 1; filter: brightness(0.82);
+    }
+    .vs-slide[data-pos="-1"] {
+      transform: translateX(calc(min(18vw, 180px) * -1.1)) rotateY(35deg) scale(0.95);
+      z-index: 4; opacity: 1; filter: brightness(0.82);
+    }
+    .vs-slide[data-pos="2"] {
+      transform: translateX(calc(min(18vw, 180px) * 2.05)) rotateY(-55deg) scale(0.8);
+      z-index: 3; opacity: 0.85; filter: brightness(0.7);
+    }
+    .vs-slide[data-pos="-2"] {
+      transform: translateX(calc(min(18vw, 180px) * -2.05)) rotateY(55deg) scale(0.8);
+      z-index: 3; opacity: 0.85; filter: brightness(0.7);
+    }
+
+    .vs-slide__inner {
+      --rotX: 0deg; --rotY: 0deg;
+      width: 100%; height: 100%;
+      transform-style: preserve-3d;
+      transform: rotateX(var(--rotX)) rotateY(var(--rotY));
+      border-radius: 18px;
       overflow: hidden;
-      border-radius: 20px;
-      background: #ffffff;
+      background: #f0f5f7;
       border: 1px solid rgba(97,127,138,0.18);
-      box-shadow: 0 8px 32px rgba(0,0,0,0.08);
-      padding: 2rem 1.8rem;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.10);
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
-      text-align: left;
-      transition: transform 300ms cubic-bezier(0.4,0,0.2,1), box-shadow 200ms ease;
+      padding: 1.4rem 1.2rem;
+      transition: transform 120ms ease-out;
     }
-    .svc-article button:hover { transform: scale(1.03) translateY(-3%); box-shadow: 0 16px 48px rgba(0,0,0,0.12); }
-    .svc-article button:focus-visible { box-shadow: 0 0 0 3px #617F8A; }
 
-    .svc-num {
+    .vs-slide[data-svc="0"] .vs-slide__inner { background: linear-gradient(155deg,#f0f5f7 55%,#d4dee5 100%); }
+    .vs-slide[data-svc="1"] .vs-slide__inner { background: linear-gradient(155deg,#f0f5f7 55%,#c2d4da 100%); }
+    .vs-slide[data-svc="2"] .vs-slide__inner { background: linear-gradient(155deg,#f0f5f7 55%,#b0c8d0 100%); }
+    .vs-slide[data-svc="3"] .vs-slide__inner { background: linear-gradient(155deg,#f0f5f7 55%,#9ebcc7 100%); }
+    .vs-slide[data-svc="4"] .vs-slide__inner { background: linear-gradient(155deg,#f0f5f7 55%,#8cb0be 100%); }
+
+    .vs-svc-num {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.6rem;
-      letter-spacing: 0.15em;
-      color: rgba(69,90,100,0.38);
-      margin-bottom: 0.5rem;
+      font-size: 0.55rem; letter-spacing: 0.15em;
+      color: rgba(69,90,100,0.5); margin-bottom: 0.35rem;
     }
-    .svc-icon {
-      width: 40px; height: 40px;
-      border-radius: 10px;
-      background: rgba(97,127,138,0.08);
-      border: 1px solid rgba(97,127,138,0.15);
+    .vs-svc-icon {
+      width: 34px; height: 34px; border-radius: 9px;
+      background: rgba(97,127,138,0.1); border: 1px solid rgba(97,127,138,0.18);
       display: flex; align-items: center; justify-content: center;
-      margin-bottom: 1rem;
+      margin-bottom: 0.7rem;
     }
-    .svc-icon svg {
-      width: 18px; height: 18px;
-      stroke: #617F8A; fill: none;
-      stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
-    }
-    .svc-article h3 {
-      font-size: 1.1rem; font-weight: 800;
-      color: #617F8A;
-      margin-bottom: 0.6rem;
+    .vs-svc-icon svg { width: 16px; height: 16px; stroke: #617F8A; fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+    .vs-slide h3 {
+      font-size: 0.85rem; font-weight: 800;
+      color: #455A64; margin: 0 0 0.4rem;
       letter-spacing: -0.02em;
     }
-    .svc-article p {
-      font-size: 0.82rem;
-      line-height: 1.6;
-      color: #455A64;
-    }
-
-    .gallery-hint {
-      text-align: center;
-      margin-top: 1rem;
-      font-size: 0.68rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: rgba(69,90,100,0.38);
+    .vs-slide p {
+      font-size: 0.68rem; line-height: 1.5;
+      color: #617F8A; margin: 0;
     }
 
     /* ─────────────────── FANCY TEXT ─────────────────── */
@@ -2610,51 +2629,58 @@
       <span class="section-label reveal">Nuestros Servicios</span>
       <h2 class="section-title reveal">Soluciones que<br />mueven tu negocio</h2>
       <p class="section-sub reveal">Cinco áreas de especialización integradas para automatizar, escalar y diferenciar tu operación.</p>
-      <div class="gallery-wrap">
-        <div class="gallery-3d" id="gallery-3d">
-          <article class="svc-article" id="svc-0">
-            <button>
-              <div class="svc-num">01 / WEB</div>
-              <div class="svc-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+      <div class="voyage-wrap">
+        <button class="vs-btn vs-btn-prev" aria-label="Anterior">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+
+        <div class="vs-stage">
+          <div class="vs-slide" data-svc="0" data-pos="0">
+            <div class="vs-slide__inner">
+              <div class="vs-svc-num">01 / WEB</div>
+              <div class="vs-svc-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
               <h3>Diseño y Desarrollo Web</h3>
               <p>Plataformas web corporativas de alto rendimiento, enfocadas en velocidad, seguridad y conversión.</p>
-            </button>
-          </article>
-          <article class="svc-article" id="svc-1">
-            <button>
-              <div class="svc-num">02 / DEV</div>
-              <div class="svc-icon"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/><polyline points="10 8 14 12 10 16"/></svg></div>
+            </div>
+          </div>
+          <div class="vs-slide" data-svc="1" data-pos="1">
+            <div class="vs-slide__inner">
+              <div class="vs-svc-num">02 / DEV</div>
+              <div class="vs-svc-icon"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/><polyline points="10 8 14 12 10 16"/></svg></div>
               <h3>Desarrollo de Software</h3>
               <p>Arquitecturas a medida que se integran a tu operación actual, eliminando silos y preparadas para escalar.</p>
-            </button>
-          </article>
-          <article class="svc-article" id="svc-2">
-            <button>
-              <div class="svc-num">03 / APP</div>
-              <div class="svc-icon"><svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div>
+            </div>
+          </div>
+          <div class="vs-slide" data-svc="2" data-pos="2">
+            <div class="vs-slide__inner">
+              <div class="vs-svc-num">03 / APP</div>
+              <div class="vs-svc-icon"><svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div>
               <h3>Aplicaciones Móviles</h3>
               <p>Ecosistemas móviles nativos para iOS y Android que llevan tu operación directamente a las manos de tu equipo.</p>
-            </button>
-          </article>
-          <article class="svc-article" id="svc-3">
-            <button>
-              <div class="svc-num">04 / AUTO</div>
-              <div class="svc-icon"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
+            </div>
+          </div>
+          <div class="vs-slide" data-svc="3" data-pos="-2">
+            <div class="vs-slide__inner">
+              <div class="vs-svc-num">04 / AUTO</div>
+              <div class="vs-svc-icon"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
               <h3>Automatizaciones</h3>
               <p>Conectamos tus sistemas y eliminamos el trabajo repetitivo para que tu equipo se enfoque en lo que genera valor.</p>
-            </button>
-          </article>
-          <article class="svc-article" id="svc-4">
-            <button>
-              <div class="svc-num">05 / BOT</div>
-              <div class="svc-icon"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/><path d="M8 10h.01"/><path d="M12 10h.01"/><path d="M16 10h.01"/></svg></div>
+            </div>
+          </div>
+          <div class="vs-slide" data-svc="4" data-pos="-1">
+            <div class="vs-slide__inner">
+              <div class="vs-svc-num">05 / BOT</div>
+              <div class="vs-svc-icon"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/><path d="M8 10h.01"/><path d="M12 10h.01"/><path d="M16 10h.01"/></svg></div>
               <h3>Chatbots y Landing Pages</h3>
               <p>Agentes conversacionales 24/7 y plataformas de captura estratégicas para optimizar tu adquisición de clientes.</p>
-            </button>
-          </article>
+            </div>
+          </div>
         </div>
+
+        <button class="vs-btn vs-btn-next" aria-label="Siguiente">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
       </div>
-      <p class="gallery-hint">Haz clic para explorar</p>
     </div>
   </section>
 
@@ -3452,44 +3478,67 @@
     });
   }
 
-  function initLayerStack() {
-    const gallery = document.getElementById('gallery-3d');
-    if (!gallery) return;
+  function initVoyageSlider() {
+    const slides = Array.from(document.querySelectorAll('.vs-slide'));
+    const btnPrev = document.querySelector('.vs-btn-prev');
+    const btnNext = document.querySelector('.vs-btn-next');
+    if (!slides.length || !btnPrev || !btnNext) return;
 
-    // Semicircle: 5 cards at -80°,-40°,0°,40°,80° on R=260px
-    // x = R·sin(θ),  z = −R·(1−cos(θ)),  rotateY = −θ
-    const positions = {
-      'svc-0': { tx: '0',       tz: '0',       ry: '0deg'   },
-      'svc-1': { tx: '-167px',  tz: '-61px',   ry: '40deg'  },
-      'svc-2': { tx: '167px',   tz: '-61px',   ry: '-40deg' },
-      'svc-3': { tx: '-256px',  tz: '-215px',  ry: '80deg'  },
-      'svc-4': { tx: '256px',   tz: '-215px',  ry: '-80deg' },
-    };
+    const N = slides.length;
+    // positions[i] = position of slide i  (-2, -1, 0, 1, 2)
+    let positions = [0, 1, 2, -2, -1]; // initial: svc0=center, svc1=right1, svc2=right2, svc3=left2, svc4=left1
 
-    // Apply initial 3D positions
-    for (const [id, { tx, tz, ry }] of Object.entries(positions)) {
-      const el = document.getElementById(id);
-      if (el) el.style.transform = `translate3d(${tx}, 0, ${tz}) rotateY(${ry})`;
+    function applyPositions() {
+      slides.forEach((slide, i) => {
+        slide.setAttribute('data-pos', String(positions[i]));
+      });
     }
 
-    function inv(v) {
-      if (!v || v === '0' || v === '0deg') return 0;
-      const m = v.match(/(-?\d+(?:\.\d+)?)(.*)/);
-      return m ? `${-Number(m[1])}${m[2]}` : 0;
+    function rotate(dir) {
+      // dir=1 → next (shift all positions left), dir=-1 → prev (shift right)
+      positions = positions.map(p => {
+        let np = p - dir;
+        if (np > 2)  np = np - N;
+        if (np < -2) np = np + N;
+        return np;
+      });
+      applyPositions();
     }
 
-    document.addEventListener('click', ({ target }) => {
-      const article = target.closest('.svc-article');
-      const id = article?.id;
-      if (id && gallery.dataset.focus !== id) {
-        const { tx, tz, ry } = positions[id] || {};
-        gallery.style.transform = `rotateY(${inv(ry)}) translate3d(${inv(tx)}, 0, ${inv(tz)})`;
-        gallery.dataset.focus = id;
-      } else if (gallery.dataset.focus) {
-        gallery.style.transform = '';
-        delete gallery.dataset.focus;
-      }
+    btnNext.addEventListener('click', () => rotate(1));
+    btnPrev.addEventListener('click', () => rotate(-1));
+
+    /* ── Mouse tilt on center card ── */
+    const lerp = (a, b, t) => a + (b - a) * t;
+    const tiltState = slides.map(() => ({ rx: 0, ry: 0, trx: 0, try: 0 }));
+
+    slides.forEach((slide, i) => {
+      slide.addEventListener('mousemove', (e) => {
+        if (positions[i] !== 0) return;
+        const inner = slide.querySelector('.vs-slide__inner');
+        tiltState[i].try = (e.offsetX - inner.clientWidth * 0.5) / (Math.PI * 3);
+        tiltState[i].trx = -(e.offsetY - inner.clientHeight * 0.5) / (Math.PI * 4);
+      });
+      slide.addEventListener('mouseleave', () => {
+        tiltState[i].trx = 0;
+        tiltState[i].try = 0;
+      });
     });
+
+    function tick() {
+      slides.forEach((slide, i) => {
+        const s = tiltState[i];
+        s.rx = lerp(s.rx, s.trx, 0.08);
+        s.ry = lerp(s.ry, s.try, 0.08);
+        const inner = slide.querySelector('.vs-slide__inner');
+        if (inner) {
+          inner.style.setProperty('--rotX', s.rx.toFixed(2) + 'deg');
+          inner.style.setProperty('--rotY', s.ry.toFixed(2) + 'deg');
+        }
+      });
+      requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
   }
 
   /* ── Testimonial carousel ── */
@@ -3606,7 +3655,7 @@
   window.addEventListener('load', () => {
     initLenis();
     initLayeredButtons();
-    initLayerStack();
+    initVoyageSlider();
     initTestimonials();
     initFancyText();
     initCustomSelects();

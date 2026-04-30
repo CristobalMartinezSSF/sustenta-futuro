@@ -168,8 +168,8 @@
       overflow: hidden;
     }
 
-    /* Beams upstream SVG */
-    #beams-bg {
+    /* Particle net canvas */
+    #prism-canvas {
       position: absolute;
       inset: 0;
       width: 100%;
@@ -2504,7 +2504,7 @@
 
   <!-- HERO -->
   <section id="hero">
-    <canvas id="beams-bg" aria-hidden="true"></canvas>
+    <canvas id="prism-canvas" aria-hidden="true"></canvas>
     <div class="orb orb-green"></div>
     <div class="orb orb-orange"></div>
     <div class="orb orb-blue"></div>
@@ -3192,7 +3192,7 @@
     });
 
     // ── GSAP scroll animations (loaded via CDN below) ──
-    window.addEventListener('load', () => { initBeamsUpstream(); initGSAP(); });
+    window.addEventListener('load', () => { initOrganicNet(); initGSAP(); });
     // ── Form submit ──
     // Sends leads to FastAPI backend on Render (no direct DB access)
     const API_URL = 'https://sustenta-futuro-api.onrender.com';
@@ -3253,95 +3253,123 @@
 
   <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
 
-  <!-- Spark Waves background -->
+  <!-- Organic Intelligence canvas -->
   <script>
-  function initBeamsUpstream() {
-    const canvas = document.getElementById('beams-bg');
-    if (!canvas || !canvas.getContext) return;
+  function initOrganicNet() {
+    const canvas = document.getElementById('prism-canvas');
+    if (!canvas) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     const ctx = canvas.getContext('2d');
-
-    const SPARK_COLOR    = '#3aaa35';
-    const SPARK_SIZE     = 12;
-    const SPARK_COUNT    = 28;
-    const DURATION       = 4500;
-    const WAVE_INTERVAL  = 1400;
-    const RINGS_PER_WAVE = 6;
-    const RING_SPACING   = 55;
-    const ENABLE_INWARD  = true;
-
-    let W, H, cx, cy, maxR;
-    let waves    = [];
-    let lastWave = -Infinity;
+    let W, H;
+    let mouse = { x: -999, y: -999 };
+    let nodes = [];
+    let t = 0;
 
     function resize() {
-      const hero = canvas.parentElement;
-      W = canvas.width  = hero ? hero.offsetWidth  : window.innerWidth;
-      H = canvas.height = hero ? hero.offsetHeight : window.innerHeight;
-      cx = W / 2;
-      cy = H / 2;
-      maxR = Math.sqrt(cx * cx + cy * cy) * 1.1;
+      W = canvas.width  = window.innerWidth;
+      H = canvas.height = canvas.parentElement
+        ? canvas.parentElement.offsetHeight || window.innerHeight
+        : window.innerHeight;
+      buildNodes();
     }
 
-    window.addEventListener('resize', resize, { passive: true });
+    function buildNodes() {
+      const count = Math.min(72, Math.max(32, Math.floor(W * H / 10500)));
+      nodes = Array.from({ length: count }, () => ({
+        x:      Math.random() * W,
+        y:      Math.random() * H,
+        vx:     (Math.random() - 0.5) * 0.42,
+        vy:     (Math.random() - 0.5) * 0.42,
+        r:      Math.random() * 2.4 + 0.9,
+        phase:  Math.random() * Math.PI * 2,
+        bright: Math.random() < 0.18,
+      }));
+    }
+
+    window.addEventListener('resize', () => { resize(); });
     resize();
+    setTimeout(resize, 100);
 
-    function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
+    window.addEventListener('mousemove', e => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+    }, { passive: true });
 
-    function spawnWave(now) {
-      for (let r = 0; r < RINGS_PER_WAVE; r++) {
-        const t0 = now + r * RING_SPACING;
-        waves.push({ t0, outward: true });
-        if (ENABLE_INWARD) waves.push({ t0, outward: false });
-      }
+    const CONNECT  = 158;
+    const M_RADIUS = 135;
+    const M_FORCE  = 0.07;
+
+    let netRunning = true;
+    function resumeNet() {
+      if (!netRunning) { netRunning = true; requestAnimationFrame(draw); }
     }
 
-    function draw(now) {
+    function draw() {
+      if (!netRunning) return;
       ctx.clearRect(0, 0, W, H);
+      t += 0.007;
 
-      if (now - lastWave > WAVE_INTERVAL) {
-        spawnWave(now);
-        lastWave = now;
-      }
+      const heroH = H || window.innerHeight;
+      const alpha = Math.max(0, 1 - window.scrollY / (heroH * 0.78));
+      if (alpha <= 0) { netRunning = false; return; }
+      ctx.globalAlpha = alpha;
 
-      waves = waves.filter(wave => {
-        const elapsed = now - wave.t0;
-        if (elapsed < 0) return true;
-        const t = elapsed / DURATION;
-        if (t > 1) return false;
-
-        const progress = easeOut(t);
-        const radius   = wave.outward
-          ? progress * maxR
-          : maxR - progress * maxR;
-        const opacity  = t < 0.6 ? 1 : 1 - (t - 0.6) / 0.4;
-
-        ctx.save();
-        ctx.globalAlpha = opacity * 0.65;
-        ctx.strokeStyle = SPARK_COLOR;
-        ctx.shadowColor = SPARK_COLOR;
-        ctx.shadowBlur  = 10;
-        ctx.lineWidth   = 1.5;
-        ctx.lineCap     = 'round';
-
-        for (let i = 0; i < SPARK_COUNT; i++) {
-          const angle = (i / SPARK_COUNT) * Math.PI * 2;
-          const cos   = Math.cos(angle);
-          const sin   = Math.sin(angle);
-          const dir   = wave.outward ? 1 : -1;
-          ctx.beginPath();
-          ctx.moveTo(cx + cos * radius, cy + sin * radius);
-          ctx.lineTo(cx + cos * (radius + dir * SPARK_SIZE), cy + sin * (radius + dir * SPARK_SIZE));
-          ctx.stroke();
+      nodes.forEach(n => {
+        const dx = mouse.x - n.x, dy = mouse.y - n.y;
+        const md = Math.sqrt(dx * dx + dy * dy);
+        if (md < M_RADIUS && md > 0) {
+          const f = (1 - md / M_RADIUS) * M_FORCE;
+          n.vx += (dx / md) * f;
+          n.vy += (dy / md) * f;
         }
-        ctx.restore();
-        return true;
+        n.vx *= 0.972;
+        n.vy *= 0.972;
+        n.x = (n.x + n.vx + W) % W;
+        n.y = (n.y + n.vy + H) % H;
       });
 
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const a = nodes[i], b = nodes[j];
+          const dx = a.x - b.x, dy = a.y - b.y;
+          const d  = Math.sqrt(dx * dx + dy * dy);
+          if (d < CONNECT) {
+            const la = (1 - d / CONNECT) * 0.40;
+            ctx.strokeStyle = `rgba(255,255,255,${la})`;
+            ctx.lineWidth   = 1;
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(b.x, b.y);
+            ctx.stroke();
+          }
+        }
+      }
+
+      nodes.forEach(n => {
+        const pulse = 0.5 + Math.sin(t * 1.85 + n.phase) * 0.5;
+        if (n.bright) {
+          ctx.save();
+          ctx.shadowBlur  = 16;
+          ctx.shadowColor = 'rgba(255,255,255,0.5)';
+          ctx.fillStyle   = `rgba(255,255,255,${0.5 + pulse * 0.5})`;
+          ctx.beginPath();
+          ctx.arc(n.x, n.y, n.r * (1.3 + pulse * 0.55), 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        } else {
+          ctx.fillStyle = `rgba(180,180,180,${0.22 + pulse * 0.22})`;
+          ctx.beginPath();
+          ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      });
+
+      ctx.globalAlpha = 1;
       requestAnimationFrame(draw);
     }
 
+    window.addEventListener('scroll', resumeNet, { passive: true });
     requestAnimationFrame(draw);
   }
   </script>

@@ -1180,6 +1180,22 @@
     .vs-slide[data-svc="3"] .vs-slide__inner { background: linear-gradient(155deg,#f0f5f7 55%,#9ebcc7 100%); }
     .vs-slide[data-svc="4"] .vs-slide__inner { background: linear-gradient(155deg,#f0f5f7 55%,#8cb0be 100%); }
 
+    .vs-svc-img {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .vs-svc-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
+      opacity: 0.22;
+      mix-blend-mode: multiply;
+    }
+    .vs-slide__inner > :not(.vs-svc-img) { position: relative; z-index: 1; }
+
     .vs-svc-num {
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.55rem; letter-spacing: 0.15em;
@@ -2640,6 +2656,7 @@
         <div class="vs-stage">
           <div class="vs-slide" data-svc="0" data-pos="0">
             <div class="vs-slide__inner">
+              <div class="vs-svc-img"><img src="img/diseño web.webp" alt="" loading="lazy" /></div>
               <div class="vs-svc-num">01 / WEB</div>
               <div class="vs-svc-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
               <h3>Diseño y Desarrollo Web</h3>
@@ -2648,6 +2665,7 @@
           </div>
           <div class="vs-slide" data-svc="1" data-pos="1">
             <div class="vs-slide__inner">
+              <div class="vs-svc-img"><img src="img/desarrollo de software.webp" alt="" loading="lazy" /></div>
               <div class="vs-svc-num">02 / DEV</div>
               <div class="vs-svc-icon"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/><polyline points="10 8 14 12 10 16"/></svg></div>
               <h3>Desarrollo de Software</h3>
@@ -2656,6 +2674,7 @@
           </div>
           <div class="vs-slide" data-svc="2" data-pos="2">
             <div class="vs-slide__inner">
+              <div class="vs-svc-img"><img src="img/apps moviles.webp" alt="" loading="lazy" /></div>
               <div class="vs-svc-num">03 / APP</div>
               <div class="vs-svc-icon"><svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div>
               <h3>Aplicaciones Móviles</h3>
@@ -2664,6 +2683,7 @@
           </div>
           <div class="vs-slide" data-svc="3" data-pos="-2">
             <div class="vs-slide__inner">
+              <div class="vs-svc-img"><img src="img/automatizaciones.webp" alt="" loading="lazy" /></div>
               <div class="vs-svc-num">04 / AUTO</div>
               <div class="vs-svc-icon"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
               <h3>Automatizaciones</h3>
@@ -2672,6 +2692,7 @@
           </div>
           <div class="vs-slide" data-svc="4" data-pos="-1">
             <div class="vs-slide__inner">
+              <div class="vs-svc-img"><img src="img/chatbots y landing.webp" alt="" loading="lazy" /></div>
               <div class="vs-svc-num">05 / BOT</div>
               <div class="vs-svc-icon"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/><path d="M8 10h.01"/><path d="M12 10h.01"/><path d="M16 10h.01"/></svg></div>
               <h3>Chatbots y Landing Pages</h3>

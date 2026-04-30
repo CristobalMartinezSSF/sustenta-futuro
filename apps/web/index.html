@@ -1097,18 +1097,23 @@
     #producto { position: relative; }
 
     .voyage-wrap {
+      position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
       margin: 2.5rem auto 0;
-      gap: 0.5rem;
+      padding: 0 3rem;
     }
 
     .vs-btn {
+      position: absolute;
+      top: 50%; transform: translateY(-50%);
       border: none; background: none; cursor: pointer;
       display: inline-flex; align-items: center; justify-content: center;
       opacity: 0.55; transition: opacity 250ms; z-index: 10; flex-shrink: 0;
     }
+    .vs-btn-prev { left: 0; }
+    .vs-btn-next { right: 0; }
     .vs-btn svg { width: 36px; height: 36px; stroke: #455A64; }
     .vs-btn:hover { opacity: 1; }
     .vs-btn:focus { outline: none; }

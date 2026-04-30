@@ -767,7 +767,7 @@
 
     .proceso-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(5, 1fr);
       gap: 1px;
       background: var(--glass-border);
       border: 1px solid var(--glass-border);
@@ -812,6 +812,9 @@
     }
     .paso--despliegue::before {
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='none' stroke='white' stroke-width='1.5'%3E%3Cpath d='M50 10 L50 55'/%3E%3Cpath d='M50 10 L65 30'/%3E%3Cpath d='M50 10 L35 30'/%3E%3Cellipse cx='50' cy='70' rx='35' ry='12'/%3E%3Cpath d='M15 70v10c0 7 15.7 12 35 12s35-5 35-12V70'/%3E%3C/svg%3E");
+    }
+    .paso--qa::before {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='none' stroke='white' stroke-width='1.5'%3E%3Crect x='15' y='10' width='70' height='80' rx='4'/%3E%3Cpolyline points='30,38 40,48 60,28'/%3E%3Cpolyline points='30,58 40,68 60,48'/%3E%3Cline x1='30' y1='78' x2='70' y2='78'/%3E%3C/svg%3E");
     }
 
     /* Accent glow on hover */
@@ -2021,7 +2024,7 @@
       .metrica:nth-child(2) { border-right: none; }
       .bento-grid { grid-template-columns: 1fr; }
       .bento-card:nth-child(1), .bento-card:nth-child(4) { grid-column: span 1; }
-      .proceso-grid { grid-template-columns: repeat(2, 1fr); }
+      .proceso-grid { grid-template-columns: repeat(3, 1fr); }
       .dif-grid { grid-template-columns: 1fr; }
       .footer-inner { flex-direction: column; }
       .footer-bottom { flex-direction: column; gap: 0.5rem; text-align: center; }
@@ -2626,8 +2629,16 @@
           <h4>Desarrollo</h4>
           <p>Construcción iterativa con hitos visibles. 50% al inicio, 50% contra entrega y pruebas exitosas en tu entorno.</p>
         </div>
-        <div class="paso paso--despliegue reveal">
+        <div class="paso paso--qa reveal">
           <div class="paso-index">step_04</div>
+          <div class="paso-icon">
+            <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+          </div>
+          <h4>QA y Testing</h4>
+          <p>Pruebas automatizadas y revisión funcional antes del lanzamiento. Cero sorpresas en producción.</p>
+        </div>
+        <div class="paso paso--despliegue reveal">
+          <div class="paso-index">step_05</div>
           <div class="paso-icon">
             <svg viewBox="0 0 24 24"><path d="M12 2L12 14"/><path d="M17 9l-5 5-5-5"/><path d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>
           </div>

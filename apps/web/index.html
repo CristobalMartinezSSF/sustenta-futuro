@@ -1849,74 +1849,55 @@
     /* ─────────────────── SIN/CON ─────────────────── */
     #sincon { background: var(--bg-1); }
 
-    .sincon-header { margin-bottom: 3.5rem; }
-
-    .sincon-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1px;
-      background: var(--border);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      overflow: hidden;
+    /* ── Logo Stepper ── */
+    .ls-stage {
+      position: relative;
+      width: 100%;
+      height: 190px;
+      margin-top: 3rem;
     }
-
-    .sincon-col { padding: 2.8rem; }
-    .sincon-col.sin { background: #ffffff; }
-    .sincon-col.con { background: #ffffff; }
-
-    .sincon-col-label {
+    .ls-item {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      width: 84px;
+      margin-left: -42px;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 0.6rem;
-      margin-bottom: 2rem;
-      padding-bottom: 1.25rem;
-      border-bottom: 1px solid var(--border);
-      font-family: 'Montserrat', sans-serif;
-      font-size: 0.72rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--text-subtle);
+      transition: transform 0.6s cubic-bezier(0.4,0,0.2,1), opacity 0.6s ease;
+      transform-origin: top center;
+      will-change: transform, opacity;
     }
-
-    .sincon-col.con .sincon-col-label { color: var(--cta); }
-
-    .sincon-col-label svg {
-      width: 13px; height: 13px;
-      stroke: currentColor;
-      fill: none;
-      stroke-width: 2.5;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-      flex-shrink: 0;
+    .ls-card {
+      width: 72px; height: 72px;
+      background: rgba(97,127,138,0.08);
+      border: 1px solid rgba(97,127,138,0.18);
+      border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      padding: 14px;
+      transition: border-color 0.4s;
+      box-sizing: border-box;
     }
-
-    .sc-list { list-style: none; display: flex; flex-direction: column; gap: 0.9rem; }
-
-    .sc-list li {
-      display: flex;
-      align-items: flex-start;
-      gap: 0.75rem;
-      font-size: 0.87rem;
-      line-height: 1.6;
+    .ls-item.ls-active .ls-card { border-color: rgba(123,163,174,0.5); }
+    .ls-card img { width: 100%; height: 100%; object-fit: contain; }
+    .ls-card .ls-text-icon {
+      font-size: 0.65rem; font-weight: 800; letter-spacing: 0.05em;
+      color: #7BA3AE; text-align: center; line-height: 1.2;
     }
-
-    .sin .sc-list li { color: var(--text-subtle); }
-    .sin .sc-list li svg { stroke: #ef4444; }
-
-    .con .sc-list li { color: var(--text); }
-    .con .sc-list li svg { stroke: #22c55e; }
-
-    .sc-list li svg {
-      width: 13px; height: 13px;
-      stroke: currentColor;
-      fill: none;
-      stroke-width: 2.5;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-      flex-shrink: 0;
-      margin-top: 3px;
+    .ls-meta {
+      display: flex; flex-direction: column; align-items: center;
+      margin-top: 10px;
+      opacity: 0;
+      transition: opacity 0.6s ease;
+      pointer-events: none;
+    }
+    .ls-item.ls-active .ls-meta { opacity: 1; }
+    .ls-vline { width: 1px; height: 36px; background: rgba(97,127,138,0.35); margin-bottom: 6px; }
+    .ls-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.55rem; letter-spacing: 0.14em;
+      text-transform: uppercase; color: #7BA3AE; white-space: nowrap;
     }
 
     /* ─────────────────── FAQ ─────────────────── */
@@ -2738,72 +2719,13 @@
     </div>
   </section>
 
-  <!-- SIN/CON -->
+  <!-- STACK TECNOLÓGICO -->
   <section id="sincon">
     <div class="container">
-      <div class="sincon-header">
-        <span class="section-label reveal">Antes / Después</span>
-        <h2 class="section-title reveal">Qué cambia cuando<br />llegas a Sustenta Futuro</h2>
-        <p class="section-sub reveal">El mismo equipo, los mismos recursos — pero con la operación automatizada.</p>
-      </div>
-      <div class="sincon-grid reveal">
-        <div class="sincon-col sin">
-          <div class="sincon-col-label">
-            <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            Sin Sustenta Futuro
-          </div>
-          <ul class="sc-list">
-            <li>
-              <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-              Errores humanos que interrumpen tus procesos críticos
-            </li>
-            <li>
-              <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-              Tu equipo perdiendo horas en tareas repetitivas de bajo valor
-            </li>
-            <li>
-              <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-              Proyectos tecnológicos sin fechas claras ni visibilidad del avance
-            </li>
-            <li>
-              <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-              Operación que se detiene si falta una persona clave
-            </li>
-            <li>
-              <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-              Costos que crecen sin retorno medible ni transparencia
-            </li>
-          </ul>
-        </div>
-        <div class="sincon-col con">
-          <div class="sincon-col-label">
-            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-            Con Sustenta Futuro
-          </div>
-          <ul class="sc-list">
-            <li>
-              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-              Automatización con menos del 1% de error y monitoreo continuo
-            </li>
-            <li>
-              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-              Tu equipo enfocado en lo estratégico que hace crecer el negocio
-            </li>
-            <li>
-              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-              Plan de implementación claro con métricas de éxito definidas desde el día 1
-            </li>
-            <li>
-              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-              Operación 24/7 sin intervención manual, SLA 99% uptime
-            </li>
-            <li>
-              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-              ROI medible, precios transparentes y modelo 50/50: inicio y entrega exitosa
-            </li>
-          </ul>
-        </div>
-      </div>
+      <span class="section-label reveal">Stack Tecnológico</span>
+      <h2 class="section-title reveal">Las mejores herramientas<br />para cada solución</h2>
+      <p class="section-sub reveal">Tecnologías de clase mundial que garantizan escalabilidad, seguridad y rendimiento en cada proyecto.</p>
+      <div class="ls-stage reveal" id="ls-stage"></div>
     </div>
   </section>
 
@@ -3743,6 +3665,112 @@
     initStatsCount();
   });
 
+  /* ── Logo Stepper ── */
+  (function () {
+    const DI = 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons';
+    const SI = 'https://cdn.simpleicons.org';
+    const logos = [
+      { label: 'Python',         src: `${DI}/python/python-original.svg` },
+      { label: 'FastAPI',        src: `${DI}/fastapi/fastapi-original.svg` },
+      { label: 'JavaScript',     src: `${DI}/javascript/javascript-original.svg` },
+      { label: 'Docker',         src: `${DI}/docker/docker-original.svg` },
+      { label: 'PostgreSQL',     src: `${DI}/postgresql/postgresql-original.svg` },
+      { label: 'GitHub Actions', src: `${DI}/githubactions/githubactions-original.svg` },
+      { label: 'OpenAI',         src: `${SI}/openai/7BA3AE` },
+      { label: 'Gemini',         src: `${SI}/googlegemini/7BA3AE` },
+      { label: 'WhatsApp',       src: `${SI}/whatsapp/25D366` },
+      { label: 'Selenium',       src: `${DI}/selenium/selenium-original.svg` },
+      { label: 'Streamlit',      src: `${DI}/streamlit/streamlit-original.svg` },
+    ];
+
+    const stage = document.getElementById('ls-stage');
+    if (!stage) return;
+
+    const N    = logos.length;
+    const STEP = 112; // px between item centers
+    let centerIdx = 0;
+
+    function getScale(absPos) {
+      if (absPos === 0) return 1.0;
+      if (absPos === 1) return 0.78;
+      if (absPos === 2) return 0.62;
+      return 0.5;
+    }
+    function getOpacity(absPos) {
+      if (absPos === 0) return 1.0;
+      if (absPos === 1) return 0.45;
+      if (absPos === 2) return 0.2;
+      return 0;
+    }
+
+    function applyStyle(el, pos) {
+      const abs = Math.abs(pos);
+      el.style.transform = `translateX(${pos * STEP}px) scale(${getScale(abs)})`;
+      el.style.opacity   = getOpacity(abs);
+      el.classList.toggle('ls-active', pos === 0);
+    }
+
+    function createItem(logo) {
+      const el = document.createElement('div');
+      el.className = 'ls-item';
+      el.innerHTML = `
+        <div class="ls-card">
+          <img src="${logo.src}" alt="${logo.label}" loading="lazy" />
+        </div>
+        <div class="ls-meta">
+          <div class="ls-vline"></div>
+          <span class="ls-label">${logo.label}</span>
+        </div>`;
+      return el;
+    }
+
+    function updateContent(el, logo) {
+      el.querySelector('img').src = logo.src;
+      el.querySelector('img').alt = logo.label;
+      el.querySelector('.ls-label').textContent = logo.label;
+    }
+
+    // Build 7 items: positions -3 to +3
+    const items = [];
+    for (let p = -3; p <= 3; p++) {
+      const idx = ((p % N) + N) % N;
+      const el  = createItem(logos[idx]);
+      el._pos   = p;
+      el._lidx  = idx;
+      applyStyle(el, p);
+      stage.appendChild(el);
+      items.push(el);
+    }
+
+    function advance() {
+      centerIdx = (centerIdx + 1) % N;
+
+      // Item at pos -3: recycle to pos +3 with upcoming logo
+      const recycled = items.find(el => el._pos === -3);
+      const newLidx  = (centerIdx + 3) % N;
+
+      // Teleport instantly (no transition) to +3 with new content
+      recycled.style.transition = 'none';
+      recycled._pos  = 3;
+      recycled._lidx = newLidx;
+      updateContent(recycled, logos[newLidx]);
+      applyStyle(recycled, 3);
+
+      // Re-enable transitions on next paint
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        recycled.style.transition = '';
+      }));
+
+      // Shift all other items one position left
+      items.filter(el => el !== recycled).forEach(el => {
+        el._pos--;
+        applyStyle(el, el._pos);
+      });
+    }
+
+    setInterval(advance, 1800);
+  })();
+
   /* ── Refresh ScrollTrigger + re-init product section on resize ── */
   let _resizeTimer;
   window.addEventListener('resize', () => {
@@ -4020,8 +4048,6 @@
         label_color:           '#sincon .section-label',
         title_color:           '#sincon .section-title',
         sub_color:             '#sincon .section-sub',
-        sin_color:             '#sincon .sincon-col.sin, #sincon .sincon-col.sin *',
-        con_color:             '#sincon .sincon-col.con, #sincon .sincon-col.con *',
         text_color:            '#sincon, #sincon *',
       },
       producto: {

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://cristobalmartinezssf.github.io/sustenta-futuro/sitemap.xml

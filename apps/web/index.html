@@ -2021,6 +2021,9 @@
       pointer-events: none;
     }
 
+    .form-submit .lb-hover,
+    .form-submit .lb-label { color: #2B3A42 !important; }
+
     /* ─────────────────── WORD REVEAL ─────────────────── */
     .word-reveal {
       display: inline-block;
@@ -3472,13 +3475,7 @@
               <label for="message">Déjanos ayudarte</label>
               <textarea id="message" name="message" placeholder="Describe brevemente el proceso o problema..."></textarea>
             </div>
-            <button type="submit" class="form-submit btn-layered">
-              <span class="lb-circle" aria-hidden="true"></span>
-              <span class="lb-wrap" style="width:100%; padding: 0.9rem;">
-                <span class="lb-label">Enviar</span>
-                <span class="lb-hover" aria-hidden="true">Enviar</span>
-              </span>
-            </button>
+            <button type="submit" class="form-submit">Enviar</button>
             <p class="form-disclaimer">Tus datos están protegidos bajo la Ley 19.628. No los compartimos con terceros.</p>
           </form>
         </div>
@@ -4587,7 +4584,7 @@
         benefits_color:        '#contacto .cb-item',
         form_title_color:      '#contacto .form-card h3',
         form_labels_color:     '#contacto .form-group label',
-        text_color:            '#contacto, #contacto *',
+        text_color:            '#contacto *:not(.form-submit)',
       },
     };
 

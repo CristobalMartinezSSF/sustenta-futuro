@@ -325,5 +325,92 @@
     </div>
   </footer>
 
+  <!-- ── TEXTURE LOADER (same as index.html) ── -->
+  <script>
+  (function () {
+    const TEXTURE_API = 'https://sustenta-futuro-api.onrender.com/landing/textures';
+
+    const ELEMENT_SELECTORS = {
+      navbar: {
+        brand_color: '#navbar .nav-brand-text',
+        links_color: '#navbar .nav-links a:not(.nav-cta)',
+        cta_color:   '#navbar .nav-cta, #navbar .nav-cta *',
+        text_color:  '#navbar nav, #navbar nav *',
+      },
+    };
+
+    async function loadTextures() {
+      for (let attempt = 0; attempt < 3; attempt++) {
+        try {
+          const res = await fetch(TEXTURE_API, { signal: AbortSignal.timeout(60000) });
+          if (!res.ok) return;
+          const data = await res.json();
+          Object.entries(data).forEach(([sectionId, maps]) => {
+            if (maps && (maps.base || maps.text_color)) applyTexture(sectionId, maps);
+          });
+          return;
+        } catch (_) { /* retry */ }
+        await new Promise(r => setTimeout(r, 3000));
+      }
+    }
+
+    function applyTexture(sectionId, maps) {
+      const el = sectionId === 'navbar'
+        ? document.querySelector('#navbar nav')
+        : document.getElementById(sectionId);
+      if (!el) return;
+
+      const prev = el.querySelector('.sf-tex');
+      if (prev) prev.remove();
+
+      const isNavbar = sectionId === 'navbar';
+      const overlay = document.createElement('div');
+      overlay.className = 'sf-tex';
+      overlay.style.cssText = [
+        'position:absolute', 'inset:0', 'pointer-events:none', 'z-index:0',
+        `background-image:url(${maps.base})`,
+        isNavbar ? 'background-repeat:no-repeat' : 'background-repeat:repeat',
+        isNavbar ? 'background-size:cover'        : 'background-size:300px auto',
+        isNavbar ? 'background-position:center'   : '',
+        'opacity:1', 'mix-blend-mode:normal',
+      ].join(';');
+
+      if (isNavbar) el.style.overflow = 'hidden';
+      const pos = getComputedStyle(el).position;
+      if (pos === 'static') el.style.position = 'relative';
+      el.insertBefore(overlay, el.firstChild);
+
+      Array.from(el.children).forEach(child => {
+        if (child === overlay) return;
+        if (getComputedStyle(child).position === 'static') {
+          child.style.position = 'relative';
+          child.style.zIndex = '1';
+        }
+      });
+
+      const colorMap = ELEMENT_SELECTORS[sectionId] || {};
+      Object.entries(maps).forEach(([mapKey, color]) => {
+        if (mapKey === 'base' || !color) return;
+        const selector = colorMap[mapKey];
+        if (!selector) return;
+        const styleId = `sf-color-${sectionId}-${mapKey}`;
+        let styleEl = document.getElementById(styleId);
+        if (!styleEl) {
+          styleEl = document.createElement('style');
+          styleEl.id = styleId;
+          document.head.appendChild(styleEl);
+        }
+        styleEl.textContent = `${selector} { color: ${color} !important; }`;
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', loadTextures);
+    } else {
+      loadTextures();
+    }
+  })();
+  </script>
+
 </body>
 </html>

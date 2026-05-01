@@ -7,63 +7,93 @@
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     :root {
-      --bg:          #D4DEE5;
-      --text:        #455A64;
-      --text-muted:  rgba(69,90,100,0.65);
-      --text-subtle: rgba(69,90,100,0.4);
-      --accent:      #0093B2;
+      --bg:           #D4DEE5;
+      --border:       rgba(0,0,0,0.10);
+      --text:         #455A64;
+      --text-muted:   rgba(69,90,100,0.6);
+      --text-subtle:  rgba(69,90,100,0.38);
+      --accent:       #0093B2;
+      --glass-bg:     rgba(0,0,0,0.55);
+      --glass-blur:   blur(18px) saturate(1.2);
+      --glass-glow:   rgba(0,0,0,0.04);
       --glass-border: rgba(0,0,0,0.10);
-      --ease-out:    cubic-bezier(0.23, 1, 0.32, 1);
+      --ease-out:     cubic-bezier(0.23, 1, 0.32, 1);
     }
+
     html { scroll-behavior: smooth; }
-    body {
-      font-family: 'Inter', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-    }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    a, button { font-family: 'Inter', sans-serif; color: var(--text); }
+
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 5%; }
 
     /* ── NAV ── */
     .nav-wrap {
-      position: fixed; top: 1rem; left: 50%; transform: translateX(-50%);
-      z-index: 100; width: calc(100% - 2rem); max-width: 1100px;
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 200;
+      display: flex;
+      justify-content: center;
+      padding: 1.25rem 5%;
+      pointer-events: none;
     }
     nav {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 0.75rem 1.5rem;
-      background: rgba(212,222,229,0.7);
-      backdrop-filter: blur(18px) saturate(1.2);
-      -webkit-backdrop-filter: blur(18px) saturate(1.2);
-      border: 1px solid var(--glass-border);
-      border-radius: 999px;
+      width: 100%; max-width: 1100px;
+      padding: 0.6rem 0.6rem 0.6rem 1.25rem;
+      background: var(--glass-bg);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: 1px solid #617F8A;
+      border-radius: 100px;
+      pointer-events: all;
+      box-shadow: inset 0 1px 0 var(--glass-glow), 0 4px 24px rgba(0,0,0,0.3);
     }
-    .nav-brand img { height: 28px; display: block; }
-    .nav-links { display: flex; align-items: center; gap: 2rem; }
+    .nav-brand {
+      display: flex; align-items: center; gap: 0.55rem;
+      text-decoration: none;
+    }
+    nav img.logo {
+      height: 72px;
+      object-fit: contain;
+      margin-block: -18px;
+    }
+    .nav-links {
+      display: flex; align-items: center;
+      gap: 0.25rem;
+    }
     .nav-links a {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 0.82rem; font-weight: 600;
-      color: var(--text); text-decoration: none;
+      text-decoration: none;
+      color: #2B3A42;
+      font-weight: 500;
+      font-size: 0.85rem;
       letter-spacing: 0.06em;
-      transition: color 200ms;
+      padding: 0.45rem 0.9rem;
+      border-radius: 100px;
+      transition: color 180ms ease, background 180ms ease;
     }
-    .nav-links a:hover { color: var(--accent); }
+    .nav-links a:hover { background: rgba(255,255,255,0.06); }
     .nav-cta {
-      background: #2B3A42; color: #fff !important;
-      padding: 0.45rem 1.1rem; border-radius: 999px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+      font-weight: 700;
     }
+    .nav-cta:hover { background: rgba(255,255,255,0.2) !important; }
+
+    @media (max-width: 768px) { .nav-links { display: none; } }
 
     /* ── CONTENT ── */
     .legal-wrap {
       max-width: 780px; margin: 0 auto;
-      padding: 8rem 1.5rem 6rem;
+      padding: 9rem 5% 6rem;
     }
     .legal-label {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.7rem; font-weight: 500;
-      color: var(--accent); letter-spacing: 0.12em;
-      text-transform: uppercase; margin-bottom: 1rem;
-      display: block;
+      font-size: 0.7rem; color: var(--accent);
+      letter-spacing: 0.12em; text-transform: uppercase;
+      margin-bottom: 1rem; display: block;
     }
     .legal-title {
       font-family: 'Montserrat', sans-serif;
@@ -74,6 +104,14 @@
     .legal-updated {
       font-size: 0.78rem; color: var(--text-subtle);
       margin-bottom: 3rem;
+    }
+    .legal-notice {
+      background: rgba(0,147,178,0.06);
+      border: 1px solid rgba(0,147,178,0.2);
+      border-radius: 12px;
+      padding: 1.2rem 1.5rem;
+      margin-bottom: 2rem;
+      font-size: 0.83rem; color: var(--text-muted); line-height: 1.7;
     }
     .legal-section {
       background: #fff;
@@ -89,72 +127,66 @@
       display: flex; align-items: center; gap: 0.6rem;
     }
     .legal-section h2::before {
-      content: '';
-      display: inline-block; width: 4px; height: 16px;
+      content: ''; display: inline-block;
+      width: 4px; height: 16px;
       background: var(--accent); border-radius: 2px; flex-shrink: 0;
     }
     .legal-section p, .legal-section li {
       font-size: 0.88rem; color: var(--text-muted);
       line-height: 1.78; margin-bottom: 0.6rem;
     }
-    .legal-section ul {
-      padding-left: 1.2rem; margin-top: 0.4rem;
-    }
+    .legal-section ul { padding-left: 1.2rem; margin-top: 0.4rem; }
     .legal-section li { margin-bottom: 0.3rem; }
     .legal-section a { color: var(--accent); text-decoration: none; }
     .legal-section a:hover { text-decoration: underline; }
-    .legal-notice {
-      background: rgba(0,147,178,0.06);
-      border: 1px solid rgba(0,147,178,0.2);
-      border-radius: 12px;
-      padding: 1.2rem 1.5rem;
-      margin-bottom: 2rem;
-      font-size: 0.83rem; color: var(--text-muted); line-height: 1.7;
-    }
 
     /* ── FOOTER ── */
     footer {
       position: relative; z-index: 10;
-      background: #1E2A30; color: rgba(255,255,255,0.55);
-      padding: 3rem 1.5rem 2rem;
+      border-top: 1px solid var(--border);
+      padding: 3rem 0 2.5rem;
     }
     .footer-inner {
-      max-width: 1100px; margin: 0 auto;
-      display: flex; gap: 3rem; flex-wrap: wrap;
-      padding-bottom: 2rem;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
+      display: flex; justify-content: space-between;
+      align-items: flex-start; gap: 2rem; flex-wrap: wrap;
+      margin-bottom: 2.5rem; padding-bottom: 2.5rem;
+      border-bottom: 1px solid var(--border);
     }
     .footer-brand { flex: 1; min-width: 200px; }
-    .footer-brand img { height: 28px; margin-bottom: 1rem; filter: brightness(0) invert(1); }
-    .footer-brand p { font-size: 0.8rem; line-height: 1.7; color: rgba(255,255,255,0.45); }
+    .footer-brand-wrap { display: flex; align-items: center; gap: 0.55rem; margin-bottom: 0.9rem; }
+    footer img.logo-footer {
+      height: 84px; object-fit: contain;
+      display: block; margin-bottom: 0.8rem;
+    }
+    .footer-brand p { font-size: 0.82rem; color: var(--text-subtle); line-height: 1.6; max-width: 280px; }
     .footer-links { display: flex; flex-direction: column; gap: 0.5rem; }
     .footer-links-title {
       font-family: 'Montserrat', sans-serif;
-      font-size: 0.72rem; font-weight: 700;
-      color: rgba(255,255,255,0.35); letter-spacing: 0.1em;
-      text-transform: uppercase; margin-bottom: 0.25rem;
+      font-size: 0.68rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--text-subtle); margin-bottom: 0.4rem;
     }
     .footer-links a {
-      font-size: 0.82rem; color: rgba(255,255,255,0.55);
-      text-decoration: none; transition: color 200ms;
+      font-size: 0.82rem; color: var(--text-muted);
+      text-decoration: none; transition: color 150ms ease;
     }
-    .footer-links a:hover { color: #fff; }
+    .footer-links a:hover { color: var(--text); }
     .footer-bottom {
-      max-width: 1100px; margin: 1.5rem auto 0;
-      display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;
-      font-size: 0.75rem; color: rgba(255,255,255,0.3);
+      display: flex; justify-content: space-between;
+      align-items: center; flex-wrap: wrap; gap: 0.5rem;
+      font-size: 0.76rem; color: var(--text-subtle);
     }
-    .footer-bottom a { color: rgba(255,255,255,0.45); text-decoration: none; }
-    .footer-bottom a:hover { color: #fff; }
+    .footer-bottom a { color: var(--text-muted); text-decoration: none; }
+    .footer-bottom a:hover { color: var(--text); }
   </style>
 </head>
 <body>
 
   <!-- NAV -->
-  <div class="nav-wrap">
-    <nav>
+  <div class="nav-wrap" id="navbar">
+    <nav role="navigation" aria-label="Navegación principal">
       <a class="nav-brand" href="index.html" aria-label="Sustenta Futuro — inicio">
-        <img src="logo-full.png" alt="Sustenta Futuro" />
+        <img class="logo" src="logo-full.png" alt="Sustenta Futuro" />
       </a>
       <div class="nav-links">
         <a href="index.html#nosotros">Nosotros</a>
@@ -236,37 +268,41 @@
 
     <div class="legal-section">
       <h2>10. Contacto</h2>
-      <p>Para consultas relacionadas con estos términos, puede contactarnos en: <a href="mailto:contacto@sustentafuturo.com">contacto@sustentafuturo.com</a></p>
+      <p>Para consultas relacionadas con estos términos: <a href="mailto:contacto@sustentafuturo.com">contacto@sustentafuturo.com</a></p>
     </div>
   </main>
 
   <!-- FOOTER -->
   <footer>
-    <div class="footer-inner">
-      <div class="footer-brand">
-        <img src="logo-full.png" alt="Sustenta Futuro" />
-        <p>Ingeniería del mañana para las empresas de hoy.<br />Santiago, Chile — Visión Sudamérica.</p>
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <div class="footer-brand-wrap">
+            <img class="logo-footer" src="logo-full.png" alt="Sustenta Futuro" />
+          </div>
+          <p>Ingeniería del mañana para las empresas de hoy.<br />Santiago, Chile — Visión Sudamérica.</p>
+        </div>
+        <div class="footer-links">
+          <p class="footer-links-title">Contacto</p>
+          <a href="mailto:contacto@sustentafuturo.com">contacto@sustentafuturo.com</a>
+          <a href="#">Santiago, Chile</a>
+        </div>
+        <div class="footer-links">
+          <p class="footer-links-title">Empresa</p>
+          <a href="index.html#proceso">Proceso</a>
+          <a href="index.html#diferenciadores">Por qué elegirnos</a>
+          <a href="index.html#contacto">Contacto</a>
+        </div>
+        <div class="footer-links">
+          <p class="footer-links-title">Legal</p>
+          <a href="terminos.html">Términos y Condiciones</a>
+          <a href="privacidad.html">Política de Privacidad</a>
+        </div>
       </div>
-      <div class="footer-links">
-        <p class="footer-links-title">Contacto</p>
-        <a href="mailto:contacto@sustentafuturo.com">contacto@sustentafuturo.com</a>
-        <a href="#">Santiago, Chile</a>
+      <div class="footer-bottom">
+        <span>© 2026 Sustenta Futuro SpA. Todos los derechos reservados.</span>
+        <span><a href="privacidad.html">Privacidad</a> · <a href="terminos.html">Términos</a></span>
       </div>
-      <div class="footer-links">
-        <p class="footer-links-title">Empresa</p>
-        <a href="index.html#proceso">Proceso</a>
-        <a href="index.html#diferenciadores">Por qué elegirnos</a>
-        <a href="index.html#contacto">Contacto</a>
-      </div>
-      <div class="footer-links">
-        <p class="footer-links-title">Legal</p>
-        <a href="terminos.html">Términos y Condiciones</a>
-        <a href="privacidad.html">Política de Privacidad</a>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <span>© 2026 Sustenta Futuro SpA. Todos los derechos reservados.</span>
-      <span><a href="privacidad.html">Privacidad</a> · <a href="terminos.html">Términos</a></span>
     </div>
   </footer>
 

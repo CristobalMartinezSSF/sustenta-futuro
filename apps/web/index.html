@@ -1250,7 +1250,12 @@
       }
     }
 
-    .form-submit:active { transform: scale(0.97); }
+    .form-submit:focus { outline: none; }
+    .form-submit:active {
+      transform: scale(0.97);
+      background: rgba(240,240,240,1);
+      color: #2B3A42;
+    }
 
     .form-submit svg {
       width: 15px; height: 15px;

@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Política de Privacidad — Sustenta Futuro</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:          #D4DEE5;
+      --text:        #455A64;
+      --text-muted:  rgba(69,90,100,0.65);
+      --text-subtle: rgba(69,90,100,0.4);
+      --accent:      #0093B2;
+      --glass-border: rgba(0,0,0,0.10);
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── NAV ── */
+    .nav-wrap {
+      position: fixed; top: 1rem; left: 50%; transform: translateX(-50%);
+      z-index: 100; width: calc(100% - 2rem); max-width: 1100px;
+    }
+    nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.75rem 1.5rem;
+      background: rgba(212,222,229,0.7);
+      backdrop-filter: blur(18px) saturate(1.2);
+      -webkit-backdrop-filter: blur(18px) saturate(1.2);
+      border: 1px solid var(--glass-border);
+      border-radius: 999px;
+    }
+    .nav-brand img { height: 28px; display: block; }
+    .nav-links { display: flex; align-items: center; gap: 2rem; }
+    .nav-links a {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.82rem; font-weight: 600;
+      color: var(--text); text-decoration: none;
+      letter-spacing: 0.06em;
+      transition: color 200ms;
+    }
+    .nav-links a:hover { color: var(--accent); }
+    .nav-cta {
+      background: #2B3A42; color: #fff !important;
+      padding: 0.45rem 1.1rem; border-radius: 999px;
+    }
+
+    /* ── CONTENT ── */
+    .legal-wrap {
+      max-width: 780px; margin: 0 auto;
+      padding: 8rem 1.5rem 6rem;
+    }
+    .legal-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem; font-weight: 500;
+      color: var(--accent); letter-spacing: 0.12em;
+      text-transform: uppercase; margin-bottom: 1rem;
+      display: block;
+    }
+    .legal-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      font-weight: 800; color: #2B3A42;
+      line-height: 1.15; margin-bottom: 0.5rem;
+    }
+    .legal-updated {
+      font-size: 0.78rem; color: var(--text-subtle);
+      margin-bottom: 3rem;
+    }
+    .legal-section {
+      background: #fff;
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 2rem 2.2rem;
+      margin-bottom: 1.2rem;
+    }
+    .legal-section h2 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1rem; font-weight: 700;
+      color: #2B3A42; margin-bottom: 0.9rem;
+      display: flex; align-items: center; gap: 0.6rem;
+    }
+    .legal-section h2::before {
+      content: '';
+      display: inline-block; width: 4px; height: 16px;
+      background: var(--accent); border-radius: 2px; flex-shrink: 0;
+    }
+    .legal-section p, .legal-section li {
+      font-size: 0.88rem; color: var(--text-muted);
+      line-height: 1.78; margin-bottom: 0.6rem;
+    }
+    .legal-section ul {
+      padding-left: 1.2rem; margin-top: 0.4rem;
+    }
+    .legal-section li { margin-bottom: 0.3rem; }
+    .legal-section a { color: var(--accent); text-decoration: none; }
+    .legal-section a:hover { text-decoration: underline; }
+    .legal-notice {
+      background: rgba(0,147,178,0.06);
+      border: 1px solid rgba(0,147,178,0.2);
+      border-radius: 12px;
+      padding: 1.2rem 1.5rem;
+      margin-bottom: 2rem;
+      font-size: 0.83rem; color: var(--text-muted); line-height: 1.7;
+    }
+    .legal-highlight {
+      background: rgba(0,147,178,0.05);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 8px 8px 0;
+      padding: 0.8rem 1rem;
+      margin: 0.8rem 0;
+      font-size: 0.84rem; color: var(--text-muted); line-height: 1.7;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      position: relative; z-index: 10;
+      background: #1E2A30; color: rgba(255,255,255,0.55);
+      padding: 3rem 1.5rem 2rem;
+    }
+    .footer-inner {
+      max-width: 1100px; margin: 0 auto;
+      display: flex; gap: 3rem; flex-wrap: wrap;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .footer-brand { flex: 1; min-width: 200px; }
+    .footer-brand img { height: 28px; margin-bottom: 1rem; filter: brightness(0) invert(1); }
+    .footer-brand p { font-size: 0.8rem; line-height: 1.7; color: rgba(255,255,255,0.45); }
+    .footer-links { display: flex; flex-direction: column; gap: 0.5rem; }
+    .footer-links-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.72rem; font-weight: 700;
+      color: rgba(255,255,255,0.35); letter-spacing: 0.1em;
+      text-transform: uppercase; margin-bottom: 0.25rem;
+    }
+    .footer-links a {
+      font-size: 0.82rem; color: rgba(255,255,255,0.55);
+      text-decoration: none; transition: color 200ms;
+    }
+    .footer-links a:hover { color: #fff; }
+    .footer-bottom {
+      max-width: 1100px; margin: 1.5rem auto 0;
+      display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;
+      font-size: 0.75rem; color: rgba(255,255,255,0.3);
+    }
+    .footer-bottom a { color: rgba(255,255,255,0.45); text-decoration: none; }
+    .footer-bottom a:hover { color: #fff; }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <div class="nav-wrap">
+    <nav>
+      <a class="nav-brand" href="index.html" aria-label="Sustenta Futuro — inicio">
+        <img src="logo-full.png" alt="Sustenta Futuro" />
+      </a>
+      <div class="nav-links">
+        <a href="index.html#nosotros">Nosotros</a>
+        <a href="index.html#proceso">Proceso</a>
+        <a href="index.html#contacto" class="nav-cta">Conversemos</a>
+      </div>
+    </nav>
+  </div>
+
+  <!-- CONTENT -->
+  <main class="legal-wrap">
+    <span class="legal-label">Legal</span>
+    <h1 class="legal-title">Política de Privacidad</h1>
+    <p class="legal-updated">Última actualización: enero 2026 · Versión preliminar sujeta a revisión legal.</p>
+
+    <div class="legal-notice">
+      Este documento es un texto provisional. La política de privacidad definitiva será redactada por un profesional jurídico habilitado en Chile, de conformidad con la Ley N° 19.628 sobre Protección de la Vida Privada y las normativas vigentes, antes del inicio de la operación comercial de Sustenta Futuro SpA.
+    </div>
+
+    <div class="legal-section">
+      <h2>1. Responsable del tratamiento</h2>
+      <p>Sustenta Futuro SpA (en adelante "la Empresa") es responsable del tratamiento de los datos personales que se recopilan a través de este sitio web y en el marco de sus relaciones comerciales.</p>
+      <p>Domicilio: Santiago, Chile.<br />Correo de contacto: <a href="mailto:contacto@sustentafuturo.com">contacto@sustentafuturo.com</a></p>
+    </div>
+
+    <div class="legal-section">
+      <h2>2. Marco legal aplicable</h2>
+      <p>El tratamiento de datos personales se rige por la <strong>Ley N° 19.628 sobre Protección de la Vida Privada</strong> y sus modificaciones, la <strong>Ley N° 19.223 sobre Delitos Informáticos</strong>, y demás normativas vigentes en la República de Chile.</p>
+      <div class="legal-highlight">
+        Sustenta Futuro SpA no transfiere datos personales a servidores ubicados fuera de Chile sin autorización expresa del titular.
+      </div>
+    </div>
+
+    <div class="legal-section">
+      <h2>3. Datos que recopilamos</h2>
+      <p>La Empresa puede recopilar los siguientes datos personales:</p>
+      <ul>
+        <li><strong>Datos de contacto:</strong> nombre, correo electrónico, teléfono y empresa (cuando usted nos contacta a través del formulario del sitio).</li>
+        <li><strong>Datos de navegación:</strong> dirección IP, tipo de navegador, páginas visitadas y duración de la sesión, de forma anonimizada.</li>
+        <li><strong>Datos contractuales:</strong> información necesaria para la prestación del servicio contratado, incluyendo RUT si corresponde.</li>
+      </ul>
+    </div>
+
+    <div class="legal-section">
+      <h2>4. Finalidad del tratamiento</h2>
+      <p>Los datos recopilados se utilizan exclusivamente para las siguientes finalidades:</p>
+      <ul>
+        <li>Responder a consultas y solicitudes de cotización.</li>
+        <li>Gestionar la relación contractual con clientes.</li>
+        <li>Enviar comunicaciones comerciales relacionadas con nuestros servicios (solo con consentimiento).</li>
+        <li>Mejorar el funcionamiento y contenido del sitio web.</li>
+        <li>Cumplir con obligaciones legales y tributarias.</li>
+      </ul>
+    </div>
+
+    <div class="legal-section">
+      <h2>5. Consentimiento</h2>
+      <p>Al completar el formulario de contacto del sitio web, usted otorga su consentimiento para el tratamiento de sus datos personales conforme a esta política. Puede revocar dicho consentimiento en cualquier momento enviando un correo a <a href="mailto:contacto@sustentafuturo.com">contacto@sustentafuturo.com</a>.</p>
+    </div>
+
+    <div class="legal-section">
+      <h2>6. Conservación de datos</h2>
+      <p>Los datos personales se conservarán durante el tiempo necesario para cumplir la finalidad para la que fueron recopilados, y en todo caso, durante el plazo exigido por la normativa fiscal y comercial chilena. Una vez cumplida la finalidad, los datos serán eliminados o anonimizados de forma segura.</p>
+    </div>
+
+    <div class="legal-section">
+      <h2>7. Seguridad de la información</h2>
+      <p>La Empresa adopta medidas técnicas y organizativas razonables para proteger los datos personales frente a accesos no autorizados, pérdida, alteración o divulgación. No obstante, ningún sistema de transmisión de datos por internet es completamente seguro.</p>
+      <p>Los datos de clientes se almacenan en servicios de infraestructura cloud con certificaciones de seguridad reconocidas internacionalmente.</p>
+    </div>
+
+    <div class="legal-section">
+      <h2>8. Derechos del titular</h2>
+      <p>Conforme a la Ley N° 19.628, usted tiene derecho a:</p>
+      <ul>
+        <li><strong>Acceder</strong> a sus datos personales que obren en poder de la Empresa.</li>
+        <li><strong>Rectificar</strong> datos inexactos o incompletos.</li>
+        <li><strong>Cancelar</strong> sus datos cuando ya no sean necesarios para la finalidad para la que fueron recabados.</li>
+        <li><strong>Oponerse</strong> al tratamiento de sus datos en determinadas circunstancias.</li>
+      </ul>
+      <p>Para ejercer estos derechos, envíe su solicitud a <a href="mailto:contacto@sustentafuturo.com">contacto@sustentafuturo.com</a>, indicando su nombre completo y la solicitud específica. La Empresa responderá en un plazo máximo de 10 días hábiles.</p>
+    </div>
+
+    <div class="legal-section">
+      <h2>9. Cookies y tecnologías similares</h2>
+      <p>Este sitio web puede utilizar cookies técnicas esenciales para su funcionamiento. No se utilizan cookies de seguimiento publicitario de terceros sin consentimiento previo del usuario.</p>
+      <p>Puede configurar su navegador para rechazar las cookies, aunque esto puede afectar la funcionalidad del sitio.</p>
+    </div>
+
+    <div class="legal-section">
+      <h2>10. Modificaciones a esta política</h2>
+      <p>La Empresa se reserva el derecho de actualizar esta Política de Privacidad en cualquier momento. La versión vigente siempre estará disponible en esta página, con indicación de la fecha de última actualización.</p>
+    </div>
+
+    <div class="legal-section">
+      <h2>11. Contacto</h2>
+      <p>Para cualquier consulta relacionada con el tratamiento de sus datos personales, puede contactarnos en: <a href="mailto:contacto@sustentafuturo.com">contacto@sustentafuturo.com</a></p>
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <img src="logo-full.png" alt="Sustenta Futuro" />
+        <p>Ingeniería del mañana para las empresas de hoy.<br />Santiago, Chile — Visión Sudamérica.</p>
+      </div>
+      <div class="footer-links">
+        <p class="footer-links-title">Contacto</p>
+        <a href="mailto:contacto@sustentafuturo.com">contacto@sustentafuturo.com</a>
+        <a href="#">Santiago, Chile</a>
+      </div>
+      <div class="footer-links">
+        <p class="footer-links-title">Empresa</p>
+        <a href="index.html#proceso">Proceso</a>
+        <a href="index.html#diferenciadores">Por qué elegirnos</a>
+        <a href="index.html#contacto">Contacto</a>
+      </div>
+      <div class="footer-links">
+        <p class="footer-links-title">Legal</p>
+        <a href="terminos.html">Términos y Condiciones</a>
+        <a href="privacidad.html">Política de Privacidad</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Sustenta Futuro SpA. Todos los derechos reservados.</span>
+      <span><a href="privacidad.html">Privacidad</a> · <a href="terminos.html">Términos</a></span>
+    </div>
+  </footer>
+
+</body>
+</html>

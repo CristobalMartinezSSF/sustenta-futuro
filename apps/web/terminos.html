@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Términos y Condiciones — Sustenta Futuro</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:          #D4DEE5;
+      --text:        #455A64;
+      --text-muted:  rgba(69,90,100,0.65);
+      --text-subtle: rgba(69,90,100,0.4);
+      --accent:      #0093B2;
+      --glass-border: rgba(0,0,0,0.10);
+      --ease-out:    cubic-bezier(0.23, 1, 0.32, 1);
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── NAV ── */
+    .nav-wrap {
+      position: fixed; top: 1rem; left: 50%; transform: translateX(-50%);
+      z-index: 100; width: calc(100% - 2rem); max-width: 1100px;
+    }
+    nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.75rem 1.5rem;
+      background: rgba(212,222,229,0.7);
+      backdrop-filter: blur(18px) saturate(1.2);
+      -webkit-backdrop-filter: blur(18px) saturate(1.2);
+      border: 1px solid var(--glass-border);
+      border-radius: 999px;
+    }
+    .nav-brand img { height: 28px; display: block; }
+    .nav-links { display: flex; align-items: center; gap: 2rem; }
+    .nav-links a {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.82rem; font-weight: 600;
+      color: var(--text); text-decoration: none;
+      letter-spacing: 0.06em;
+      transition: color 200ms;
+    }
+    .nav-links a:hover { color: var(--accent); }
+    .nav-cta {
+      background: #2B3A42; color: #fff !important;
+      padding: 0.45rem 1.1rem; border-radius: 999px;
+    }
+
+    /* ── CONTENT ── */
+    .legal-wrap {
+      max-width: 780px; margin: 0 auto;
+      padding: 8rem 1.5rem 6rem;
+    }
+    .legal-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem; font-weight: 500;
+      color: var(--accent); letter-spacing: 0.12em;
+      text-transform: uppercase; margin-bottom: 1rem;
+      display: block;
+    }
+    .legal-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      font-weight: 800; color: #2B3A42;
+      line-height: 1.15; margin-bottom: 0.5rem;
+    }
+    .legal-updated {
+      font-size: 0.78rem; color: var(--text-subtle);
+      margin-bottom: 3rem;
+    }
+    .legal-section {
+      background: #fff;
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 2rem 2.2rem;
+      margin-bottom: 1.2rem;
+    }
+    .legal-section h2 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1rem; font-weight: 700;
+      color: #2B3A42; margin-bottom: 0.9rem;
+      display: flex; align-items: center; gap: 0.6rem;
+    }
+    .legal-section h2::before {
+      content: '';
+      display: inline-block; width: 4px; height: 16px;
+      background: var(--accent); border-radius: 2px; flex-shrink: 0;
+    }
+    .legal-section p, .legal-section li {
+      font-size: 0.88rem; color: var(--text-muted);
+      line-height: 1.78; margin-bottom: 0.6rem;
+    }
+    .legal-section ul {
+      padding-left: 1.2rem; margin-top: 0.4rem;
+    }
+    .legal-section li { margin-bottom: 0.3rem; }
+    .legal-section a { color: var(--accent); text-decoration: none; }
+    .legal-section a:hover { text-decoration: underline; }
+    .legal-notice {
+      background: rgba(0,147,178,0.06);
+      border: 1px solid rgba(0,147,178,0.2);
+      border-radius: 12px;
+      padding: 1.2rem 1.5rem;
+      margin-bottom: 2rem;
+      font-size: 0.83rem; color: var(--text-muted); line-height: 1.7;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      position: relative; z-index: 10;
+      background: #1E2A30; color: rgba(255,255,255,0.55);
+      padding: 3rem 1.5rem 2rem;
+    }
+    .footer-inner {
+      max-width: 1100px; margin: 0 auto;
+      display: flex; gap: 3rem; flex-wrap: wrap;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .footer-brand { flex: 1; min-width: 200px; }
+    .footer-brand img { height: 28px; margin-bottom: 1rem; filter: brightness(0) invert(1); }
+    .footer-brand p { font-size: 0.8rem; line-height: 1.7; color: rgba(255,255,255,0.45); }
+    .footer-links { display: flex; flex-direction: column; gap: 0.5rem; }
+    .footer-links-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.72rem; font-weight: 700;
+      color: rgba(255,255,255,0.35); letter-spacing: 0.1em;
+      text-transform: uppercase; margin-bottom: 0.25rem;
+    }
+    .footer-links a {
+      font-size: 0.82rem; color: rgba(255,255,255,0.55);
+      text-decoration: none; transition: color 200ms;
+    }
+    .footer-links a:hover { color: #fff; }
+    .footer-bottom {
+      max-width: 1100px; margin: 1.5rem auto 0;
+      display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;
+      font-size: 0.75rem; color: rgba(255,255,255,0.3);
+    }
+    .footer-bottom a { color: rgba(255,255,255,0.45); text-decoration: none; }
+    .footer-bottom a:hover { color: #fff; }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <div class="nav-wrap">
+    <nav>
+      <a class="nav-brand" href="index.html" aria-label="Sustenta Futuro — inicio">
+        <img src="logo-full.png" alt="Sustenta Futuro" />
+      </a>
+      <div class="nav-links">
+        <a href="index.html#nosotros">Nosotros</a>
+        <a href="index.html#proceso">Proceso</a>
+        <a href="index.html#contacto" class="nav-cta">Conversemos</a>
+      </div>
+    </nav>
+  </div>
+
+  <!-- CONTENT -->
+  <main class="legal-wrap">
+    <span class="legal-label">Legal</span>
+    <h1 class="legal-title">Términos y Condiciones</h1>
+    <p class="legal-updated">Última actualización: enero 2026 · Versión preliminar sujeta a revisión legal.</p>
+
+    <div class="legal-notice">
+      Este documento es un texto provisional. Los términos y condiciones definitivos serán redactados por un profesional jurídico habilitado en Chile antes de la operación comercial de Sustenta Futuro SpA.
+    </div>
+
+    <div class="legal-section">
+      <h2>1. Identificación del prestador</h2>
+      <p>Sustenta Futuro SpA (en adelante "la Empresa") es una sociedad por acciones constituida conforme a la legislación chilena, con domicilio en la ciudad de Santiago, Chile. Presta servicios de tecnología, automatización, desarrollo de software y consultoría digital.</p>
+    </div>
+
+    <div class="legal-section">
+      <h2>2. Aceptación de los términos</h2>
+      <p>El acceso y uso de este sitio web, así como la contratación de cualquier servicio ofrecido por la Empresa, implica la aceptación plena y sin reservas de los presentes Términos y Condiciones. Si usted no está de acuerdo con alguna disposición, deberá abstenerse de usar el sitio o contratar los servicios.</p>
+    </div>
+
+    <div class="legal-section">
+      <h2>3. Servicios ofrecidos</h2>
+      <p>La Empresa ofrece, entre otros, los siguientes servicios:</p>
+      <ul>
+        <li>Diseño y desarrollo de sitios web corporativos.</li>
+        <li>Desarrollo de software a medida.</li>
+        <li>Aplicaciones móviles para iOS y Android.</li>
+        <li>Automatización de procesos (RPA) e integración de sistemas.</li>
+        <li>Desarrollo de chatbots e interfaces conversacionales.</li>
+      </ul>
+      <p>Las condiciones específicas de cada servicio se formalizarán mediante propuesta comercial y contrato individual suscrito entre las partes.</p>
+    </div>
+
+    <div class="legal-section">
+      <h2>4. Propiedad intelectual</h2>
+      <p>Todos los contenidos de este sitio web —incluyendo textos, imágenes, logotipos, diseño visual, código fuente y elementos gráficos— son propiedad de Sustenta Futuro SpA o de sus licenciantes, y se encuentran protegidos por la Ley N° 17.336 sobre Propiedad Intelectual y demás normas aplicables.</p>
+      <p>Queda prohibida su reproducción, distribución o modificación total o parcial sin autorización expresa y escrita de la Empresa.</p>
+    </div>
+
+    <div class="legal-section">
+      <h2>5. Responsabilidad y limitaciones</h2>
+      <p>La Empresa no garantiza que el sitio web esté libre de errores, interrupciones o virus. El uso del sitio se realiza bajo responsabilidad exclusiva del usuario.</p>
+      <p>La Empresa no será responsable por daños directos, indirectos, incidentales o consecuentes derivados del uso o imposibilidad de uso del sitio, salvo en los casos en que la ley chilena lo exija expresamente.</p>
+    </div>
+
+    <div class="legal-section">
+      <h2>6. Condiciones de pago</h2>
+      <p>Los servicios contratados se regirán por las condiciones económicas pactadas en la propuesta comercial correspondiente. Con carácter general, la Empresa aplica el siguiente modelo de pago:</p>
+      <ul>
+        <li>50% al inicio del proyecto, contra firma de contrato.</li>
+        <li>50% contra entrega y pruebas exitosas en el entorno del cliente.</li>
+      </ul>
+      <p>Los precios se expresan en pesos chilenos (CLP) o dólares estadounidenses (USD) según se indique, y no incluyen impuestos salvo mención expresa.</p>
+    </div>
+
+    <div class="legal-section">
+      <h2>7. Confidencialidad</h2>
+      <p>Toda información técnica, comercial o estratégica que el cliente comparta con la Empresa durante la relación contractual será tratada con carácter confidencial, sin que pueda ser divulgada a terceros sin consentimiento previo del titular, salvo obligación legal.</p>
+    </div>
+
+    <div class="legal-section">
+      <h2>8. Legislación aplicable y resolución de disputas</h2>
+      <p>Los presentes términos se rigen por las leyes de la República de Chile. Cualquier controversia que no pueda resolverse de manera directa entre las partes será sometida a los tribunales ordinarios de justicia con asiento en Santiago de Chile, sin perjuicio de acudir a mecanismos alternativos de resolución de conflictos.</p>
+    </div>
+
+    <div class="legal-section">
+      <h2>9. Modificaciones</h2>
+      <p>La Empresa se reserva el derecho de modificar estos Términos y Condiciones en cualquier momento. Los cambios serán publicados en esta página con indicación de la fecha de actualización. El uso continuado del sitio tras la publicación de cambios implica su aceptación.</p>
+    </div>
+
+    <div class="legal-section">
+      <h2>10. Contacto</h2>
+      <p>Para consultas relacionadas con estos términos, puede contactarnos en: <a href="mailto:contacto@sustentafuturo.com">contacto@sustentafuturo.com</a></p>
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <img src="logo-full.png" alt="Sustenta Futuro" />
+        <p>Ingeniería del mañana para las empresas de hoy.<br />Santiago, Chile — Visión Sudamérica.</p>
+      </div>
+      <div class="footer-links">
+        <p class="footer-links-title">Contacto</p>
+        <a href="mailto:contacto@sustentafuturo.com">contacto@sustentafuturo.com</a>
+        <a href="#">Santiago, Chile</a>
+      </div>
+      <div class="footer-links">
+        <p class="footer-links-title">Empresa</p>
+        <a href="index.html#proceso">Proceso</a>
+        <a href="index.html#diferenciadores">Por qué elegirnos</a>
+        <a href="index.html#contacto">Contacto</a>
+      </div>
+      <div class="footer-links">
+        <p class="footer-links-title">Legal</p>
+        <a href="terminos.html">Términos y Condiciones</a>
+        <a href="privacidad.html">Política de Privacidad</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Sustenta Futuro SpA. Todos los derechos reservados.</span>
+      <span><a href="privacidad.html">Privacidad</a> · <a href="terminos.html">Términos</a></span>
+    </div>
+  </footer>
+
+</body>
+</html>

@@ -817,6 +817,231 @@
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='none' stroke='white' stroke-width='1.5'%3E%3Crect x='15' y='10' width='70' height='80' rx='4'/%3E%3Cpolyline points='30,38 40,48 60,28'/%3E%3Cpolyline points='30,58 40,68 60,48'/%3E%3Cline x1='30' y1='78' x2='70' y2='78'/%3E%3C/svg%3E");
     }
 
+    /* ─── Interactive Process Flow ─── */
+    .pf-flow { margin-top: 2.5rem; }
+
+    .pf-grid {
+      display: flex;
+      align-items: flex-start;
+      gap: 0;
+    }
+
+    .pf-step {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      align-items: stretch;
+    }
+
+    .pf-card {
+      flex: 1;
+      text-align: left;
+      background: #ffffff;
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 1.25rem 1.1rem;
+      cursor: pointer;
+      transition: transform 220ms var(--ease-out), box-shadow 220ms var(--ease-out), border-color 220ms var(--ease-out);
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      position: relative;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .pf-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0,147,178,0.12);
+        border-color: rgba(0,147,178,0.3);
+      }
+    }
+
+    .pf-card.pf-active {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent), 0 8px 32px rgba(0,147,178,0.18);
+    }
+
+    .pf-step-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.62rem;
+      color: var(--text-subtle);
+      letter-spacing: 0.05em;
+    }
+
+    .pf-card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    .pf-icon-wrap {
+      width: 34px; height: 34px;
+      border-radius: 10px;
+      background: rgba(0,147,178,0.08);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: background 220ms ease;
+    }
+    .pf-card.pf-active .pf-icon-wrap { background: var(--accent); }
+    .pf-icon-wrap svg {
+      width: 17px; height: 17px;
+      stroke: var(--accent); fill: none;
+      stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
+      transition: stroke 220ms ease;
+    }
+    .pf-card.pf-active .pf-icon-wrap svg { stroke: #fff; }
+
+    .pf-card-header h4 {
+      font-size: 0.9rem; font-weight: 700;
+      color: var(--text); margin: 0;
+    }
+
+    .pf-visual {
+      height: 110px;
+      border-radius: 10px;
+      background: #F2F5F7;
+      overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .pf-visual svg { width: 100%; height: 100%; }
+
+    .pf-desc {
+      font-size: 0.76rem; color: var(--text-muted);
+      line-height: 1.6; margin: 0;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .pf-badges { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+    .pf-badge {
+      font-size: 0.62rem; font-weight: 600;
+      padding: 0.18rem 0.5rem; border-radius: 999px;
+      background: rgba(0,147,178,0.07);
+      color: var(--text-subtle);
+      transition: background 220ms, color 220ms;
+    }
+    .pf-card.pf-active .pf-badge {
+      background: rgba(0,147,178,0.14);
+      color: var(--accent);
+    }
+
+    .pf-hint {
+      display: flex; align-items: center; gap: 0.3rem;
+      font-size: 0.68rem; color: var(--text-subtle);
+      margin-top: auto; padding-top: 0.2rem;
+    }
+    .pf-hint svg {
+      width: 11px; height: 11px;
+      stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round;
+      transition: transform 300ms ease;
+    }
+    .pf-card.pf-active .pf-hint svg { transform: rotate(180deg); }
+
+    .pf-connector {
+      flex-shrink: 0; width: 28px;
+      display: flex; align-items: center; justify-content: center;
+      padding-top: 58px;
+    }
+    .pf-connector svg { overflow: visible; }
+    .pf-conn-line {
+      stroke: #C8D3D8; stroke-width: 1.8;
+      stroke-dasharray: 4 3;
+      transition: stroke 300ms;
+    }
+    .pf-conn-arrow { fill: #C8D3D8; transition: fill 300ms; }
+    .pf-connector.conn-active .pf-conn-line {
+      stroke: var(--accent);
+      animation: pf-dash 0.7s linear infinite;
+    }
+    .pf-connector.conn-active .pf-conn-arrow { fill: var(--accent); }
+    @keyframes pf-dash { to { stroke-dashoffset: -14; } }
+
+    /* Detail panel */
+    .pf-detail {
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      margin-top: 0;
+      transition: max-height 400ms cubic-bezier(0.4,0,0.2,1),
+                  opacity 300ms ease, margin-top 300ms ease;
+    }
+    .pf-detail.pf-open {
+      max-height: 500px;
+      opacity: 1;
+      margin-top: 1.4rem;
+    }
+    .pf-detail-inner {
+      background: #fff;
+      border: 1px solid rgba(0,147,178,0.22);
+      border-radius: 16px;
+      padding: 1.6rem 2rem;
+      box-shadow: 0 0 0 1px rgba(0,147,178,0.08), 0 8px 32px rgba(0,147,178,0.1);
+      position: relative;
+      display: flex;
+      gap: 2rem;
+    }
+    .pf-dl {
+      flex-shrink: 0; width: 190px;
+    }
+    .pf-dl .pf-icon-wrap { background: var(--accent); margin-bottom: 0.75rem; }
+    .pf-dl .pf-icon-wrap svg { stroke: #fff; }
+    .pf-dl-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.62rem; color: var(--text-subtle);
+      display: block; margin-bottom: 0.25rem;
+    }
+    .pf-dl-title {
+      font-size: 1.2rem; font-weight: 700;
+      color: var(--text); margin: 0 0 0.75rem;
+    }
+    .pf-dl-badges { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+    .pf-dl-badge {
+      font-size: 0.62rem; font-weight: 600;
+      padding: 0.18rem 0.5rem; border-radius: 999px;
+      background: rgba(0,147,178,0.12); color: var(--accent);
+    }
+    .pf-dr { flex: 1; }
+    .pf-dr-desc {
+      font-size: 0.88rem; color: var(--text-muted);
+      line-height: 1.72; margin: 0 0 1.1rem;
+    }
+    .pf-dr-features {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 0.55rem;
+    }
+    .pf-dr-feat {
+      display: flex; align-items: center; gap: 0.5rem;
+      font-size: 0.8rem; color: var(--text);
+    }
+    .pf-feat-dot {
+      flex-shrink: 0; width: 18px; height: 18px;
+      border-radius: 50%; background: rgba(0,147,178,0.1);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .pf-feat-dot svg { width: 9px; height: 9px; stroke: var(--accent); fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+    .pf-close-btn {
+      position: absolute; top: 1rem; right: 1rem;
+      width: 26px; height: 26px; border-radius: 50%;
+      border: none; background: rgba(0,0,0,0.04);
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: background 200ms;
+    }
+    .pf-close-btn:hover { background: rgba(0,0,0,0.09); }
+    .pf-close-btn svg { width: 13px; height: 13px; stroke: var(--text-subtle); fill: none; stroke-width: 2; stroke-linecap: round; }
+
+    @media (max-width: 1024px) {
+      .pf-grid { flex-wrap: wrap; gap: 0.75rem; }
+      .pf-step { flex: 0 0 calc(50% - 0.375rem); }
+      .pf-connector { display: none; }
+    }
+    @media (max-width: 480px) {
+      .pf-step { flex: 0 0 100%; }
+      .pf-detail-inner { flex-direction: column; }
+      .pf-dl { width: 100%; }
+      .pf-dr-features { grid-template-columns: 1fr; }
+    }
+
     /* Accent glow on hover */
     .paso::after {
       content: '';
@@ -2642,48 +2867,145 @@
       <h2 class="section-title reveal">De la idea al resultado<br />en semanas</h2>
       <p class="section-sub reveal">Un proceso probado para implementar sin fricción ni sorpresas.</p>
 
-      <div class="proceso-grid">
-        <div class="paso paso--diagnostico reveal">
-          <div class="paso-index">step_01</div>
-          <div class="paso-icon">
-            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/><line x1="11" y1="8" x2="11" y2="14"/></svg>
+      <div class="pf-flow reveal">
+        <div class="pf-grid" id="pf-grid">
+
+          <!-- step 0 -->
+          <div class="pf-step" data-pf="0">
+            <button class="pf-card" onclick="pfToggle(0)">
+              <span class="pf-step-num">step_01</span>
+              <div class="pf-card-header">
+                <div class="pf-icon-wrap"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/><path d="M11 8v6"/><path d="M8 11h6"/></svg></div>
+                <h4>Diagnóstico</h4>
+              </div>
+              <div class="pf-visual">
+                <svg viewBox="0 0 180 110" xmlns="http://www.w3.org/2000/svg">
+                  <line x1="35" y1="28" x2="75" y2="18" stroke="#CBD5E0" stroke-width="1"/><line x1="75" y1="18" x2="115" y2="32" stroke="#CBD5E0" stroke-width="1"/><line x1="35" y1="28" x2="55" y2="58" stroke="#CBD5E0" stroke-width="1"/><line x1="75" y1="18" x2="95" y2="52" stroke="#CBD5E0" stroke-width="1"/><line x1="115" y1="32" x2="135" y2="48" stroke="#CBD5E0" stroke-width="1"/><line x1="55" y1="58" x2="95" y2="52" stroke="#CBD5E0" stroke-width="1"/><line x1="95" y1="52" x2="135" y2="48" stroke="#CBD5E0" stroke-width="1"/><line x1="55" y1="58" x2="45" y2="85" stroke="#CBD5E0" stroke-width="1"/><line x1="95" y1="52" x2="85" y2="82" stroke="#CBD5E0" stroke-width="1"/><line x1="135" y1="48" x2="125" y2="78" stroke="#CBD5E0" stroke-width="1"/>
+                  <circle cx="35" cy="28" r="6" fill="#94a3b8"/><circle cx="75" cy="18" r="6" fill="#94a3b8"/><circle cx="115" cy="32" r="6" fill="#94a3b8"/><circle cx="55" cy="58" r="6" fill="#94a3b8"/><circle cx="95" cy="52" r="6" fill="#0093B2"/><circle cx="135" cy="48" r="6" fill="#94a3b8"/><circle cx="45" cy="85" r="6" fill="#94a3b8"/><circle cx="85" cy="82" r="6" fill="#94a3b8"/><circle cx="125" cy="78" r="6" fill="#94a3b8"/>
+                  <circle cx="140" cy="30" r="15" fill="none" stroke="#0093B2" stroke-width="1.8" stroke-opacity="0.4"/><line x1="151" y1="41" x2="162" y2="52" stroke="#0093B2" stroke-width="2.5" stroke-linecap="round" stroke-opacity="0.4"/>
+                </svg>
+              </div>
+              <p class="pf-desc">Analizamos tus procesos e identificamos los de mayor impacto para automatizar primero.</p>
+              <div class="pf-badges"><span class="pf-badge">Análisis RPA</span><span class="pf-badge">Mapeo de procesos</span></div>
+              <div class="pf-hint"><span>Clic para más detalles</span><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div>
+            </button>
           </div>
-          <h4>Diagnóstico</h4>
-          <p>Analizamos tus procesos e identificamos los de mayor impacto para automatizar primero.</p>
-        </div>
-        <div class="paso paso--diseno reveal">
-          <div class="paso-index">step_02</div>
-          <div class="paso-icon">
-            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="9" x2="9" y2="21"/></svg>
+
+          <div class="pf-connector" id="pf-conn-0"><svg viewBox="0 0 28 20" width="28" height="20"><line x1="0" y1="10" x2="18" y2="10" class="pf-conn-line"/><polygon points="28,10 18,5 18,15" class="pf-conn-arrow"/></svg></div>
+
+          <!-- step 1 -->
+          <div class="pf-step" data-pf="1">
+            <button class="pf-card" onclick="pfToggle(1)">
+              <span class="pf-step-num">step_02</span>
+              <div class="pf-card-header">
+                <div class="pf-icon-wrap"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg></div>
+                <h4>Diseño</h4>
+              </div>
+              <div class="pf-visual">
+                <svg viewBox="0 0 180 110" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M45 88 L90 68 L140 88 L95 108 Z" fill="#0093B2" fill-opacity="0.18" stroke="#0093B2" stroke-width="1.2" stroke-opacity="0.5"/>
+                  <text x="88" y="93" fill="#0093B2" font-size="7" font-family="monospace" text-anchor="middle" opacity="0.7">AWS DB</text>
+                  <path d="M45 63 L90 43 L140 63 L95 83 Z" fill="#0093B2" fill-opacity="0.38" stroke="#0093B2" stroke-width="1.2"/>
+                  <text x="90" y="68" fill="white" font-size="7.5" font-family="monospace" text-anchor="middle">API</text>
+                  <path d="M45 38 L90 18 L140 38 L95 58 Z" fill="#0093B2" fill-opacity="0.72" stroke="#0093B2" stroke-width="1.2"/>
+                  <text x="90" y="43" fill="white" font-size="7.5" font-family="monospace" text-anchor="middle">UX</text>
+                  <rect x="140" y="12" width="34" height="14" rx="3" fill="#0093B2" opacity="0.8"/><text x="157" y="22" fill="white" font-size="6.5" font-family="monospace" text-anchor="middle">SLA 99.9%</text>
+                </svg>
+              </div>
+              <p class="pf-desc">Especificaciones técnicas claras con métricas de éxito definidas antes de escribir una línea de código.</p>
+              <div class="pf-badges"><span class="pf-badge">SLA 99.9%</span><span class="pf-badge">Dashboard UX</span></div>
+              <div class="pf-hint"><span>Clic para más detalles</span><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div>
+            </button>
           </div>
-          <h4>Diseño</h4>
-          <p>Especificaciones técnicas claras con métricas de éxito definidas antes de escribir una línea de código.</p>
-        </div>
-        <div class="paso paso--desarrollo reveal">
-          <div class="paso-index">step_03</div>
-          <div class="paso-icon">
-            <svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/><line x1="14" y1="4" x2="10" y2="20"/></svg>
+
+          <div class="pf-connector" id="pf-conn-1"><svg viewBox="0 0 28 20" width="28" height="20"><line x1="0" y1="10" x2="18" y2="10" class="pf-conn-line"/><polygon points="28,10 18,5 18,15" class="pf-conn-arrow"/></svg></div>
+
+          <!-- step 2 -->
+          <div class="pf-step" data-pf="2">
+            <button class="pf-card" onclick="pfToggle(2)">
+              <span class="pf-step-num">step_03</span>
+              <div class="pf-card-header">
+                <div class="pf-icon-wrap"><svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
+                <h4>Desarrollo</h4>
+              </div>
+              <div class="pf-visual">
+                <svg viewBox="0 0 180 110" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M20 58 Q55 18 90 58 Q125 98 160 58" fill="none" stroke="#0093B2" stroke-width="7" stroke-linecap="round" opacity="0.35"/>
+                  <circle cx="40" cy="42" r="13" fill="white" stroke="#0093B2" stroke-width="1.5"/><text x="40" y="46" fill="#0093B2" font-size="7.5" font-family="monospace" text-anchor="middle">Py</text>
+                  <circle cx="90" cy="74" r="13" fill="white" stroke="#0093B2" stroke-width="1.5"/><text x="90" y="78" fill="#0093B2" font-size="6.5" font-family="monospace" text-anchor="middle">AWS</text>
+                  <circle cx="140" cy="42" r="13" fill="white" stroke="#0093B2" stroke-width="1.5"/><text x="140" y="46" fill="#0093B2" font-size="10" font-family="sans-serif" text-anchor="middle">⚛</text>
+                  <path d="M65 95 Q90 105 115 95" fill="none" stroke="#0093B2" stroke-width="1.2" stroke-dasharray="3,3" opacity="0.5"/>
+                  <text x="90" y="108" fill="#64748b" font-size="6.5" font-family="sans-serif" text-anchor="middle">Testing &amp; Feedback</text>
+                </svg>
+              </div>
+              <p class="pf-desc">Construcción iterativa con hitos visibles. 50% al inicio, 50% contra entrega y pruebas exitosas en tu entorno.</p>
+              <div class="pf-badges"><span class="pf-badge">Metodología Ágil</span><span class="pf-badge">CI/CD</span></div>
+              <div class="pf-hint"><span>Clic para más detalles</span><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div>
+            </button>
           </div>
-          <h4>Desarrollo</h4>
-          <p>Construcción iterativa con hitos visibles. 50% al inicio, 50% contra entrega y pruebas exitosas en tu entorno.</p>
-        </div>
-        <div class="paso paso--qa reveal">
-          <div class="paso-index">step_04</div>
-          <div class="paso-icon">
-            <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+
+          <div class="pf-connector" id="pf-conn-2"><svg viewBox="0 0 28 20" width="28" height="20"><line x1="0" y1="10" x2="18" y2="10" class="pf-conn-line"/><polygon points="28,10 18,5 18,15" class="pf-conn-arrow"/></svg></div>
+
+          <!-- step 3 -->
+          <div class="pf-step" data-pf="3">
+            <button class="pf-card" onclick="pfToggle(3)">
+              <span class="pf-step-num">step_04</span>
+              <div class="pf-card-header">
+                <div class="pf-icon-wrap"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/></svg></div>
+                <h4>QA y Testing</h4>
+              </div>
+              <div class="pf-visual">
+                <svg viewBox="0 0 180 110" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="28" y="12" width="124" height="88" rx="8" fill="white" stroke="#0093B2" stroke-width="1.5" stroke-opacity="0.4"/>
+                  <rect x="40" y="24" width="12" height="12" rx="3" fill="#0093B2"/><path d="M43 30 L46 33 L51 27" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><text x="62" y="33" fill="#374151" font-size="8.5" font-family="sans-serif">Unit Tests</text><text x="130" y="33" fill="#0093B2" font-size="7.5" font-family="monospace">PASS</text>
+                  <rect x="40" y="44" width="12" height="12" rx="3" fill="#0093B2"/><path d="M43 50 L46 53 L51 47" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><text x="62" y="53" fill="#374151" font-size="8.5" font-family="sans-serif">Integration</text><text x="130" y="53" fill="#0093B2" font-size="7.5" font-family="monospace">PASS</text>
+                  <rect x="40" y="64" width="12" height="12" rx="3" fill="#0093B2"/><path d="M43 70 L46 73 L51 67" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><text x="62" y="73" fill="#374151" font-size="8.5" font-family="sans-serif">Performance</text><text x="130" y="73" fill="#0093B2" font-size="7.5" font-family="monospace">PASS</text>
+                  <rect x="40" y="84" width="12" height="12" rx="3" fill="#0093B2"/><path d="M43 90 L46 93 L51 87" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><text x="62" y="93" fill="#374151" font-size="8.5" font-family="sans-serif">Security</text><text x="130" y="93" fill="#0093B2" font-size="7.5" font-family="monospace">PASS</text>
+                </svg>
+              </div>
+              <p class="pf-desc">Pruebas automatizadas y revisión funcional antes del lanzamiento. Cero sorpresas en producción.</p>
+              <div class="pf-badges"><span class="pf-badge">Tests Automatizados</span><span class="pf-badge">Zero Defects</span></div>
+              <div class="pf-hint"><span>Clic para más detalles</span><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div>
+            </button>
           </div>
-          <h4>QA y Testing</h4>
-          <p>Pruebas automatizadas y revisión funcional antes del lanzamiento. Cero sorpresas en producción.</p>
-        </div>
-        <div class="paso paso--despliegue reveal">
-          <div class="paso-index">step_05</div>
-          <div class="paso-icon">
-            <svg viewBox="0 0 24 24"><path d="M12 2L12 14"/><path d="M17 9l-5 5-5-5"/><path d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>
+
+          <div class="pf-connector" id="pf-conn-3"><svg viewBox="0 0 28 20" width="28" height="20"><line x1="0" y1="10" x2="18" y2="10" class="pf-conn-line"/><polygon points="28,10 18,5 18,15" class="pf-conn-arrow"/></svg></div>
+
+          <!-- step 4 -->
+          <div class="pf-step" data-pf="4">
+            <button class="pf-card" onclick="pfToggle(4)">
+              <span class="pf-step-num">step_05</span>
+              <div class="pf-card-header">
+                <div class="pf-icon-wrap"><svg viewBox="0 0 24 24"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/><path d="M12 13v6"/><path d="m9 16 3-3 3 3"/></svg></div>
+                <h4>Despliegue</h4>
+              </div>
+              <div class="pf-visual">
+                <svg viewBox="0 0 180 110" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M55 44 Q45 44 45 54 Q35 54 35 64 Q35 74 50 74 L105 74 Q120 74 120 64 Q120 54 110 54 Q110 39 95 39 Q80 29 65 39 Q55 41 55 44" fill="#0093B2" fill-opacity="0.15" stroke="#0093B2" stroke-width="1.8" stroke-opacity="0.5"/>
+                  <path d="M75 54 L75 44" stroke="#0093B2" stroke-width="1.8" stroke-linecap="round" stroke-opacity="0.7"/><path d="M70 49 L75 44 L80 49" stroke="#0093B2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.7"/>
+                  <line x1="58" y1="74" x2="42" y2="93" stroke="#0093B2" stroke-width="1.4" stroke-dasharray="3,3" opacity="0.5"/>
+                  <line x1="78" y1="74" x2="78" y2="93" stroke="#0093B2" stroke-width="1.4" stroke-dasharray="3,3" opacity="0.5"/>
+                  <line x1="98" y1="74" x2="114" y2="93" stroke="#0093B2" stroke-width="1.4" stroke-dasharray="3,3" opacity="0.5"/>
+                  <rect x="30" y="83" width="20" height="22" rx="2" fill="white" stroke="#0093B2" stroke-width="1.4" stroke-opacity="0.6"/>
+                  <rect x="66" y="85" width="22" height="15" rx="2" fill="white" stroke="#0093B2" stroke-width="1.4" stroke-opacity="0.6"/><rect x="63" y="101" width="28" height="3" rx="1" fill="#0093B2" opacity="0.4"/>
+                  <rect x="106" y="83" width="13" height="22" rx="2" fill="white" stroke="#0093B2" stroke-width="1.4" stroke-opacity="0.6"/>
+                  <rect x="133" y="38" width="34" height="15" rx="4" fill="#0093B2" opacity="0.85"/><text x="150" y="49" fill="white" font-size="7" font-family="monospace" text-anchor="middle">24/7</text>
+                </svg>
+              </div>
+              <p class="pf-desc">Producción, capacitación del equipo y soporte continuo desde el primer día de operación.</p>
+              <div class="pf-badges"><span class="pf-badge">Infraestructura Híbrida</span><span class="pf-badge">Soporte 24/7</span></div>
+              <div class="pf-hint"><span>Clic para más detalles</span><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div>
+            </button>
           </div>
-          <h4>Despliegue</h4>
-          <p>Producción, capacitación del equipo y soporte continuo desde el primer día de operación.</p>
+
+        </div><!-- /pf-grid -->
+
+        <!-- Detail panel -->
+        <div class="pf-detail" id="pf-detail">
+          <div class="pf-detail-inner" id="pf-detail-inner"></div>
         </div>
-      </div>
+
+      </div><!-- /pf-flow -->
     </div>
   </section>
 
@@ -3678,6 +4000,82 @@
     setFill(0, 0);
     restartTimer();
   }
+
+  /* ── Interactive Process Flow ── */
+  const PF_STEPS = [
+    {
+      stepNum: 'step_01', title: 'Diagnóstico', icon: 'M11 8v6M8 11h6M21 21l-4.35-4.35', iconCircle: true,
+      badges: ['Análisis RPA', 'Mapeo de procesos'],
+      desc: 'Realizamos un análisis exhaustivo de tus flujos de trabajo actuales, identificando cuellos de botella, tareas repetitivas y oportunidades de optimización. Nuestro equipo evalúa el potencial de automatización en cada proceso.',
+      features: ['Evaluación de procesos actuales', 'Identificación de oportunidades', 'Análisis de ROI potencial', 'Mapeo de flujos de trabajo'],
+    },
+    {
+      stepNum: 'step_02', title: 'Diseño', icon: 'M3 9h18M9 21V9',  iconRect: true,
+      badges: ['SLA 99.9%', 'Dashboard UX'],
+      desc: 'Diseñamos la arquitectura técnica completa incluyendo capas de UX, API y base de datos. Definimos SLAs, métricas de éxito y dashboards de monitoreo antes de iniciar el desarrollo.',
+      features: ['Arquitectura técnica detallada', 'Diseño de APIs robustas', 'Especificaciones de base de datos', 'Métricas de éxito definidas'],
+    },
+    {
+      stepNum: 'step_03', title: 'Desarrollo', icon: 'M16 18l6-6-6-6M8 6L2 12l6 6',
+      badges: ['Metodología Ágil', 'CI/CD'],
+      desc: 'Implementamos tu solución con metodologías ágiles y entregas incrementales. Cada sprint incluye testing integrado y feedback continuo para asegurar que el producto final supere tus expectativas.',
+      features: ['Sprints con entregables visibles', 'Integración continua (CI/CD)', 'Testing automatizado', 'Feedback loop constante'],
+    },
+    {
+      stepNum: 'step_04', title: 'QA y Testing', icon: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10M9 12l2 2 4-4',
+      badges: ['Tests Automatizados', 'Zero Defects'],
+      desc: 'Ejecutamos un riguroso proceso de control de calidad con pruebas unitarias, de integración, rendimiento y seguridad. Validamos cada funcionalidad en entornos que replican tu infraestructura de producción.',
+      features: ['Pruebas unitarias y de integración', 'Testing de rendimiento', 'Validación de seguridad', 'Pruebas en entorno staging'],
+    },
+    {
+      stepNum: 'step_05', title: 'Despliegue', icon: 'M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9ZM12 13v6M9 16l3-3 3 3',
+      badges: ['Infraestructura Híbrida', 'Soporte 24/7'],
+      desc: 'Desplegamos tu solución en infraestructura híbrida (cloud y on-premise). Incluimos capacitación completa para tu equipo y soporte técnico 24/7 desde el día uno.',
+      features: ['Despliegue en infraestructura híbrida', 'Capacitación del equipo', 'Documentación completa', 'Soporte técnico 24/7'],
+    },
+  ];
+
+  let pfActive = null;
+
+  window.pfToggle = function(idx) {
+    pfActive = (pfActive === idx) ? null : idx;
+
+    document.querySelectorAll('.pf-card').forEach((card, i) => {
+      const on = i === pfActive;
+      card.classList.toggle('pf-active', on);
+      const hint = card.querySelector('.pf-hint span');
+      if (hint) hint.textContent = on ? 'Clic para cerrar' : 'Clic para más detalles';
+    });
+
+    document.querySelectorAll('.pf-connector').forEach((conn, i) => {
+      conn.classList.toggle('conn-active', pfActive !== null && (i === pfActive || i === pfActive - 1));
+    });
+
+    const detail = document.getElementById('pf-detail');
+    const inner  = document.getElementById('pf-detail-inner');
+    if (pfActive === null) {
+      detail.classList.remove('pf-open');
+      return;
+    }
+    const s = PF_STEPS[pfActive];
+    inner.innerHTML = `
+      <div class="pf-dl">
+        <div class="pf-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="${s.icon}"/></svg></div>
+        <span class="pf-dl-num">${s.stepNum}</span>
+        <h3 class="pf-dl-title">${s.title}</h3>
+        <div class="pf-dl-badges">${s.badges.map(b => `<span class="pf-dl-badge">${b}</span>`).join('')}</div>
+      </div>
+      <div class="pf-dr">
+        <p class="pf-dr-desc">${s.desc}</p>
+        <div class="pf-dr-features">${s.features.map(f => `<div class="pf-dr-feat"><span class="pf-feat-dot"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>${f}</div>`).join('')}</div>
+      </div>
+      <button class="pf-close-btn" onclick="pfToggle(${pfActive})" aria-label="Cerrar">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    `;
+    detail.classList.add('pf-open');
+    setTimeout(() => detail.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
+  };
 
   /* ── Fancy text reveal on scroll ── */
   function initFancyText() {

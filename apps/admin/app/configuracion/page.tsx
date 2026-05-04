@@ -7,17 +7,17 @@ import { createClient } from '@/lib/supabase'
 // ---- Texture section definitions ----
 
 const TEXTURE_TARGETS = [
-  { id: 'navbar',        label: 'Barra superior (Navbar)' },
-  { id: 'hero',          label: 'Hero' },
-  { id: 'sincon',        label: 'Antes / Después' },
-  { id: 'producto',      label: 'Servicios (Globe)' },
-  { id: 'proceso',       label: 'Cómo Trabajamos' },
-  { id: 'testimonios',   label: 'Testimonios' },
+  { id: 'navbar',          label: 'Barra superior (Navbar)' },
+  { id: 'hero',            label: 'Hero' },
+  { id: 'nosotros',        label: 'Quiénes Somos' },
+  { id: 'proceso',         label: 'Cómo Trabajamos' },
+  { id: 'producto',        label: 'Nuestros Servicios' },
+  { id: 'sincon',          label: 'Stack Tecnológico' },
+  { id: 'testimonios',     label: 'Testimonios' },
   { id: 'diferenciadores', label: 'Por qué Elegirnos' },
-  { id: 'nosotros',      label: 'Quiénes Somos' },
-  { id: 'legal',         label: 'Cumplimiento Legal' },
-  { id: 'faq',           label: 'FAQ' },
-  { id: 'contacto',      label: 'Contacto' },
+  { id: 'legal',           label: 'Cumplimiento Legal' },
+  { id: 'faq',             label: 'FAQ' },
+  { id: 'contacto',        label: 'Contacto' },
 ]
 
 // Per-element color targets for each section
@@ -26,6 +26,7 @@ const ELEMENT_TARGETS: Record<string, Array<{ key: string; label: string }>> = {
     { key: 'brand_color',         label: 'Nombre empresa (SUSTENTA FUTURO)' },
     { key: 'links_color',         label: 'Links de navegación (Nosotros, Proceso)' },
     { key: 'cta_color',           label: 'Botón Conversemos' },
+    { key: 'text_color',          label: 'Color de texto global' },
   ],
   hero: [
     { key: 'h1_color',            label: 'Título — "Potencia tu operación."' },
@@ -33,56 +34,63 @@ const ELEMENT_TARGETS: Record<string, Array<{ key: string; label: string }>> = {
     { key: 'p_color',             label: 'Párrafo de descripción' },
     { key: 'badge_color',         label: 'Badge (Sustenta Futuro)' },
     { key: 'cta_primary_color',   label: 'Botón Conversemos' },
-    { key: 'cta_secondary_color', label: 'Botón Explorar' },
-  ],
-  sincon: [
-    { key: 'label_color',  label: 'Label (Antes / Después)' },
-    { key: 'title_color',  label: 'Título' },
-    { key: 'sub_color',    label: 'Párrafo introductorio' },
-    { key: 'sin_color',    label: 'Columna "Sin Sustenta Futuro"' },
-    { key: 'con_color',    label: 'Columna "Con Sustenta Futuro"' },
-  ],
-  producto: [
-    { key: 'label_color',  label: 'Label (Nuestros Servicios)' },
-    { key: 'title_color',  label: 'Título' },
-    { key: 'sub_color',    label: 'Subtítulo' },
-    { key: 'cards_color',  label: 'Tarjetas de servicios' },
-  ],
-  proceso: [
-    { key: 'label_color',  label: 'Label (Cómo trabajamos)' },
-    { key: 'title_color',  label: 'Título' },
-    { key: 'sub_color',    label: 'Subtítulo' },
-    { key: 'steps_color',  label: 'Pasos (Diagnóstico, Diseño, etc.)' },
-  ],
-  testimonios: [
-    { key: 'label_color',  label: 'Label (Clientes)' },
-    { key: 'title_color',  label: 'Título' },
-    { key: 'sub_color',    label: 'Subtítulo' },
-    { key: 'cards_color',  label: 'Tarjetas de testimonios' },
-  ],
-  diferenciadores: [
-    { key: 'label_color',  label: 'Label (Por qué elegirnos)' },
-    { key: 'title_color',  label: 'Título' },
-    { key: 'sub_color',    label: 'Subtítulo' },
-    { key: 'items_color',  label: 'Items de diferenciadores' },
+    { key: 'cta_secondary_color', label: 'Botón Servicios' },
+    { key: 'text_color',          label: 'Color de texto global' },
   ],
   nosotros: [
     { key: 'label_color',      label: 'Label (Quiénes somos)' },
     { key: 'title_color',      label: 'Título (h2)' },
     { key: 'paragraphs_color', label: 'Párrafos' },
     { key: 'name_color',       label: 'Nombre del fundador' },
+    { key: 'text_color',       label: 'Color de texto global' },
+  ],
+  proceso: [
+    { key: 'label_color',  label: 'Label (Cómo trabajamos)' },
+    { key: 'title_color',  label: 'Título' },
+    { key: 'sub_color',    label: 'Subtítulo' },
+    { key: 'steps_color',  label: 'Pasos (Diagnóstico, Diseño, etc.)' },
+    { key: 'text_color',   label: 'Color de texto global' },
+  ],
+  producto: [
+    { key: 'label_color',  label: 'Label (Nuestros Servicios)' },
+    { key: 'title_color',  label: 'Título' },
+    { key: 'sub_color',    label: 'Subtítulo' },
+    { key: 'cards_color',  label: 'Tarjetas de servicios' },
+    { key: 'text_color',   label: 'Color de texto global' },
+  ],
+  sincon: [
+    { key: 'label_color',  label: 'Label (Stack Tecnológico)' },
+    { key: 'title_color',  label: 'Título' },
+    { key: 'sub_color',    label: 'Subtítulo' },
+    { key: 'text_color',   label: 'Color de texto global' },
+  ],
+  testimonios: [
+    { key: 'label_color',  label: 'Label (Clientes)' },
+    { key: 'title_color',  label: 'Título' },
+    { key: 'sub_color',    label: 'Subtítulo' },
+    { key: 'cards_color',  label: 'Tarjetas de testimonios' },
+    { key: 'text_color',   label: 'Color de texto global' },
+  ],
+  diferenciadores: [
+    { key: 'label_color',  label: 'Label (Por qué elegirnos)' },
+    { key: 'title_color',  label: 'Título' },
+    { key: 'sub_color',    label: 'Subtítulo' },
+    { key: 'items_color',  label: 'Items de diferenciadores' },
+    { key: 'text_color',   label: 'Color de texto global' },
   ],
   legal: [
     { key: 'label_color',  label: 'Label (Cumplimiento Legal)' },
     { key: 'title_color',  label: 'Título' },
     { key: 'sub_color',    label: 'Subtítulo' },
     { key: 'cards_color',  label: 'Tarjetas legales' },
+    { key: 'text_color',   label: 'Color de texto global' },
   ],
   faq: [
     { key: 'label_color',     label: 'Label (Preguntas frecuentes)' },
     { key: 'title_color',     label: 'Título' },
     { key: 'questions_color', label: 'Preguntas' },
     { key: 'answers_color',   label: 'Respuestas' },
+    { key: 'text_color',      label: 'Color de texto global' },
   ],
   contacto: [
     { key: 'label_color',       label: 'Label (Contacto)' },
@@ -91,6 +99,7 @@ const ELEMENT_TARGETS: Record<string, Array<{ key: string; label: string }>> = {
     { key: 'benefits_color',    label: 'Lista de beneficios (checks)' },
     { key: 'form_title_color',  label: 'Título del formulario' },
     { key: 'form_labels_color', label: 'Labels del formulario' },
+    { key: 'text_color',        label: 'Color de texto global' },
   ],
 }
 
@@ -345,6 +354,10 @@ export default function ConfiguracionPage() {
   const avatarInputRefs = useRef<(HTMLInputElement | null)[]>([null, null, null])
   const [uploadingAvatar, setUploadingAvatar] = useState<Record<number, boolean>>({})
 
+  // Testimonial company logo upload refs
+  const companyInputRefs = useRef<(HTMLInputElement | null)[]>([null, null, null])
+  const [uploadingCompany, setUploadingCompany] = useState<Record<number, boolean>>({})
+
   // Texture upload state: key = `${sectionId}_${mapType}`
   const [uploadingTexture, setUploadingTexture] = useState<Record<string, boolean>>({})
   const colorSaveTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({})
@@ -508,6 +521,30 @@ export default function ConfiguracionPage() {
       }
     } finally {
       setUploadingPhoto(false)
+    }
+  }
+
+  async function handleCompanyLogoUpload(n: number, file: File) {
+    setUploadingCompany((p) => ({ ...p, [n]: true }))
+    try {
+      const supabase = createClient()
+      const ext = file.name.split('.').pop() ?? 'png'
+      const filename = `company-logo-${n}-${Date.now()}.${ext}`
+      const { error: uploadError } = await supabase.storage
+        .from('landing-images')
+        .upload(filename, file, { upsert: true })
+      if (uploadError) {
+        alert(`Error al subir logo: ${uploadError.message}`)
+        return
+      }
+      const { data: urlData } = supabase.storage
+        .from('landing-images')
+        .getPublicUrl(filename)
+      if (urlData?.publicUrl) {
+        set('testimonios', `tc_${n}_company_url`, urlData.publicUrl)
+      }
+    } finally {
+      setUploadingCompany((p) => ({ ...p, [n]: false }))
     }
   }
 
@@ -852,14 +889,17 @@ export default function ConfiguracionPage() {
                 'tc_1_name',
                 'tc_1_role',
                 'tc_1_photo_url',
+                'tc_1_company_url',
                 'tc_2_text',
                 'tc_2_name',
                 'tc_2_role',
                 'tc_2_photo_url',
+                'tc_2_company_url',
                 'tc_3_text',
                 'tc_3_name',
                 'tc_3_role',
                 'tc_3_photo_url',
+                'tc_3_company_url',
               ])
             }
             saving={!!saving['testimonios']}
@@ -968,6 +1008,67 @@ export default function ConfiguracionPage() {
                     accept="image/*"
                     className="hidden"
                     onChange={(e) => { const f = e.target.files?.[0]; if (f) handleAvatarPhotoUpload(n, f) }}
+                  />
+                </div>
+                {/* Company logo */}
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs" style={LABEL_STYLE}>
+                    Logo de la empresa (reemplaza el ícono por defecto)
+                  </label>
+                  <div className="flex gap-2 items-center">
+                    <div
+                      className="rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center"
+                      style={{
+                        width: '42px',
+                        height: '42px',
+                        border: '1px solid rgba(255,255,255,0.08)',
+                        background: get('testimonios', `tc_${n}_company_url`) ? 'transparent' : '#111',
+                      }}
+                    >
+                      {get('testimonios', `tc_${n}_company_url`) ? (
+                        <img src={get('testimonios', `tc_${n}_company_url`)} alt="" className="w-full h-full object-contain" />
+                      ) : (
+                        <span style={{ color: 'rgba(240,240,240,0.25)', fontSize: '10px' }}>logo</span>
+                      )}
+                    </div>
+                    <div className="flex flex-col gap-1.5 flex-1 min-w-0">
+                      <input
+                        type="text"
+                        value={get('testimonios', `tc_${n}_company_url`)}
+                        readOnly
+                        placeholder="Sin logo"
+                        className="rounded-lg px-3 py-1.5 text-xs outline-none w-full truncate"
+                        style={{ ...INPUT_STYLE, color: 'rgba(240,240,240,0.45)' }}
+                      />
+                      <div className="flex gap-1.5">
+                        <button
+                          type="button"
+                          disabled={!!uploadingCompany[n]}
+                          onClick={() => companyInputRefs.current[n - 1]?.click()}
+                          className="rounded-md px-2.5 py-1 text-xs transition-opacity hover:opacity-70 disabled:opacity-40"
+                          style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(240,240,240,0.7)' }}
+                        >
+                          {uploadingCompany[n] ? 'Subiendo...' : 'Subir logo'}
+                        </button>
+                        {get('testimonios', `tc_${n}_company_url`) && (
+                          <button
+                            type="button"
+                            onClick={() => set('testimonios', `tc_${n}_company_url`, '')}
+                            className="rounded-md px-2.5 py-1 text-xs transition-opacity hover:opacity-70"
+                            style={{ background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.15)', color: '#f87171' }}
+                          >
+                            Quitar
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <input
+                    ref={(el) => { companyInputRefs.current[n - 1] = el }}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => { const f = e.target.files?.[0]; if (f) handleCompanyLogoUpload(n, f) }}
                   />
                 </div>
               </div>

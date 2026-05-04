@@ -128,6 +128,18 @@ export async function POST(): Promise<Response> {
         continue
       }
 
+      // Testimonial company logo: inject img or skip (keep default SVG icon)
+      if (row.section === 'testimonios' && row.key.match(/^tc_(\d)_company_url$/)) {
+        const m = row.key.match(/^tc_(\d)_company_url$/)!
+        const n = parseInt(m[1])
+        const cmsKey = `testimonios-tc_${n}_company`
+        if (value) {
+          const imgTag = `<img src="${value}" alt="" style="width:100%;height:100%;object-fit:contain;border-radius:4px;display:block;" />`
+          html = applyCms(html, cmsKey, imgTag)
+        }
+        continue
+      }
+
       // Founder photo: skip if empty (keep SVG placeholder), inject img if URL present
       if (row.section === 'nosotros' && row.key === 'founder_photo_url') {
         if (value) {

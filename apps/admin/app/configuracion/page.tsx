@@ -358,6 +358,11 @@ export default function ConfiguracionPage() {
   const companyInputRefs = useRef<(HTMLInputElement | null)[]>([null, null, null])
   const [uploadingCompany, setUploadingCompany] = useState<Record<number, boolean>>({})
 
+  // Logo and service image uploads
+  const logoInputRef = useRef<HTMLInputElement>(null)
+  const [uploadingLogo, setUploadingLogo] = useState(false)
+  const [uploadingSvcImg, setUploadingSvcImg] = useState<Record<number, boolean>>({})
+
   // Texture upload state: key = `${sectionId}_${mapType}`
   const [uploadingTexture, setUploadingTexture] = useState<Record<string, boolean>>({})
   const colorSaveTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({})
@@ -572,6 +577,54 @@ export default function ConfiguracionPage() {
     }
   }
 
+  async function handleLogoUpload(file: File) {
+    setUploadingLogo(true)
+    try {
+      const supabase = createClient()
+      const ext = file.name.split('.').pop() ?? 'webp'
+      const filename = `logo-${Date.now()}.${ext}`
+      const { error: uploadError } = await supabase.storage
+        .from('landing-images')
+        .upload(filename, file, { upsert: true })
+      if (uploadError) {
+        alert(`Error al subir logo: ${uploadError.message}`)
+        return
+      }
+      const { data: urlData } = supabase.storage
+        .from('landing-images')
+        .getPublicUrl(filename)
+      if (urlData?.publicUrl) {
+        set('marca', 'logo_url', urlData.publicUrl)
+      }
+    } finally {
+      setUploadingLogo(false)
+    }
+  }
+
+  async function handleSvcImgUpload(n: number, file: File) {
+    setUploadingSvcImg((p) => ({ ...p, [n]: true }))
+    try {
+      const supabase = createClient()
+      const ext = file.name.split('.').pop() ?? 'webp'
+      const filename = `servicio-${n}-${Date.now()}.${ext}`
+      const { error: uploadError } = await supabase.storage
+        .from('landing-images')
+        .upload(filename, file, { upsert: true })
+      if (uploadError) {
+        alert(`Error al subir imagen: ${uploadError.message}`)
+        return
+      }
+      const { data: urlData } = supabase.storage
+        .from('landing-images')
+        .getPublicUrl(filename)
+      if (urlData?.publicUrl) {
+        set('producto', `svc_${n}_img_url`, urlData.publicUrl)
+      }
+    } finally {
+      setUploadingSvcImg((p) => ({ ...p, [n]: false }))
+    }
+  }
+
   async function handleTextureUpload(sectionId: string, mapType: string, file: File) {
     const key = `${sectionId}_${mapType}`
     setUploadingTexture((p) => ({ ...p, [key]: true }))
@@ -740,6 +793,54 @@ export default function ConfiguracionPage() {
         )}
 
         <div className="flex flex-col gap-6">
+          {/* ---- MARCA ---- */}
+          <SectionCard
+            title="Marca"
+            onSave={() => saveSection('marca', ['logo_url'])}
+            saving={!!saving['marca']}
+            saved={!!saved['marca']}
+          >
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs" style={LABEL_STYLE}>
+                Logo del sitio (navbar y footer) — vacío usa logo-full.webp por defecto
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={get('marca', 'logo_url')}
+                  onChange={(e) => set('marca', 'logo_url', e.target.value)}
+                  className="rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-[#4B9BF5]/40 flex-1"
+                  style={INPUT_STYLE}
+                  placeholder="https://..."
+                />
+                <button
+                  type="button"
+                  disabled={uploadingLogo}
+                  onClick={() => logoInputRef.current?.click()}
+                  className="rounded-lg px-3 py-2 text-sm transition-opacity hover:opacity-70 disabled:opacity-40 whitespace-nowrap"
+                  style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(240,240,240,0.7)' }}
+                >
+                  {uploadingLogo ? 'Subiendo...' : 'Subir logo'}
+                </button>
+                <input
+                  ref={logoInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => { const f = e.target.files?.[0]; if (f) handleLogoUpload(f) }}
+                />
+              </div>
+              {get('marca', 'logo_url') && (
+                <img
+                  src={get('marca', 'logo_url')}
+                  alt="Vista previa"
+                  className="mt-1 rounded-lg object-contain"
+                  style={{ height: '40px', background: '#111', border: '1px solid rgba(255,255,255,0.08)', padding: '4px' }}
+                />
+              )}
+            </div>
+          </SectionCard>
+
           {/* ---- HERO ---- */}
           <SectionCard
             title="Hero"
@@ -1074,6 +1175,39 @@ export default function ConfiguracionPage() {
               </div>
             ))}
           </SectionCard>
+          {/* ---- SERVICIOS — IMÁGENES ---- */}
+          <SectionCard
+            title="Nuestros Servicios — Imágenes"
+            onSave={() =>
+              saveSection('producto', [
+                'svc_0_img_url',
+                'svc_1_img_url',
+                'svc_2_img_url',
+                'svc_3_img_url',
+                'svc_4_img_url',
+              ])
+            }
+            saving={!!saving['producto']}
+            saved={!!saved['producto']}
+          >
+            {([
+              { n: 0, label: 'Diseño y Desarrollo Web' },
+              { n: 1, label: 'Desarrollo de Software' },
+              { n: 2, label: 'Aplicaciones Móviles' },
+              { n: 3, label: 'Automatizaciones' },
+              { n: 4, label: 'Chatbots y Landing Pages' },
+            ]).map(({ n, label }) => (
+              <TextureSlot
+                key={n}
+                label={label}
+                url={get('producto', `svc_${n}_img_url`)}
+                uploading={!!uploadingSvcImg[n]}
+                onUpload={(file) => handleSvcImgUpload(n, file)}
+                onClear={() => set('producto', `svc_${n}_img_url`, '')}
+              />
+            ))}
+          </SectionCard>
+
           {/* ---- TEXTURAS ---- */}
           <div
             className="rounded-xl border p-6"

@@ -162,6 +162,32 @@ export async function POST(): Promise<Response> {
         continue
       }
 
+      // Site logo: apply to both navbar and footer markers
+      if (row.section === 'marca' && row.key === 'logo_url') {
+        const src = value || 'logo-full.webp'
+        html = applyCms(html, 'marca-logo_navbar', `<img class="logo" src="${src}" alt="Sustenta Futuro" />`)
+        html = applyCms(html, 'marca-logo_footer', `<img class="logo-footer" src="${src}" alt="Sustenta Futuro" />`)
+        continue
+      }
+
+      // Service card images: inject img or fallback to original asset
+      if (row.section === 'producto' && row.key.match(/^svc_(\d)_img_url$/)) {
+        const m = row.key.match(/^svc_(\d)_img_url$/)!
+        const n = parseInt(m[1])
+        const defaults = [
+          'img/diseño web.webp',
+          'img/desarrollo de software.webp',
+          'img/apps moviles.webp',
+          'img/automatizaciones.webp',
+          'img/chatbots y landing.webp',
+        ]
+        const src = value || (defaults[n] ?? '')
+        if (src) {
+          html = applyCms(html, `producto-svc_${n}_img`, `<img src="${src}" alt="" loading="lazy" />`)
+        }
+        continue
+      }
+
       // Metric nums: skip — managed in code, not editable via CMS
       if (row.section === 'metrics' && row.key.endsWith('_num')) {
         continue

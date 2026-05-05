@@ -128,7 +128,7 @@ export async function POST(): Promise<Response> {
         continue
       }
 
-      // Testimonial company logo: inject img or skip (keep default SVG icon)
+      // Testimonial company logo: inject img or revert to default SVG icon when cleared
       if (row.section === 'testimonios' && row.key.match(/^tc_(\d)_company_url$/)) {
         const m = row.key.match(/^tc_(\d)_company_url$/)!
         const n = parseInt(m[1])
@@ -136,15 +136,28 @@ export async function POST(): Promise<Response> {
         if (value) {
           const imgTag = `<img src="${value}" alt="" style="width:100%;height:100%;object-fit:contain;border-radius:4px;display:block;" />`
           html = applyCms(html, cmsKey, imgTag)
+        } else {
+          const svgDefault = `<svg viewBox="0 0 24 24" fill="none" stroke="#0093B2" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="1"/><path d="M16 7V5a2 2 0 00-4 0v2"/><path d="M8 12h.01M12 12h.01M16 12h.01M8 16h.01M12 16h.01M16 16h.01"/></svg>`
+          html = applyCms(html, cmsKey, svgDefault)
         }
         continue
       }
 
-      // Founder photo: skip if empty (keep SVG placeholder), inject img if URL present
+      // Founder photo: skip if empty (keep SVG placeholder), inject img if URL present.
+      // nosotros-founder_name markers are nested INSIDE nosotros-founder_photo, so we
+      // must re-embed them in the replacement to prevent losing them on publish.
       if (row.section === 'nosotros' && row.key === 'founder_photo_url') {
         if (value) {
-          const imgTag = `<img src="${value}" alt="Héctor Molt" style="width:200px;height:200px;object-fit:cover;border-radius:12px;" />`
-          html = applyCms(html, 'nosotros-founder_photo', imgTag)
+          const founderName = configRows.find(
+            (r) => r.section === 'nosotros' && r.key === 'founder_name'
+          )?.value ?? ''
+          const nameContent = founderName
+            ? `<span>${founderName.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span>`
+            : ''
+          const replacement =
+            `<img src="${value}" alt="Héctor Molt" style="width:200px;height:200px;object-fit:cover;border-radius:12px;" />\n            ` +
+            `<!-- CMS:nosotros-founder_name:START -->${nameContent}<!-- CMS:nosotros-founder_name:END -->`
+          html = applyCms(html, 'nosotros-founder_photo', replacement)
         }
         continue
       }

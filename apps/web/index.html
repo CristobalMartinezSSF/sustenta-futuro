@@ -3036,7 +3036,7 @@
         <div class="vs-stage">
           <div class="vs-slide" data-svc="0" data-pos="0">
             <div class="vs-slide__inner">
-              <div class="vs-svc-img"><!-- CMS:producto-svc_0_img:START --><img src="img/diseño web.webp" alt="" loading="lazy" /><!-- CMS:producto-svc_0_img:END --></div>
+              <div class="vs-svc-img"><!-- CMS:producto-svc_0_img:START --><img src="img/diseño web.webp" alt="" loading="lazy" draggable="false" /><!-- CMS:producto-svc_0_img:END --></div>
               <div class="vs-svc-body">
                 <div class="vs-svc-header">
                   <div class="vs-svc-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
@@ -3048,7 +3048,7 @@
           </div>
           <div class="vs-slide" data-svc="1" data-pos="1">
             <div class="vs-slide__inner">
-              <div class="vs-svc-img"><!-- CMS:producto-svc_1_img:START --><img src="img/desarrollo de software.webp" alt="" loading="lazy" /><!-- CMS:producto-svc_1_img:END --></div>
+              <div class="vs-svc-img"><!-- CMS:producto-svc_1_img:START --><img src="img/desarrollo de software.webp" alt="" loading="lazy" draggable="false" /><!-- CMS:producto-svc_1_img:END --></div>
               <div class="vs-svc-body">
                 <div class="vs-svc-header">
                   <div class="vs-svc-icon"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/><polyline points="10 8 14 12 10 16"/></svg></div>
@@ -3060,7 +3060,7 @@
           </div>
           <div class="vs-slide" data-svc="2" data-pos="2">
             <div class="vs-slide__inner">
-              <div class="vs-svc-img"><!-- CMS:producto-svc_2_img:START --><img src="img/apps moviles.webp" alt="" loading="lazy" /><!-- CMS:producto-svc_2_img:END --></div>
+              <div class="vs-svc-img"><!-- CMS:producto-svc_2_img:START --><img src="img/apps moviles.webp" alt="" loading="lazy" draggable="false" /><!-- CMS:producto-svc_2_img:END --></div>
               <div class="vs-svc-body">
                 <div class="vs-svc-header">
                   <div class="vs-svc-icon"><svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div>
@@ -3072,7 +3072,7 @@
           </div>
           <div class="vs-slide" data-svc="3" data-pos="-2">
             <div class="vs-slide__inner">
-              <div class="vs-svc-img"><!-- CMS:producto-svc_3_img:START --><img src="img/automatizaciones.webp" alt="" loading="lazy" /><!-- CMS:producto-svc_3_img:END --></div>
+              <div class="vs-svc-img"><!-- CMS:producto-svc_3_img:START --><img src="img/automatizaciones.webp" alt="" loading="lazy" draggable="false" /><!-- CMS:producto-svc_3_img:END --></div>
               <div class="vs-svc-body">
                 <div class="vs-svc-header">
                   <div class="vs-svc-icon"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
@@ -3084,7 +3084,7 @@
           </div>
           <div class="vs-slide" data-svc="4" data-pos="-1">
             <div class="vs-slide__inner">
-              <div class="vs-svc-img"><!-- CMS:producto-svc_4_img:START --><img src="img/chatbots y landing.webp" alt="" loading="lazy" /><!-- CMS:producto-svc_4_img:END --></div>
+              <div class="vs-svc-img"><!-- CMS:producto-svc_4_img:START --><img src="img/chatbots y landing.webp" alt="" loading="lazy" draggable="false" /><!-- CMS:producto-svc_4_img:END --></div>
               <div class="vs-svc-body">
                 <div class="vs-svc-header">
                   <div class="vs-svc-icon"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/><path d="M8 10h.01"/><path d="M12 10h.01"/><path d="M16 10h.01"/></svg></div>
@@ -3912,6 +3912,7 @@
     let dragStartX = 0, dragDeltaX = 0, dragActive = false;
 
     stage.addEventListener('mousedown', (e) => {
+      e.preventDefault();
       dragStartX = e.clientX;
       dragDeltaX = 0;
       isDragging = false;

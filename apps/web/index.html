@@ -2662,19 +2662,20 @@
       overflow: hidden;
       background: transparent;
       border: none;
-      color: #D4DEE5;
+      color: #fff;
       font-weight: 700;
       font-size: 0.82rem;
       letter-spacing: 0.03em;
       text-decoration: none;
       cursor: pointer;
       z-index: 0;
-      --shimmer-color: rgba(45, 165, 45, 0.9);
+      --shimmer-color: rgba(255, 255, 255, 0.85);
+      --btn-bg: #2DA52D;
       --speed: 3s;
       --cut: 1.5px;
       box-shadow:
-        0 0 6px  rgba(45, 165, 45, 0.22),
-        0 0 18px rgba(45, 165, 45, 0.08);
+        0 0 6px  rgba(45, 165, 45, 0.25),
+        0 0 18px rgba(45, 165, 45, 0.10);
       transition: box-shadow 400ms ease, transform 0.15s ease;
     }
     .btn-shimmer span { color: inherit; position: relative; z-index: 1; }
@@ -2682,12 +2683,16 @@
     @media (hover: hover) and (pointer: fine) {
       .btn-shimmer:hover {
         box-shadow:
-          0 0 8px  rgba(45, 165, 45, 0.65),
-          0 0 24px rgba(45, 165, 45, 0.30),
-          0 0 52px rgba(45, 165, 45, 0.12);
+          0 0 8px  rgba(45, 165, 45, 0.55),
+          0 0 24px rgba(45, 165, 45, 0.28),
+          0 0 52px rgba(45, 165, 45, 0.10);
       }
     }
-    .btn-shimmer:active { transform: translateY(1px); }
+    .btn-shimmer:active {
+      --btn-bg: #1e7a1e;
+      transform: scale(0.96) translateY(1px);
+      box-shadow: 0 0 4px rgba(45, 165, 45, 0.15);
+    }
 
     /* Capa giratoria — conic-gradient continuo */
     .btn-shimmer::before {
@@ -2708,14 +2713,15 @@
       will-change: transform;
     }
 
-    /* Fondo interior que forma el borde visible */
+    /* Fondo interior verde — cambia con --btn-bg en :active */
     .btn-shimmer::after {
       content: '';
       position: absolute;
       inset: var(--cut);
       border-radius: 100px;
-      background: rgba(18, 28, 34, 0.94);
+      background: var(--btn-bg);
       z-index: -1;
+      transition: background 150ms ease;
     }
 
     @keyframes btn-spin-continuous {

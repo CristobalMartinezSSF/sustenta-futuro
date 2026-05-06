@@ -2843,6 +2843,203 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
+
+    /* ═══════════════════════════════════════════
+       MOBILE — max-width: 768px
+    ═══════════════════════════════════════════ */
+
+    /* ── Hamburger button ── */
+    .nav-hamburger {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      gap: 5px;
+      width: 38px; height: 38px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 10px;
+      cursor: pointer;
+      padding: 9px;
+      z-index: 201;
+      flex-shrink: 0;
+    }
+    .nav-hamburger span {
+      display: block;
+      height: 1.5px;
+      background: #D4DEE5;
+      border-radius: 2px;
+      transition: transform 320ms ease, opacity 320ms ease;
+      transform-origin: center;
+    }
+    .nav-hamburger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+    .nav-hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .nav-hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+    @media (max-width: 768px) {
+
+      /* ── Global ── */
+      html { scroll-snap-type: none; }
+      section {
+        min-height: auto;
+        padding: 5rem 0 3.5rem;
+        scroll-snap-align: none;
+        display: block;
+      }
+      #contacto { scroll-snap-align: none; }
+      .container { padding: 0 6%; }
+
+      /* ── Nav ── */
+      .nav-wrap { padding: 0.85rem 5%; }
+      .nav-hamburger { display: flex; }
+
+      .nav-links {
+        display: flex;
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.25rem;
+        background: rgba(8, 14, 18, 0.97);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        z-index: 198;
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(-12px);
+        transition: opacity 320ms ease, transform 320ms ease;
+      }
+      .nav-links.open {
+        opacity: 1;
+        pointer-events: all;
+        transform: translateY(0);
+      }
+      .nav-links a {
+        font-family: 'Montserrat', sans-serif;
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #D4DEE5;
+        letter-spacing: 0.02em;
+        padding: 0.85rem 2rem;
+        border-radius: 12px;
+        transition: background 180ms ease, color 180ms ease;
+        width: 80vw;
+        text-align: center;
+      }
+      .nav-links a:hover { background: rgba(255,255,255,0.06); }
+      .nav-cta.btn-shimmer {
+        margin-top: 1.5rem !important;
+        padding: 1rem 3rem !important;
+        font-size: 1rem !important;
+        width: auto !important;
+      }
+
+      /* ── Hero ── */
+      #hero {
+        min-height: 100dvh;
+        display: flex;
+        align-items: center;
+        padding: 7rem 6% 3rem;
+      }
+      #hero h1 { font-size: clamp(2rem, 9vw, 2.8rem); }
+      #hero p   { font-size: 0.95rem; max-width: 100%; }
+      .hero-actions { flex-direction: column; align-items: center; gap: 0.85rem; }
+      .hero-actions a { width: 100%; justify-content: center; }
+      .hero-float-stat { display: none; }
+      .hero-badge { font-size: 0.65rem; }
+
+      /* ── Nosotros ── */
+      .nosotros-grid { grid-template-columns: 1fr; gap: 2rem; }
+      .nosotros-text h2 { font-size: clamp(1.8rem, 7vw, 2.4rem); }
+      .nosotros-placeholder { aspect-ratio: 3/2; }
+
+      /* ── Proceso ── */
+      .pf-grid { flex-direction: column; gap: 0.6rem; }
+      .pf-step { flex: none; width: 100%; }
+      .pf-connector { display: none; }
+      .pf-visual { height: clamp(80px, 22vw, 120px); }
+      .pf-detail-inner { flex-direction: column; gap: 1.2rem; }
+      .pf-dl { width: 100%; }
+      .pf-dr-features { grid-template-columns: 1fr; }
+
+      /* ── Producto (voyage slider) ── */
+      .vs-stage {
+        width: 92vw;
+        height: clamp(280px, 85vw, 380px);
+      }
+      .vs-slide {
+        width: min(52vw, 190px);
+        margin-left: calc(min(52vw, 190px) / -2);
+        margin-top: calc(min(52vw, 190px) * 1.5 / -2);
+      }
+      .vs-slide[data-pos="0"]  { transform: translateX(0) rotateY(0deg) scale(1.15); }
+      .vs-slide[data-pos="1"]  { transform: translateX(calc(min(52vw, 190px) * 1.05)) rotateY(-35deg) scale(0.92); }
+      .vs-slide[data-pos="-1"] { transform: translateX(calc(min(52vw, 190px) * -1.05)) rotateY(35deg) scale(0.92); }
+      .vs-slide[data-pos="2"]  { transform: translateX(calc(min(52vw, 190px) * 2.0)) rotateY(-55deg) scale(0.75); opacity: 0.6; }
+      .vs-slide[data-pos="-2"] { transform: translateX(calc(min(52vw, 190px) * -2.0)) rotateY(55deg) scale(0.75); opacity: 0.6; }
+
+      /* ── Testimonios ── */
+      .tc-card { padding: 1.4rem 1.2rem 1.6rem; }
+      .tc-body { flex-direction: column; gap: 1rem; align-items: flex-start; }
+      .tc-person-photo { width: 60px; height: 60px; }
+      .tc-stage { min-height: clamp(280px, 70vw, 380px); }
+
+      /* ── Diferenciadores ── */
+      .dif-grid { grid-template-columns: 1fr; gap: 1.4rem 0; }
+
+      /* ── Legal ── */
+      .legal-grid { grid-template-columns: 1fr; }
+      .legal-fancy-row { gap: 0.75rem 1.5rem; }
+
+      /* ── FAQ ── */
+      .faq-header { margin-bottom: 2rem; }
+      .faq-question { padding: 1.1rem 1.2rem; font-size: 0.9rem; }
+      .faq-answer-inner { padding: 0 1.2rem 1.1rem; }
+
+      /* ── Contacto ── */
+      .contacto-inner {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+      .form-row { grid-template-columns: 1fr; gap: 0; }
+      .form-card { padding: 1.6rem; }
+
+      /* ── Footer ── */
+      .footer-inner {
+        flex-direction: column;
+        gap: 1.8rem;
+        margin-bottom: 1.8rem;
+        padding-bottom: 1.8rem;
+      }
+      .footer-bottom {
+        flex-direction: column;
+        gap: 0.4rem;
+        text-align: center;
+        font-size: 0.7rem;
+      }
+      footer img.logo-footer { height: clamp(50px, 10vw, 72px); }
+
+      /* ── Stack tecnológico ── */
+      .ls-stage { height: 160px; }
+
+      /* ── Section titles ── */
+      .section-title { font-size: clamp(1.6rem, 6.5vw, 2.2rem); }
+      .section-sub   { font-size: 0.9rem; margin-bottom: 2rem; }
+
+      /* ── Scroll vine ── */
+      .scroll-vine { display: none; }
+    }
+
+    /* ── Small phones: 480px ── */
+    @media (max-width: 480px) {
+      #hero h1 { font-size: clamp(1.8rem, 10vw, 2.4rem); }
+      .nav-links a { font-size: 1.3rem; }
+      .tc-card { padding: 1.2rem 1rem 1.4rem; }
+      .tc-text { font-size: 0.88rem; }
+      .form-card { padding: 1.2rem; }
+      .pf-card { padding: 1rem 0.9rem; }
+    }
+
   </style>
 </head>
 <body>
@@ -2853,10 +3050,13 @@
       <a class="nav-brand" href="#hero" aria-label="Sustenta Futuro — inicio">
         <!-- CMS:marca-logo_navbar:START --><img class="logo" src="logo-full.webp" alt="Sustenta Futuro" /><!-- CMS:marca-logo_navbar:END -->
       </a>
-      <div class="nav-links">
-        <a href="#nosotros">Nosotros</a>
-        <a href="#proceso">Proceso</a>
-        <a href="#contacto" class="nav-cta btn-shimmer"><span>Conversemos</span></a>
+      <button class="nav-hamburger" id="nav-hamburger" aria-label="Abrir menú" aria-expanded="false" onclick="toggleMobileNav()">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="nav-links" id="nav-links">
+        <a href="#nosotros" onclick="closeMobileNav()">Nosotros</a>
+        <a href="#proceso" onclick="closeMobileNav()">Proceso</a>
+        <a href="#contacto" class="nav-cta btn-shimmer" onclick="closeMobileNav()"><span>Conversemos</span></a>
       </div>
     </nav>
   </div>
@@ -3575,6 +3775,26 @@
   </footer>
 
   <script>
+    // ── Mobile nav toggle ──
+    function toggleMobileNav() {
+      const btn   = document.getElementById('nav-hamburger');
+      const links = document.getElementById('nav-links');
+      const open  = btn.classList.toggle('open');
+      btn.setAttribute('aria-expanded', open);
+      links.classList.toggle('open', open);
+      document.body.style.overflow = open ? 'hidden' : '';
+    }
+    function closeMobileNav() {
+      const btn   = document.getElementById('nav-hamburger');
+      const links = document.getElementById('nav-links');
+      btn.classList.remove('open');
+      btn.setAttribute('aria-expanded', 'false');
+      links.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    // Close on Escape key
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMobileNav(); });
+
     // ── IntersectionObserver: reveal + counter ──
     const revealObserver = new IntersectionObserver(entries => {
       entries.forEach(entry => {

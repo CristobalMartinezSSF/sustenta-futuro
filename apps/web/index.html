@@ -37,7 +37,7 @@
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    html { scroll-snap-type: y proximity; }
+    html { scroll-snap-type: y proximity; font-size: clamp(14px, 1.481vw, 20px); }
     body { zoom: 1; }
     #navbar { zoom: 1; }
     .hero-float-stat { zoom: 0.8; }
@@ -123,9 +123,9 @@
     }
 
     nav img.logo {
-      height: 72px;
+      height: clamp(50px, 6.67vw, 100px);
       object-fit: contain;
-      margin-block: -18px;
+      margin-block: clamp(-25px, -1.667vw, -10px);
     }
 
     .nav-links {
@@ -189,19 +189,19 @@
     }
 
     .orb-green {
-      width: 800px; height: 800px;
+      width: clamp(400px, 74.07vw, 1200px); height: clamp(400px, 74.07vw, 1200px);
       top: -220px; left: -180px;
       background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 65%);
     }
 
     .orb-orange {
-      width: 500px; height: 500px;
+      width: clamp(250px, 46.3vw, 800px); height: clamp(250px, 46.3vw, 800px);
       bottom: -100px; right: 10%;
       background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 65%);
     }
 
     .orb-blue {
-      width: 400px; height: 400px;
+      width: clamp(200px, 37.04vw, 600px); height: clamp(200px, 37.04vw, 600px);
       top: 30%; right: 30%;
       background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 65%);
     }
@@ -904,7 +904,7 @@
     }
 
     .pf-visual {
-      height: 110px;
+      height: clamp(70px, 10.19vw, 160px);
       border-radius: 10px;
       background: #F2F5F7;
       overflow: hidden;
@@ -1007,7 +1007,7 @@
       gap: 2rem;
     }
     .pf-dl {
-      flex-shrink: 0; width: 190px;
+      flex-shrink: 0; width: clamp(120px, 17.59vw, 280px);
     }
     .pf-dl .pf-icon-wrap { background: #0093B2; margin-bottom: 0.75rem; }
     .pf-dl .pf-icon-wrap svg { stroke: #fff; }
@@ -1316,7 +1316,7 @@
     }
 
     footer img.logo-footer {
-      height: 84px;
+      height: clamp(60px, 7.78vw, 120px);
       object-fit: contain;
       display: block;
       margin-bottom: 0.8rem;
@@ -1627,7 +1627,7 @@
       overflow: hidden;
       border-radius: 20px;
       position: relative;
-      min-height: 320px;
+      min-height: clamp(200px, 29.63vw, 480px);
     }
 
     .tc-card {
@@ -1851,7 +1851,7 @@
       display: flex;
       gap: 10px;
       width: 100%;
-      height: 420px;
+      height: clamp(260px, 38.89vw, 640px);
     }
 
     .exp-card {
@@ -2063,7 +2063,7 @@
     /* ─────────────────── SCROLL VINE ─────────────────── */
     .scroll-vine {
       position: fixed;
-      left: 22px;
+      left: clamp(12px, 2.04vw, 32px);
       top: 0;
       width: 1px;
       height: 100vh;

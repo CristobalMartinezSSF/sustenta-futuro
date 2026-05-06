@@ -864,8 +864,8 @@
     }
 
     .pf-card.pf-active {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 1px var(--accent), 0 8px 32px rgba(0,147,178,0.18);
+      border-color: #0093B2;
+      box-shadow: 0 0 0 1px #0093B2, 0 8px 32px rgba(0,147,178,0.18);
     }
 
     .pf-step-num {
@@ -884,12 +884,12 @@
     .pf-icon-wrap {
       width: 34px; height: 34px;
       border-radius: 10px;
-      background: var(--accent);
+      background: #0093B2;
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
       transition: background 220ms ease;
     }
-    .pf-card.pf-active .pf-icon-wrap { background: var(--accent); }
+    .pf-card.pf-active .pf-icon-wrap { background: #006d85; }
     .pf-icon-wrap svg {
       width: 17px; height: 17px;
       stroke: #fff; fill: none;
@@ -943,13 +943,13 @@
     .pf-badge {
       font-size: 0.62rem; font-weight: 600;
       padding: 0.18rem 0.5rem; border-radius: 999px;
-      background: rgba(0,147,178,0.07);
-      color: var(--text-subtle);
+      background: rgba(0,147,178,0.15);
+      color: #455A64;
       transition: background 220ms, color 220ms;
     }
     .pf-card.pf-active .pf-badge {
-      background: rgba(0,147,178,0.14);
-      color: var(--accent);
+      background: #0093B2;
+      color: #fff;
     }
 
     .pf-hint {
@@ -976,10 +976,10 @@
     }
     .pf-conn-arrow { fill: #C8D3D8; transition: fill 300ms; }
     .pf-connector.conn-active .pf-conn-line {
-      stroke: var(--accent);
+      stroke: #0093B2;
       animation: pf-dash 0.7s linear infinite;
     }
-    .pf-connector.conn-active .pf-conn-arrow { fill: var(--accent); }
+    .pf-connector.conn-active .pf-conn-arrow { fill: #0093B2; }
     @keyframes pf-dash { to { stroke-dashoffset: -14; } }
 
     /* Detail panel */
@@ -1009,7 +1009,7 @@
     .pf-dl {
       flex-shrink: 0; width: 190px;
     }
-    .pf-dl .pf-icon-wrap { background: var(--accent); margin-bottom: 0.75rem; }
+    .pf-dl .pf-icon-wrap { background: #0093B2; margin-bottom: 0.75rem; }
     .pf-dl .pf-icon-wrap svg { stroke: #fff; }
     .pf-dl-num {
       font-family: 'JetBrains Mono', monospace;
@@ -1024,7 +1024,7 @@
     .pf-dl-badge {
       font-size: 0.62rem; font-weight: 600;
       padding: 0.18rem 0.5rem; border-radius: 999px;
-      background: var(--accent); color: #fff;
+      background: #0093B2; color: #fff;
     }
     .pf-dr { flex: 1; }
     .pf-dr-desc {
@@ -1043,7 +1043,7 @@
       border-radius: 50%; background: rgba(0,147,178,0.1);
       display: flex; align-items: center; justify-content: center;
     }
-    .pf-feat-dot svg { width: 9px; height: 9px; stroke: var(--accent); fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+    .pf-feat-dot svg { width: 9px; height: 9px; stroke: #0093B2; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
     .pf-close-btn {
       position: absolute; top: 1rem; right: 1rem;
       width: 26px; height: 26px; border-radius: 50%;
@@ -1704,7 +1704,7 @@
       font-family: 'Montserrat', sans-serif;
       font-size: 3.5rem;
       line-height: 0.6;
-      color: var(--accent);
+      color: #0093B2;
       opacity: 0.35;
       font-weight: 900;
       margin-bottom: 0.4rem;
@@ -1739,7 +1739,7 @@
       font-family: 'Montserrat', sans-serif;
       font-size: 0.78rem;
       font-weight: 800;
-      color: var(--accent);
+      color: #0093B2;
       position: absolute;
       top: 50%; left: 50%;
       transform: translate(-50%, -50%);
@@ -1826,7 +1826,7 @@
     .tc-dot {
       width: 6px; height: 6px;
       border-radius: 50%;
-      background: rgba(255,255,255,0.38);
+      background: rgba(0,147,178,0.25);
       border: none;
       cursor: pointer;
       padding: 0;
@@ -1834,7 +1834,7 @@
     }
 
     .tc-dot.active {
-      background: var(--accent);
+      background: #0093B2;
       width: 18px;
       border-radius: 3px;
       transform: none;
@@ -2255,7 +2255,7 @@
       transition: transform 280ms var(--ease-out), stroke 200ms;
     }
 
-    .faq-item.open .faq-icon { transform: rotate(45deg); stroke: var(--cta); }
+    .faq-item.open .faq-icon { transform: rotate(45deg); stroke: #0093B2; }
 
     .faq-answer {
       max-height: 0;

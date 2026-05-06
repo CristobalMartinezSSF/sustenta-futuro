@@ -908,25 +908,24 @@
       background: #F2F5F7;
       overflow: hidden;
       display: flex; align-items: center; justify-content: center;
-      position: relative;
     }
-    .pf-visual::after {
+    .pf-visual svg { width: 100%; height: 100%; }
+    .pf-card::after {
       content: '';
       position: absolute;
       inset: 0;
       background: rgba(0, 93, 133, 0.52);
       transition: opacity 200ms ease;
-      border-radius: 10px;
+      border-radius: 16px;
       pointer-events: none;
     }
-    .pf-card:active .pf-visual::after {
+    .pf-card:active::after {
       opacity: 0;
     }
     .pf-card:active {
       transform: translateY(-7px);
       box-shadow: 0 14px 36px rgba(0,147,178,0.22);
     }
-    .pf-visual svg { width: 100%; height: 100%; }
 
     .pf-desc {
       font-size: 0.76rem; color: var(--text-muted);

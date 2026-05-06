@@ -2882,10 +2882,12 @@
       .container { padding: 0 6%; }
 
       /* ── Nav ── */
-      .nav-wrap { padding: 0.6rem 4%; }
-      nav { padding: 0.4rem 0.4rem 0.4rem 0.9rem; }
-      nav img.logo { height: 34px; margin-block: -4px; }
-      .nav-hamburger { display: flex; }
+      .nav-wrap { padding: 0.5rem 4%; }
+      nav { padding: 0.3rem 0.3rem 0.3rem 0.75rem; }
+      nav img.logo { height: 26px; margin-block: 0; }
+      .nav-hamburger { display: flex; width: 30px; height: 30px; padding: 7px; }
+      .nav-hamburger.open span:nth-child(1) { transform: translateY(5px) rotate(45deg); }
+      .nav-hamburger.open span:nth-child(3) { transform: translateY(-5px) rotate(-45deg); }
 
       .nav-links {
         display: flex;

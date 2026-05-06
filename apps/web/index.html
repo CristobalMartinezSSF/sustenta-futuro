@@ -2887,49 +2887,25 @@
       .nav-wrap { padding: 0.5rem 4%; }
       nav { padding: 0.3rem 0.3rem 0.3rem 0.75rem; }
       nav img.logo { height: 26px; margin-block: 0; }
-      .nav-hamburger { display: flex; width: 30px; height: 30px; padding: 7px; }
-      .nav-hamburger.open span:nth-child(1) { transform: translateY(5px) rotate(45deg); }
-      .nav-hamburger.open span:nth-child(3) { transform: translateY(-5px) rotate(-45deg); }
+      .nav-hamburger { display: none; }
 
       .nav-links {
         display: flex;
-        position: fixed;
-        top: 0; left: 0; right: 0; bottom: 0;
-        flex-direction: column;
+        position: static;
+        flex-direction: row;
         align-items: center;
-        justify-content: center;
-        gap: 0.25rem;
-        background: rgba(8, 14, 18, 0.97);
-        backdrop-filter: blur(24px);
-        -webkit-backdrop-filter: blur(24px);
-        z-index: 198;
-        opacity: 0;
-        pointer-events: none;
-        transform: translateY(-12px);
-        transition: opacity 320ms ease, transform 320ms ease;
-      }
-      .nav-links.open {
+        background: none;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
         opacity: 1;
         pointer-events: all;
-        transform: translateY(0);
+        transform: none;
       }
-      .nav-links a {
-        font-family: 'Montserrat', sans-serif;
-        font-size: 1.5rem;
-        font-weight: 600;
-        color: #D4DEE5;
-        letter-spacing: 0.02em;
-        padding: 0.85rem 2rem;
-        border-radius: 12px;
-        transition: background 180ms ease, color 180ms ease;
-        width: 80vw;
-        text-align: center;
-      }
-      .nav-links a:hover { background: rgba(255,255,255,0.06); }
+      .nav-links a:not(.nav-cta) { display: none; }
       .nav-cta.btn-shimmer {
-        margin-top: 1.5rem !important;
-        padding: 1rem 3rem !important;
-        font-size: 1rem !important;
+        margin-top: 0 !important;
+        padding: 0.5rem 1.1rem !important;
+        font-size: 0.78rem !important;
         width: auto !important;
       }
 

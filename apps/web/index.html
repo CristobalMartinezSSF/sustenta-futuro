@@ -4360,8 +4360,11 @@
 
     const detail = document.getElementById('pf-detail');
     const inner  = document.getElementById('pf-detail-inner');
+    const flow   = document.querySelector('.pf-flow');
+
     if (pfActive === null) {
       detail.classList.remove('pf-open');
+      if (detail.parentElement !== flow) flow.appendChild(detail);
       return;
     }
     const s = PF_STEPS[pfActive];
@@ -4380,6 +4383,15 @@
         <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     `;
+
+    // On mobile: move the panel right after the clicked card
+    if (window.innerWidth <= 768) {
+      const clickedStep = document.querySelector(`.pf-step[data-pf="${pfActive}"]`);
+      clickedStep.after(detail);
+    } else if (detail.parentElement !== flow) {
+      flow.appendChild(detail);
+    }
+
     detail.classList.add('pf-open');
     setTimeout(() => detail.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
   };

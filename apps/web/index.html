@@ -310,9 +310,130 @@
     }
 
     .hero-actions {
-      flex-direction: column;
+      flex-direction: row;
       align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    /* ─────────────────── LOGO ANIMATION ─────────────────── */
+    .logo-scene {
+      position: relative;
       flex-shrink: 0;
+      width: clamp(280px, 28vw, 440px);
+      height: clamp(280px, 28vw, 440px);
+      background: radial-gradient(ellipse at center, #1a1a1a 0%, #050505 100%);
+      border-radius: 16px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo-scene .stars {
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.5), transparent),
+        radial-gradient(1px 1px at 60% 70%, rgba(255,255,255,0.3), transparent),
+        radial-gradient(1.5px 1.5px at 80% 20%, rgba(255,255,255,0.4), transparent),
+        radial-gradient(1px 1px at 30% 80%, rgba(255,255,255,0.3), transparent),
+        radial-gradient(1px 1px at 90% 50%, rgba(255,255,255,0.5), transparent),
+        radial-gradient(1px 1px at 10% 60%, rgba(255,255,255,0.4), transparent),
+        radial-gradient(1px 1px at 45% 15%, rgba(255,255,255,0.3), transparent),
+        radial-gradient(1px 1px at 75% 85%, rgba(255,255,255,0.4), transparent);
+      animation: logo-twinkle 4s ease-in-out infinite alternate;
+    }
+    @keyframes logo-twinkle { from { opacity: 0.4; } to { opacity: 0.9; } }
+
+    .logo-scene .stage {
+      position: relative;
+      width: 80%;
+      height: 80%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo-scene svg.logo-svg { width: 100%; height: 100%; overflow: visible; }
+
+    .logo-scene .triangle {
+      transform-origin: 50% 50%;
+      transform-box: fill-box;
+      animation: logo-triangleFly 1.6s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+    }
+    @keyframes logo-triangleFly {
+      0%   { transform: translate(-420px, 320px) rotate(-50deg) scale(0.3); opacity: 0; }
+      35%  { opacity: 1; }
+      65%  { transform: translate(-45px, 35px) rotate(-7deg) scale(1.06); opacity: 1; }
+      78%  { transform: translate(14px, -10px) rotate(3deg) scale(0.97); }
+      90%  { transform: translate(-4px, 3px) rotate(-1deg) scale(1.01); }
+      100% { transform: translate(0, 0) rotate(0) scale(1); }
+    }
+
+    .logo-scene .greenbar {
+      transform-origin: 50% 50%;
+      transform-box: fill-box;
+      animation: logo-barFall 1.6s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+    }
+    @keyframes logo-barFall {
+      0%   { transform: translate(300px, -420px) rotate(40deg) scale(0.4); opacity: 0; }
+      35%  { opacity: 1; }
+      65%  { transform: translate(22px, -32px) rotate(7deg) scale(1.08); opacity: 1; }
+      78%  { transform: translate(-13px, 13px) rotate(-2deg) scale(0.97); }
+      90%  { transform: translate(4px, -3px) rotate(0.5deg) scale(1.01); }
+      100% { transform: translate(0, 0) rotate(0) scale(1); }
+    }
+
+    .logo-scene .shockwave {
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.9);
+      transform: translate(-50%, -50%);
+      opacity: 0;
+      animation: logo-shockwave 0.8s ease-out 1.55s forwards;
+      pointer-events: none;
+    }
+    @keyframes logo-shockwave {
+      0%   { width: 20px; height: 20px; opacity: 0; border-width: 3px; }
+      20%  { opacity: 1; }
+      100% { width: 540px; height: 540px; opacity: 0; border-width: 0.5px; }
+    }
+    .logo-scene .shockwave-2 { animation-delay: 1.65s; border-color: rgba(0, 158, 225, 0.7); }
+    .logo-scene .shockwave-3 { animation-delay: 1.75s; border-color: rgba(58, 169, 51, 0.7); }
+
+    .logo-scene .flash {
+      position: absolute; inset: 0;
+      background: radial-gradient(circle at center, rgba(255,255,255,0.7) 0%, transparent 50%);
+      opacity: 0;
+      animation: logo-flash 0.4s ease-out 1.55s forwards;
+      pointer-events: none;
+    }
+    @keyframes logo-flash { 0% { opacity: 0; } 30% { opacity: 1; } 100% { opacity: 0; } }
+
+    .logo-scene .particle {
+      position: absolute; top: 50%; left: 50%;
+      border-radius: 50%; opacity: 0; pointer-events: none;
+    }
+    @keyframes logo-particleFly {
+      0%   { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+      20%  { opacity: 1; }
+      100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0.2); opacity: 0; }
+    }
+
+    .logo-scene .final-glow {
+      position: absolute; inset: 0;
+      border-radius: 16px;
+      box-shadow: inset 0 0 80px rgba(255,255,255,0);
+      animation: logo-finalGlow 1.5s ease-out 1.6s forwards;
+      pointer-events: none;
+    }
+    @keyframes logo-finalGlow {
+      0%   { box-shadow: inset 0 0 0 rgba(255,255,255,0); }
+      20%  { box-shadow: inset 0 0 100px rgba(255,255,255,0.15); }
+      100% { box-shadow: inset 0 0 60px rgba(255,255,255,0.04); }
     }
 
     /* ─────────────────── HERO STAT BUBBLES ─────────────────── */
@@ -2931,6 +3052,7 @@
       .hero-actions { flex-direction: column; align-items: center; gap: 0.85rem; }
       .hero-actions a { width: 100%; justify-content: center; }
       .hero-float-stat { display: none; }
+      .logo-scene { display: none; }
       .hero-badge { font-size: 0.65rem; }
 
       /* ── Nosotros ── */
@@ -3074,10 +3196,31 @@
   organizaciones se enfoquen exclusivamente en la innovación y su crecimiento sostenible.
         </p><!-- CMS:hero-description:END -->
 
+        <div class="hero-actions">
+          <a href="#contacto" class="btn-primary btn-shimmer"><span>Conversemos</span></a>
+          <a href="#producto" class="btn-secondary">Servicios</a>
+        </div>
       </div>
-      <div class="hero-actions">
-        <a href="#contacto" class="btn-primary btn-shimmer"><span>Conversemos</span></a>
-        <a href="#producto" class="btn-secondary">Servicios</a>
+
+      <!-- Logo animation -->
+      <div class="logo-scene" id="logoScene">
+        <div class="stars"></div>
+        <div class="flash"></div>
+        <div class="stage">
+          <svg class="logo-svg" viewBox="0 0 380 360" xmlns="http://www.w3.org/2000/svg">
+            <g class="triangle">
+              <path d="M 243 104 Q 253 94, 253 108 L 253 336 Q 253 346, 243 346 L 20 346 Q 0 346, 14 332 Z" fill="#009EE1"/>
+            </g>
+            <g class="greenbar">
+              <path d="M 268 90 Q 268 75, 280 65 L 333 9 Q 343 0, 353 4 Q 360 8, 360 18 L 360 336 Q 360 346, 350 346 L 278 346 Q 268 346, 268 336 Z" fill="#3AA933"/>
+            </g>
+          </svg>
+          <div class="shockwave"></div>
+          <div class="shockwave shockwave-2"></div>
+          <div class="shockwave shockwave-3"></div>
+          <div class="particles-container"></div>
+        </div>
+        <div class="final-glow"></div>
       </div>
     </div>
 
@@ -4998,6 +5141,39 @@
     }
   })();
   </script>
+
+<script>
+(function() {
+  const scene = document.getElementById('logoScene');
+  if (!scene) return;
+
+  function spawnParticlesIn(sceneEl) {
+    const container = sceneEl.querySelector('.particles-container');
+    if (!container) return;
+    container.innerHTML = '';
+    const colors = ['#009EE1', '#3AA933', '#ffffff', '#009EE1', '#3AA933'];
+    const N = 20;
+    for (let i = 0; i < N; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      const angle = (Math.PI * 2 * i) / N + (Math.random() - 0.5) * 0.5;
+      const dist  = 90 + Math.random() * 100;
+      const dx = Math.cos(angle) * dist;
+      const dy = Math.sin(angle) * dist;
+      const size = 3 + Math.random() * 5;
+      p.style.width  = size + 'px';
+      p.style.height = size + 'px';
+      p.style.background = colors[i % colors.length];
+      p.style.animation = 'logo-particleFly 0.9s cubic-bezier(0.16, 1, 0.3, 1) ' + (1.55 + Math.random()*0.05) + 's forwards';
+      p.style.setProperty('--dx', dx + 'px');
+      p.style.setProperty('--dy', dy + 'px');
+      container.appendChild(p);
+    }
+  }
+
+  spawnParticlesIn(scene);
+})();
+</script>
 
 </body>
 </html>

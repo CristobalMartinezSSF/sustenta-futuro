@@ -287,7 +287,7 @@
       flex-direction: column;
       align-items: center;
       text-align: center;
-      max-width: 860px;
+      max-width: 1100px;
       width: 100%;
       margin: 0 auto;
     }
@@ -299,7 +299,7 @@
       transform: translateY(-10%);
     }
 
-    #hero h1 { font-size: clamp(3rem, 6.5vw, 5.2rem); }
+    #hero h1 { font-size: clamp(2.6rem, 4.8vw, 4rem); white-space: nowrap; }
 
     #hero p {
       text-align: center;
@@ -2916,7 +2916,7 @@
         align-items: center;
         padding: 7rem 6% 3rem;
       }
-      #hero h1 { font-size: clamp(2rem, 9vw, 2.8rem); }
+      #hero h1 { font-size: clamp(2rem, 9vw, 2.8rem); white-space: normal; }
       #hero p   { font-size: 0.95rem; max-width: 100%; }
       .hero-actions { flex-direction: column; align-items: center; gap: 0.85rem; }
       .hero-actions a { width: 100%; justify-content: center; }
@@ -3007,7 +3007,7 @@
 
     /* ── Small phones: 480px ── */
     @media (max-width: 480px) {
-      #hero h1 { font-size: clamp(1.8rem, 10vw, 2.4rem); }
+      #hero h1 { font-size: clamp(1.8rem, 10vw, 2.4rem); white-space: normal; }
       .nav-links a { font-size: 1.3rem; }
       .tc-card { padding: 1.2rem 1rem 1.4rem; }
       .tc-text { font-size: 0.88rem; }

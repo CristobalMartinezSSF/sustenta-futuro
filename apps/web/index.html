@@ -279,15 +279,15 @@
       animation: fadeUp 600ms var(--ease-out) both 420ms;
     }
 
-    /* ─────────────────── HERO CENTERED ─────────────────── */
+    /* ─────────────────── HERO SPLIT LAYOUT ─────────────────── */
     .hero-inner {
       position: relative;
       z-index: 3;
       display: flex;
-      flex-direction: column;
       align-items: center;
-      text-align: center;
-      max-width: 1100px;
+      justify-content: space-between;
+      gap: 3rem;
+      max-width: 1200px;
       width: 100%;
       margin: 0 auto;
     }
@@ -295,16 +295,21 @@
     .hero-content {
       display: flex;
       flex-direction: column;
-      align-items: center;
-      transform: translateY(-10%);
+      align-items: flex-start;
+      text-align: left;
+      flex: 1;
     }
 
     #hero h1 { font-size: clamp(2.6rem, 4.8vw, 4rem); white-space: nowrap; }
 
     #hero p {
-      text-align: center;
-      margin-left: auto;
-      margin-right: auto;
+      text-align: left;
+    }
+
+    .hero-actions {
+      flex-direction: column;
+      align-items: center;
+      flex-shrink: 0;
     }
 
     /* ─────────────────── HERO STAT BUBBLES ─────────────────── */
@@ -2916,8 +2921,10 @@
         align-items: center;
         padding: 7rem 6% 3rem;
       }
+      .hero-inner { flex-direction: column; text-align: center; }
+      .hero-content { align-items: center; text-align: center; }
       #hero h1 { font-size: clamp(2rem, 9vw, 2.8rem); white-space: normal; }
-      #hero p   { font-size: 0.95rem; max-width: 100%; }
+      #hero p   { font-size: 0.95rem; max-width: 100%; text-align: center; }
       .hero-actions { flex-direction: column; align-items: center; gap: 0.85rem; }
       .hero-actions a { width: 100%; justify-content: center; }
       .hero-float-stat { display: none; }
@@ -3064,10 +3071,10 @@
   organizaciones se enfoquen exclusivamente en la innovación y su crecimiento sostenible.
         </p><!-- CMS:hero-description:END -->
 
-        <div class="hero-actions">
-          <a href="#contacto" class="btn-primary btn-shimmer"><span>Conversemos</span></a>
-          <a href="#producto" class="btn-secondary">Servicios</a>
-        </div>
+      </div>
+      <div class="hero-actions">
+        <a href="#contacto" class="btn-primary btn-shimmer"><span>Conversemos</span></a>
+        <a href="#producto" class="btn-secondary">Servicios</a>
       </div>
     </div>
 

@@ -37,8 +37,8 @@
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    html { scroll-snap-type: y proximity; font-size: clamp(14px, 1.481vw, 20px); }
-    body { zoom: 1; }
+    html { scroll-snap-type: y mandatory; font-size: clamp(14px, 1.481vw, 20px); }
+    body { }
     #navbar { zoom: 1; }
     .hero-float-stat { zoom: 0.8; }
 
@@ -71,7 +71,6 @@
       --glass-blur:     blur(18px) saturate(1.2);
     }
 
-    html { scroll-behavior: smooth; }
 
     body {
       font-family: 'Inter', sans-serif;
@@ -81,7 +80,6 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    html { overflow-x: hidden; }
 
     h1,h2,h3,h4 { font-family: 'Montserrat', sans-serif; color: #617F8A; /* Pantone 7543 */ }
 

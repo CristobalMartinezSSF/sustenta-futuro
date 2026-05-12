@@ -2326,6 +2326,13 @@
 
     .faq-header { margin-bottom: 3rem; }
 
+    .faq-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      align-items: start;
+    }
+
     .faq-list {
       display: flex;
       flex-direction: column;
@@ -3085,6 +3092,7 @@
       .legal-fancy-row { gap: 0.75rem 1.5rem; }
 
       /* ── FAQ ── */
+      .faq-grid { grid-template-columns: 1fr; }
       .faq-header { margin-bottom: 2rem; }
       .faq-question { padding: 1.1rem 1.2rem; font-size: 0.9rem; }
       .faq-answer-inner { padding: 0 1.2rem 1.1rem; }
@@ -3697,68 +3705,72 @@
         <span class="section-label reveal">Preguntas frecuentes</span>
         <h2 class="section-title reveal">Resolvemos tus<br />dudas antes de empezar</h2>
       </div>
-      <div class="faq-list reveal">
-        <div class="faq-item">
-          <button class="faq-question" aria-expanded="false">
-            ¿Cuánto cuesta implementar una automatización?
-            <svg class="faq-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          </button>
-          <div class="faq-answer">
-            <div class="faq-answer-inner">El costo varía según el alcance y la complejidad. Nuestro proceso comienza con una evaluación detallada para definir un plan de implementación. Trabajamos con un modelo de 50% al inicio del proyecto y 50% contra entrega y pruebas exitosas en tu entorno.</div>
+      <div class="faq-grid reveal">
+        <div class="faq-list">
+          <div class="faq-item">
+            <button class="faq-question" aria-expanded="false">
+              ¿Cuánto cuesta implementar una automatización?
+              <svg class="faq-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">El costo varía según el alcance y la complejidad. Nuestro proceso comienza con una evaluación detallada para definir un plan de implementación. Trabajamos con un modelo de 50% al inicio del proyecto y 50% contra entrega y pruebas exitosas en tu entorno.</div>
+            </div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-question" aria-expanded="false">
+              ¿Cuánto tiempo tarda la implementación?
+              <svg class="faq-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">Un desarrollo a medida puede tomar entre 6 y 12 semanas dependiendo de la complejidad. Definimos plazos realistas desde la evaluación inicial, con hitos visibles y entregas parciales para que tengas control total del avance.</div>
+            </div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-question" aria-expanded="false">
+              ¿Necesito cambiar mis sistemas actuales?
+              <svg class="faq-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">No. Nuestras soluciones se integran con los sistemas que ya usas — ERP, correo corporativo, portales web, archivos Excel o PDF — sin modificar tu infraestructura existente. La automatización se adapta a tu flujo, no al revés.</div>
+            </div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-question" aria-expanded="false">
+              ¿Qué pasa si la automatización falla en producción?
+              <svg class="faq-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">Contamos con monitoreo continuo y un SLA del 99% de uptime. Ante cualquier incidencia respondemos en menos de 4 horas hábiles. Cada acción ejecutada queda registrada en logs auditables para diagnóstico inmediato.</div>
+            </div>
           </div>
         </div>
-        <div class="faq-item">
-          <button class="faq-question" aria-expanded="false">
-            ¿Cuánto tiempo tarda la implementación?
-            <svg class="faq-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          </button>
-          <div class="faq-answer">
-            <div class="faq-answer-inner">Un desarrollo a medida puede tomar entre 6 y 12 semanas dependiendo de la complejidad. Definimos plazos realistas desde la evaluación inicial, con hitos visibles y entregas parciales para que tengas control total del avance.</div>
+        <div class="faq-list">
+          <div class="faq-item">
+            <button class="faq-question" aria-expanded="false">
+              ¿Mis datos y los de mis clientes están seguros?
+              <svg class="faq-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">Sí. Operamos bajo Ley 19.628 de protección de datos personales y firmamos NDA y DPA con cada cliente. Ofrecemos despliegue on-premise o en la nube con región en Chile. Tus datos no salen del país sin tu autorización explícita.</div>
+            </div>
           </div>
-        </div>
-        <div class="faq-item">
-          <button class="faq-question" aria-expanded="false">
-            ¿Necesito cambiar mis sistemas actuales?
-            <svg class="faq-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          </button>
-          <div class="faq-answer">
-            <div class="faq-answer-inner">No. Nuestras soluciones se integran con los sistemas que ya usas — ERP, correo corporativo, portales web, archivos Excel o PDF — sin modificar tu infraestructura existente. La automatización se adapta a tu flujo, no al revés.</div>
+          <div class="faq-item">
+            <button class="faq-question" aria-expanded="false">
+              ¿Puedo pedir cambios después de la implementación?
+              <svg class="faq-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">Sí. Las actualizaciones y mejoras están incluidas durante toda la relación comercial, sin costos adicionales sorpresa. Si tu proceso cambia, adaptamos la automatización para que siga funcionando correctamente.</div>
+            </div>
           </div>
-        </div>
-        <div class="faq-item">
-          <button class="faq-question" aria-expanded="false">
-            ¿Qué pasa si la automatización falla en producción?
-            <svg class="faq-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          </button>
-          <div class="faq-answer">
-            <div class="faq-answer-inner">Contamos con monitoreo continuo y un SLA del 99% de uptime. Ante cualquier incidencia respondemos en menos de 4 horas hábiles. Cada acción ejecutada queda registrada en logs auditables para diagnóstico inmediato.</div>
-          </div>
-        </div>
-        <div class="faq-item">
-          <button class="faq-question" aria-expanded="false">
-            ¿Mis datos y los de mis clientes están seguros?
-            <svg class="faq-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          </button>
-          <div class="faq-answer">
-            <div class="faq-answer-inner">Sí. Operamos bajo Ley 19.628 de protección de datos personales y firmamos NDA y DPA con cada cliente. Ofrecemos despliegue on-premise o en la nube con región en Chile. Tus datos no salen del país sin tu autorización explícita.</div>
-          </div>
-        </div>
-        <div class="faq-item">
-          <button class="faq-question" aria-expanded="false">
-            ¿Puedo pedir cambios después de la implementación?
-            <svg class="faq-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          </button>
-          <div class="faq-answer">
-            <div class="faq-answer-inner">Sí. Las actualizaciones y mejoras están incluidas durante toda la relación comercial, sin costos adicionales sorpresa. Si tu proceso cambia, adaptamos la automatización para que siga funcionando correctamente.</div>
-          </div>
-        </div>
-        <div class="faq-item">
-          <button class="faq-question" aria-expanded="false">
-            ¿Trabajan con empresas de cualquier tamaño y rubro?
-            <svg class="faq-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          </button>
-          <div class="faq-answer">
-            <div class="faq-answer-inner">Sí. Trabajamos con empresas medianas y grandes de distintos rubros. Si tienes un proceso repetitivo que quieres automatizar, podemos ayudarte — independiente del sector o tamaño de tu organización.</div>
+          <div class="faq-item">
+            <button class="faq-question" aria-expanded="false">
+              ¿Trabajan con empresas de cualquier tamaño y rubro?
+              <svg class="faq-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">Sí. Trabajamos con empresas medianas y grandes de distintos rubros. Si tienes un proceso repetitivo que quieres automatizar, podemos ayudarte — independiente del sector o tamaño de tu organización.</div>
+            </div>
           </div>
         </div>
       </div>

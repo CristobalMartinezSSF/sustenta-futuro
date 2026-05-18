@@ -1878,6 +1878,23 @@
     /* ─────────────────── TESTIMONIOS ─────────────────── */
     #testimonios { background: var(--bg-1); padding-top: 3rem; }
 
+    .testimonios-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+      align-items: center;
+    }
+
+    .testimonios-text {
+      padding-right: 3%;
+    }
+
+    .testimonios-text .section-label,
+    .testimonios-text .section-title,
+    .testimonios-text .section-sub {
+      text-align: left;
+    }
+
     .tc-wrapper {
       position: relative;
     }
@@ -2412,6 +2429,8 @@
     @media (max-width: 900px) {
       .nosotros-grid { grid-template-columns: 1fr; gap: 3rem; }
       .nosotros-stats { flex-wrap: wrap; gap: 1.5rem; }
+      .testimonios-grid { grid-template-columns: 1fr; gap: 2rem; }
+      .testimonios-text { order: -1; padding-right: 0; }
     }
 
     /* ─────────────────── SIN/CON ─────────────────── */
@@ -3201,6 +3220,10 @@
       /* ── Nosotros ── */
       .nosotros-grid { grid-template-columns: 1fr; gap: 2rem; }
       .nosotros-text h2 { font-size: clamp(1.8rem, 7vw, 2.4rem); }
+
+      /* ── Testimonios ── */
+      .testimonios-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+      .testimonios-text { order: -1; padding-right: 0; }
       .nosotros-placeholder { aspect-ratio: 3/2; }
 
       /* ── Proceso ── */
@@ -3644,10 +3667,7 @@
   <!-- TESTIMONIOS -->
   <section id="testimonios">
     <div class="container">
-      <span class="section-label reveal">Clientes</span>
-      <h2 class="section-title reveal">Lo que dicen<br />nuestros clientes</h2>
-      <p class="section-sub reveal">Empresas chilenas que ya transformaron su operación.</p>
-
+      <div class="testimonios-grid">
       <div class="tc-wrapper reveal">
         <div class="tc-stage" id="tc-stage">
 
@@ -3738,6 +3758,12 @@
             <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
           </button>
         </div>
+      </div>
+      <div class="testimonios-text reveal">
+        <span class="section-label">Clientes</span>
+        <h2 class="section-title">Lo que dicen<br />nuestros clientes</h2>
+        <p class="section-sub">Empresas chilenas que ya transformaron su operación.</p>
+      </div>
       </div>
     </div>
   </section>

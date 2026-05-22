@@ -2,9 +2,13 @@
 
 import logging
 
-from fastapi import APIRouter, HTTPException, Query, status
+from fastapi import APIRouter, HTTPException, Query, Request, status
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 
 from app.database import get_client
+
+limiter = Limiter(key_func=get_remote_address)
 from app.models.lead import (
     LeadCreate,
     LeadCreateResponse,
@@ -101,7 +105,8 @@ def _supabase_patch(path: str, data: dict, params: dict) -> dict:
     response_model=LeadCreateResponse,
     summary="Submit a new lead",
 )
-def create_lead(payload: LeadCreate) -> LeadCreateResponse:
+@limiter.limit("5/minute")
+def create_lead(request: Request, payload: LeadCreate) -> LeadCreateResponse:
     """Accept a lead submission from the public contact form.
 
     Validates all fields via Pydantic (422 on failure).

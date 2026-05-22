@@ -1,10 +1,18 @@
 """Pydantic models for the lead resource."""
 
+import re
 from datetime import datetime
 from enum import Enum
 from uuid import UUID
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, field_validator
+
+_TAG_RE = re.compile(r"<[^>]+>")
+
+
+def _strip_tags(value: str) -> str:
+    """Remove HTML/script tags from a string."""
+    return _TAG_RE.sub("", value)
 
 
 class LeadStatus(str, Enum):
@@ -70,6 +78,13 @@ class LeadCreate(BaseModel):
 
     # Optional (3)
     industry: str | None = Field(default=None, max_length=200, strip_whitespace=True)
+
+    @field_validator("full_name", "phone", "company", "message", "industry", mode="before")
+    @classmethod
+    def sanitize_html(cls, v: str | None) -> str | None:
+        if isinstance(v, str):
+            return _strip_tags(v)
+        return v
     employee_range: EmployeeRange | None = None
     referral_source: ReferralSource | None = None
 
@@ -149,6 +164,17 @@ class LeadUpdate(BaseModel):
     referral_source: ReferralSource | None = None
     project_title: str | None = Field(default=None, max_length=300)
     cristobal_input: str | None = None
+
+    @field_validator(
+        "full_name", "phone", "company", "message", "industry",
+        "project_title", "cristobal_input",
+        mode="before",
+    )
+    @classmethod
+    def sanitize_html(cls, v: str | None) -> str | None:
+        if isinstance(v, str):
+            return _strip_tags(v)
+        return v
 
 
 class LeadStatusUpdate(BaseModel):

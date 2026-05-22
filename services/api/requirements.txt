@@ -4,3 +4,4 @@ httpx
 pydantic[email]
 pydantic-settings
 python-dotenv
+slowapi

@@ -1503,6 +1503,29 @@
 
     .form-group textarea { resize: vertical; min-height: 96px; }
 
+    .form-group--error input,
+    .form-group--error textarea,
+    .form-group--error .sf-select__trigger {
+      border-color: #e74c3c !important;
+      box-shadow: 0 0 0 2px rgba(231,76,60,0.15);
+    }
+
+    .form-divider {
+      display: flex; align-items: center; gap: 0.8rem;
+      margin: 0.6rem 0 1.2rem;
+      color: var(--text-subtle);
+      font-size: 0.72rem;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+    .form-divider::before,
+    .form-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
     .form-submit {
       width: 100%;
       display: flex; align-items: center; justify-content: center; gap: 0.5rem;
@@ -4009,8 +4032,8 @@
             </div>
             <div class="form-row">
               <div class="form-group">
-                <label for="phone">Teléfono</label>
-                <input type="tel" id="phone" name="phone" placeholder="+56 9 1234 5678" autocomplete="tel" />
+                <label for="phone">Teléfono *</label>
+                <input type="tel" id="phone" name="phone" placeholder="+56 9 1234 5678" required autocomplete="tel" />
               </div>
               <div class="form-group">
                 <label for="company">Empresa *</label>
@@ -4025,19 +4048,63 @@
                   <svg class="sf-select__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
                 </button>
                 <div class="sf-select__dropdown" role="listbox" aria-hidden="true">
-                  <div class="sf-select__item" data-value="rpa" role="option"><span>Automatización RPA</span><svg class="sf-select__check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-                  <div class="sf-select__item" data-value="ia" role="option"><span>Inteligencia Artificial</span><svg class="sf-select__check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-                  <div class="sf-select__item" data-value="dev" role="option"><span>Desarrollo de Software</span><svg class="sf-select__check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-                  <div class="sf-select__item" data-value="consultoria" role="option"><span>Consultoría TI</span><svg class="sf-select__check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-                  <div class="sf-select__item" data-value="multiple" role="option"><span>Varios servicios</span><svg class="sf-select__check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  <div class="sf-select__item" data-value="Automatizaciones" role="option"><span>Automatizaciones</span><svg class="sf-select__check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  <div class="sf-select__item" data-value="Chatbots" role="option"><span>Chatbots</span><svg class="sf-select__check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  <div class="sf-select__item" data-value="Analitica IA" role="option"><span>Analítica IA</span><svg class="sf-select__check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  <div class="sf-select__item" data-value="Landing pages" role="option"><span>Landing pages</span><svg class="sf-select__check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  <div class="sf-select__item" data-value="Otro" role="option"><span>Otro</span><svg class="sf-select__check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
                 </div>
                 <input type="hidden" name="service_interest" id="service_interest" required />
               </div>
             </div>
             <div class="form-group">
-              <label for="message">Déjanos ayudarte</label>
-              <textarea id="message" name="message" placeholder="Describe brevemente el proceso o problema..."></textarea>
+              <label for="message">Cuéntanos tu desafío *</label>
+              <textarea id="message" name="message" placeholder="Describe brevemente el proceso o problema..." required></textarea>
             </div>
+
+            <div class="form-divider">
+              <span>Opcional — nos ayuda a entenderte mejor</span>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="industry">Rubro / industria</label>
+                <input type="text" id="industry" name="industry" placeholder="Ej: Agroindustria, Retail, Logística" />
+              </div>
+              <div class="form-group">
+                <label>Cantidad de empleados</label>
+                <div class="sf-select" id="sf-employees">
+                  <button type="button" class="sf-select__trigger" aria-haspopup="listbox" aria-expanded="false">
+                    <span class="sf-select__value sf-select__placeholder">Selecciona un rango</span>
+                    <svg class="sf-select__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+                  </button>
+                  <div class="sf-select__dropdown" role="listbox" aria-hidden="true">
+                    <div class="sf-select__item" data-value="1-10" role="option"><span>1 - 10</span><svg class="sf-select__check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                    <div class="sf-select__item" data-value="11-50" role="option"><span>11 - 50</span><svg class="sf-select__check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                    <div class="sf-select__item" data-value="51-200" role="option"><span>51 - 200</span><svg class="sf-select__check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                    <div class="sf-select__item" data-value="200+" role="option"><span>200+</span><svg class="sf-select__check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  </div>
+                  <input type="hidden" name="employee_range" id="employee_range" />
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>¿Cómo nos conociste?</label>
+              <div class="sf-select" id="sf-referral">
+                <button type="button" class="sf-select__trigger" aria-haspopup="listbox" aria-expanded="false">
+                  <span class="sf-select__value sf-select__placeholder">Selecciona una opción</span>
+                  <svg class="sf-select__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="sf-select__dropdown" role="listbox" aria-hidden="true">
+                  <div class="sf-select__item" data-value="Google" role="option"><span>Google</span><svg class="sf-select__check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  <div class="sf-select__item" data-value="LinkedIn" role="option"><span>LinkedIn</span><svg class="sf-select__check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  <div class="sf-select__item" data-value="Referido" role="option"><span>Referido</span><svg class="sf-select__check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  <div class="sf-select__item" data-value="Otro" role="option"><span>Otro</span><svg class="sf-select__check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                </div>
+                <input type="hidden" name="referral_source" id="referral_source" />
+              </div>
+            </div>
+
             <button type="submit" class="form-submit">Enviar</button>
             <p class="form-disclaimer">Tus datos están protegidos bajo la Ley 19.628. No los compartimos con terceros.</p>
           </form>
@@ -4158,28 +4225,51 @@
       const form = e.target;
       const btn  = form.querySelector('.form-submit');
 
+      // Client-side validation for required fields
+      const required = [
+        { el: form.full_name, label: 'Nombre completo' },
+        { el: form.email, label: 'Email' },
+        { el: form.phone, label: 'Teléfono' },
+        { el: form.company, label: 'Empresa' },
+        { el: form.service_interest, label: 'Servicio de interés' },
+        { el: form.message, label: 'Mensaje' },
+      ];
+      const missing = required.filter(f => !f.el.value.trim());
+      if (missing.length) {
+        missing[0].el.focus?.();
+        const firstGroup = missing[0].el.closest('.form-group') || missing[0].el.closest('.sf-select')?.closest('.form-group');
+        if (firstGroup) firstGroup.classList.add('form-group--error');
+        setTimeout(() => firstGroup?.classList.remove('form-group--error'), 2000);
+        return;
+      }
+
+      // Basic email format check
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.value.trim())) {
+        form.email.focus();
+        return;
+      }
+
       btn.disabled = true;
       btn.style.opacity = '0.7';
       btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="animation:spin .8s linear infinite"><path d="M21 12a9 9 0 1 1-6.22-8.56"/></svg> Enviando...`;
 
-      // Build message combining all relevant fields
-      const serviceInterest = form.service_interest ? form.service_interest.value : '';
-      const estimatedBudget = form.estimated_budget ? form.estimated_budget.value : '';
-      let fullMessage = form.message.value || '';
-      if (serviceInterest) fullMessage += `\nServicio de interés: ${serviceInterest}`;
-      if (estimatedBudget) fullMessage += `\nPresupuesto estimado: ${estimatedBudget}`;
-
       const payload = {
-        name:    form.full_name.value.trim(),
-        email:   form.email.value.trim(),
-        phone:   form.phone.value.trim()   || undefined,
-        company: form.company.value.trim() || undefined,
-        message: fullMessage.trim()        || undefined,
-        source:  'landing_form',
+        full_name:        form.full_name.value.trim(),
+        email:            form.email.value.trim(),
+        phone:            form.phone.value.trim(),
+        company:          form.company.value.trim(),
+        service_interest: form.service_interest.value,
+        message:          form.message.value.trim(),
+        source:           'website',
       };
 
-      // Remove undefined keys
-      Object.keys(payload).forEach(k => payload[k] === undefined && delete payload[k]);
+      // Optional fields — only include if filled
+      const industry = form.industry ? form.industry.value.trim() : '';
+      const employeeRange = form.employee_range ? form.employee_range.value : '';
+      const referralSource = form.referral_source ? form.referral_source.value : '';
+      if (industry) payload.industry = industry;
+      if (employeeRange) payload.employee_range = employeeRange;
+      if (referralSource) payload.referral_source = referralSource;
 
       try {
         const res = await fetch(`${API_URL}/leads/`, {
@@ -4195,6 +4285,16 @@
         btn.style.color      = '#000';
         btn.style.opacity    = '1';
         form.reset();
+        // Reset custom selects to placeholder state
+        form.querySelectorAll('.sf-select').forEach(sel => {
+          const valEl = sel.querySelector('.sf-select__value');
+          const trig = sel.querySelector('.sf-select__trigger');
+          sel.querySelectorAll('.sf-select__item').forEach(i => i.classList.remove('selected'));
+          const hid = sel.querySelector('input[type="hidden"]');
+          if (hid) hid.value = '';
+          if (valEl && valEl.dataset.placeholder) { valEl.textContent = valEl.dataset.placeholder; valEl.classList.add('sf-select__placeholder'); }
+          if (trig) trig.classList.remove('has-value');
+        });
 
       } catch (err) {
         console.error('Error enviando lead:', err);
@@ -4941,6 +5041,11 @@
       const dropdown = select.querySelector('.sf-select__dropdown');
       const items    = select.querySelectorAll('.sf-select__item');
       const hidden   = select.querySelector('input[type="hidden"]');
+
+      // Store original placeholder text for reset
+      if (valueEl && !valueEl.dataset.placeholder) {
+        valueEl.dataset.placeholder = valueEl.textContent;
+      }
 
       function open() {
         select.classList.add('open');

@@ -145,6 +145,14 @@ export default function LeadDetailPage() {
   const [addingNote, setAddingNote] = useState(false)
   const [noteError, setNoteError] = useState<string | null>(null)
 
+  // Cristobal input
+  const [inputValue, setInputValue] = useState('')
+  const [savingInput, setSavingInput] = useState(false)
+  const [inputSaved, setInputSaved] = useState(false)
+
+  // Enrichment
+  const [enrichment, setEnrichment] = useState<Record<string, unknown> | null>(null)
+
   // Levantamiento
   const [levantamiento, setLevantamiento] = useState<LevantamientoRespuesta[]>([])
   const [levantamientoExists, setLevantamientoExists] = useState(true) // false = table missing
@@ -204,6 +212,8 @@ export default function LeadDetailPage() {
           const fetchedLead = leadData[0] as Lead
           setLead(fetchedLead)
           setTitleValue(fetchedLead.project_title ?? '')
+          setInputValue(fetchedLead.cristobal_input ?? '')
+          setEnrichment(fetchedLead.enrichment_data as Record<string, unknown> | null)
 
           // Fetch notes
           const notesRes = await fetch(
@@ -365,6 +375,37 @@ export default function LeadDetailPage() {
       }
     } finally {
       setAddingNote(false)
+    }
+  }
+
+  async function handleSaveInput() {
+    if (savingInput) return
+    setSavingInput(true)
+    setInputSaved(false)
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/leads?id=eq.${leadId}`,
+        {
+          method: 'PATCH',
+          headers: {
+            'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=representation',
+          },
+          body: JSON.stringify({ cristobal_input: inputValue.trim() || null }),
+        }
+      )
+      if (res.ok) {
+        const updated = await res.json()
+        if (updated && updated[0]) {
+          setLead(updated[0] as Lead)
+          setInputSaved(true)
+          setTimeout(() => setInputSaved(false), 2000)
+        }
+      }
+    } finally {
+      setSavingInput(false)
     }
   }
 
@@ -718,6 +759,73 @@ export default function LeadDetailPage() {
               </dd>
             </div>
           )}
+        </div>
+
+        {/* Enrichment data */}
+        {enrichment && Object.keys(enrichment).length > 0 && (
+          <div
+            className="rounded-xl border p-5"
+            style={{ background: '#0a0a0a', borderColor: 'rgba(255,255,255,0.08)' }}
+          >
+            <p className="text-xs font-semibold uppercase tracking-wider mb-4" style={{ color: 'rgba(240,240,240,0.35)' }}>
+              Informe de enriquecimiento
+            </p>
+            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
+              {Object.entries(enrichment).map(([key, val]) => (
+                <div key={key} className={typeof val === 'string' && val.length > 80 ? 'sm:col-span-2' : ''}>
+                  <dt className="text-xs mb-0.5" style={{ color: 'rgba(240,240,240,0.35)' }}>
+                    {key.replace(/_/g, ' ')}
+                  </dt>
+                  <dd className="text-sm whitespace-pre-wrap" style={{ color: 'rgba(240,240,240,0.8)' }}>
+                    {typeof val === 'string' ? val : JSON.stringify(val, null, 2)}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        )}
+
+        {/* Input interno (propuesta de enfoque / info para revision) */}
+        <div
+          className="rounded-xl border p-5"
+          style={{ background: '#0a0a0a', borderColor: 'rgba(255,255,255,0.08)' }}
+        >
+          <p className="text-xs font-semibold uppercase tracking-wider mb-4" style={{ color: 'rgba(240,240,240,0.35)' }}>
+            Input interno
+          </p>
+          <p className="text-xs mb-3" style={{ color: 'rgba(240,240,240,0.4)' }}>
+            Propuesta de enfoque, informacion relevante o contexto para la revision del lead.
+          </p>
+          <textarea
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+                handleSaveInput()
+              }
+            }}
+            placeholder="Escribe tu analisis, propuesta de enfoque o informacion adicional..."
+            rows={5}
+            className="w-full rounded-lg px-3.5 py-2.5 text-sm text-white outline-none resize-vertical transition-colors focus:ring-1 focus:ring-[#4B9BF5]/40"
+            style={{
+              background: '#111111',
+              border: '1px solid rgba(255,255,255,0.08)',
+              color: '#F0F0F0',
+            }}
+          />
+          <div className="flex items-center justify-end gap-3 mt-2">
+            {inputSaved && (
+              <span className="text-xs" style={{ color: '#4ade80' }}>Guardado</span>
+            )}
+            <button
+              onClick={handleSaveInput}
+              disabled={savingInput}
+              className="rounded-lg px-4 py-2 text-sm font-medium transition-opacity disabled:opacity-40"
+              style={{ background: '#4B9BF5', color: '#ffffff' }}
+            >
+              {savingInput ? 'Guardando...' : 'Guardar'}
+            </button>
+          </div>
         </div>
 
         {/* Levantamiento section — only shown when table exists */}

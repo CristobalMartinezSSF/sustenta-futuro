@@ -8,6 +8,8 @@ from slowapi.util import get_remote_address
 
 from app.auth import AdminUser, require_admin
 from app.database import get_client
+from app.email import send_admin_notification, send_lead_confirmation
+from app.enrichment import enrich_lead
 
 limiter = Limiter(key_func=get_remote_address)
 from app.models.lead import (
@@ -118,6 +120,17 @@ def create_lead(request: Request, payload: LeadCreate) -> LeadCreateResponse:
         "/leads",
         payload.model_dump(exclude_none=True, mode="json"),
     )
+
+    # Send emails (non-blocking — failures are logged, never block the response)
+    send_lead_confirmation(payload.full_name, payload.email)
+    send_admin_notification(
+        lead_name=payload.full_name,
+        lead_email=payload.email,
+        lead_company=payload.company,
+        lead_service=payload.service_interest.value,
+        lead_message=payload.message,
+    )
+
     return LeadCreateResponse(
         id=row["id"],
         message="Lead received. We will be in touch soon.",
@@ -293,3 +306,47 @@ def get_lead_history(lead_id: str, admin: AdminUser = Depends(require_admin)) ->
         },
     )
     return [StatusHistoryEntry(**r) for r in rows]
+
+
+# ---------------------------------------------------------------------------
+# POST /leads/{lead_id}/enrich — Admin: run enrichment on a lead
+# ---------------------------------------------------------------------------
+
+
+@router.post(
+    "/{lead_id}/enrich",
+    response_model=LeadDetail,
+    summary="Enrich lead data",
+)
+def enrich_lead_endpoint(lead_id: str, admin: AdminUser = Depends(require_admin)) -> LeadDetail:
+    """Run enrichment (email validation, company search, website scrape) on a lead.
+
+    Stores results in enrichment_data and returns the updated lead.
+    """
+    # Fetch the lead
+    rows = _supabase_get(
+        "/leads",
+        {"select": DETAIL_FIELDS, "id": f"eq.{lead_id}", "limit": "1"},
+    )
+    if not rows:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Lead not found.",
+        )
+    lead = rows[0]
+
+    # Run enrichment
+    enrichment_data = enrich_lead(
+        email=lead.get("email", ""),
+        company=lead.get("company", ""),
+        full_name=lead.get("full_name"),
+        industry=lead.get("industry"),
+    )
+
+    # Store results
+    row = _supabase_patch(
+        "/leads",
+        {"enrichment_data": enrichment_data},
+        {"id": f"eq.{lead_id}", "select": DETAIL_FIELDS},
+    )
+    return LeadDetail(**row)

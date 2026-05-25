@@ -2,10 +2,11 @@
 
 import logging
 
-from fastapi import APIRouter, HTTPException, Query, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 
+from app.auth import AdminUser, require_admin
 from app.database import get_client
 
 limiter = Limiter(key_func=get_remote_address)
@@ -134,6 +135,7 @@ def create_lead(request: Request, payload: LeadCreate) -> LeadCreateResponse:
     summary="List leads with optional filters",
 )
 def list_leads(
+    admin: AdminUser = Depends(require_admin),
     status_filter: LeadStatus | None = Query(default=None, alias="status"),
     limit: int = Query(default=50, ge=1, le=200),
     offset: int = Query(default=0, ge=0),
@@ -183,7 +185,7 @@ def list_leads(
     response_model=LeadDetail,
     summary="Get lead detail",
 )
-def get_lead(lead_id: str) -> LeadDetail:
+def get_lead(lead_id: str, admin: AdminUser = Depends(require_admin)) -> LeadDetail:
     """Return full details of a single lead."""
     rows = _supabase_get(
         "/leads",
@@ -207,7 +209,7 @@ def get_lead(lead_id: str) -> LeadDetail:
     response_model=LeadDetail,
     summary="Update lead fields",
 )
-def update_lead(lead_id: str, payload: LeadUpdate) -> LeadDetail:
+def update_lead(lead_id: str, payload: LeadUpdate, admin: AdminUser = Depends(require_admin)) -> LeadDetail:
     """Update editable fields on a lead (admin action)."""
     data = payload.model_dump(exclude_none=True, mode="json")
     if not data:
@@ -233,7 +235,7 @@ def update_lead(lead_id: str, payload: LeadUpdate) -> LeadDetail:
     response_model=LeadDetail,
     summary="Change lead status",
 )
-def update_lead_status(lead_id: str, payload: LeadStatusUpdate) -> LeadDetail:
+def update_lead_status(lead_id: str, payload: LeadStatusUpdate, admin: AdminUser = Depends(require_admin)) -> LeadDetail:
     """Change the status of a lead. Requires a mandatory note explaining the change.
 
     The status transition is recorded in lead_status_history via a DB trigger,
@@ -280,7 +282,7 @@ def update_lead_status(lead_id: str, payload: LeadStatusUpdate) -> LeadDetail:
     response_model=list[StatusHistoryEntry],
     summary="Get lead status history",
 )
-def get_lead_history(lead_id: str) -> list[StatusHistoryEntry]:
+def get_lead_history(lead_id: str, admin: AdminUser = Depends(require_admin)) -> list[StatusHistoryEntry]:
     """Return the full status change history for a lead, newest first."""
     rows = _supabase_get(
         "/lead_status_history",

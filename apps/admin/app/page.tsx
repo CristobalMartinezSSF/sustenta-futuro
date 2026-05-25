@@ -7,15 +7,17 @@ import { createClient } from '@/lib/supabase'
 type LeadStatus =
   | 'new'
   | 'reviewing'
+  | 'pending_approval'
   | 'contacted'
-  | 'qualified'
-  | 'proposal_pending'
+  | 'evaluating'
+  | 'viable'
+  | 'proposal_sent'
   | 'won'
   | 'lost'
 
 interface Lead {
   id: string
-  name: string
+  full_name: string
   company: string | null
   email: string
   status: LeadStatus
@@ -23,11 +25,13 @@ interface Lead {
 }
 
 const STATUS_LABELS: Record<LeadStatus, string> = {
-  new: 'Nuevo contacto',
-  reviewing: 'Reunión inicial',
-  contacted: 'Levantamiento',
-  qualified: 'Propuesta creada',
-  proposal_pending: 'En negociación',
+  new: 'Nuevo',
+  reviewing: 'En revision',
+  pending_approval: 'Por aprobar',
+  contacted: 'Contactado',
+  evaluating: 'Evaluando',
+  viable: 'Viable',
+  proposal_sent: 'Propuesta enviada',
   won: 'Ganado',
   lost: 'Perdido',
 }
@@ -43,17 +47,27 @@ const STATUS_COLORS: Record<LeadStatus, { bg: string; text: string; border: stri
     text: '#60a5fa',
     border: 'rgba(59,130,246,0.2)',
   },
-  contacted: {
+  pending_approval: {
     bg: 'rgba(234,179,8,0.1)',
     text: '#fbbf24',
     border: 'rgba(234,179,8,0.2)',
   },
-  qualified: {
+  contacted: {
+    bg: 'rgba(16,185,129,0.1)',
+    text: '#34d399',
+    border: 'rgba(16,185,129,0.2)',
+  },
+  evaluating: {
     bg: 'rgba(168,85,247,0.1)',
     text: '#c084fc',
     border: 'rgba(168,85,247,0.2)',
   },
-  proposal_pending: {
+  viable: {
+    bg: 'rgba(6,182,212,0.1)',
+    text: '#22d3ee',
+    border: 'rgba(6,182,212,0.2)',
+  },
+  proposal_sent: {
     bg: 'rgba(249,115,22,0.1)',
     text: '#fb923c',
     border: 'rgba(249,115,22,0.2)',
@@ -75,9 +89,11 @@ type LeanPhase = 'PLANIFICAR' | 'CONSTRUIR' | 'CONTINUAR' | '—'
 const LEAN_PHASE: Record<LeadStatus, LeanPhase> = {
   new: '—',
   reviewing: 'PLANIFICAR',
+  pending_approval: 'PLANIFICAR',
   contacted: 'PLANIFICAR',
-  qualified: 'PLANIFICAR',
-  proposal_pending: 'CONSTRUIR',
+  evaluating: 'CONSTRUIR',
+  viable: 'CONSTRUIR',
+  proposal_sent: 'CONSTRUIR',
   won: 'CONTINUAR',
   lost: '—',
 }
@@ -162,11 +178,12 @@ function formatDate(iso: string): string {
 // --- Create Project Modal ---
 
 interface CreateLeadForm {
-  name: string
+  full_name: string
   email: string
   phone: string
   company: string
   message: string
+  service_interest: string
   status: LeadStatus
 }
 
@@ -180,11 +197,12 @@ function CreateProjectModal({
   accessToken: string
 }) {
   const [form, setForm] = useState<CreateLeadForm>({
-    name: '',
+    full_name: '',
     email: '',
     phone: '',
     company: '',
     message: '',
+    service_interest: 'Otro',
     status: 'new',
   })
   const [submitting, setSubmitting] = useState(false)
@@ -196,13 +214,14 @@ function CreateProjectModal({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!form.name.trim() || !form.email.trim()) return
+    if (!form.full_name.trim() || !form.email.trim()) return
     setFormError(null)
     setSubmitting(true)
 
     const payload: Record<string, string> = {
-      name: form.name.trim(),
+      full_name: form.full_name.trim(),
       email: form.email.trim(),
+      service_interest: form.service_interest,
       status: form.status,
     }
     if (form.phone.trim()) payload.phone = form.phone.trim()
@@ -281,8 +300,8 @@ function CreateProjectModal({
               <input
                 type="text"
                 required
-                value={form.name}
-                onChange={(e) => set('name', e.target.value)}
+                value={form.full_name}
+                onChange={(e) => set('full_name', e.target.value)}
                 className="rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-[#4B9BF5]/40"
                 style={inputStyle}
                 placeholder="Juan Pérez"
@@ -390,7 +409,7 @@ function CreateProjectModal({
             </button>
             <button
               type="submit"
-              disabled={submitting || !form.name.trim() || !form.email.trim()}
+              disabled={submitting || !form.full_name.trim() || !form.email.trim()}
               className="rounded-lg px-4 py-2 text-sm font-medium transition-opacity disabled:opacity-40"
               style={{ background: '#4B9BF5', color: '#ffffff' }}
             >
@@ -435,7 +454,7 @@ export default function DashboardPage() {
           const { data: roleData } = await supabase.rpc('get_my_role')
           if (roleData === 'admin') setIsAdmin(true)
 
-          const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/leads?select=id,name,company,email,status,created_at&order=created_at.desc`
+          const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/leads?select=id,full_name,company,email,status,created_at&order=created_at.desc`
           const res = await fetch(url, {
             headers: {
               'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -640,7 +659,7 @@ export default function DashboardPage() {
                         className="transition-colors hover:bg-white/[0.03]"
                       >
                         <td className="px-4 py-3 font-medium text-white whitespace-nowrap">
-                          {lead.name}
+                          {lead.full_name}
                         </td>
                         <td
                           className="px-4 py-3 whitespace-nowrap"

@@ -7,24 +7,31 @@ import { createClient } from '@/lib/supabase'
 type LeadStatus =
   | 'new'
   | 'reviewing'
+  | 'pending_approval'
   | 'contacted'
-  | 'qualified'
-  | 'proposal_pending'
+  | 'evaluating'
+  | 'viable'
+  | 'proposal_sent'
   | 'won'
   | 'lost'
 
 interface Lead {
   id: string
-  name: string
+  full_name: string
   email: string
   phone: string | null
   company: string | null
   message: string | null
   source: string | null
+  service_interest: string | null
+  industry: string | null
+  employee_range: string | null
+  referral_source: string | null
   status: LeadStatus
-  assigned_to: string | null
   project_title: string | null
+  cristobal_input: string | null
   created_at: string
+  updated_at: string | null
 }
 
 interface Note {
@@ -44,11 +51,13 @@ interface LevantamientoRespuesta {
 }
 
 const STATUS_LABELS: Record<LeadStatus, string> = {
-  new: 'Nuevo contacto',
-  reviewing: 'Reunión inicial',
-  contacted: 'Levantamiento',
-  qualified: 'Propuesta creada',
-  proposal_pending: 'En negociación',
+  new: 'Nuevo',
+  reviewing: 'En revision',
+  pending_approval: 'Por aprobar',
+  contacted: 'Contactado',
+  evaluating: 'Evaluando',
+  viable: 'Viable',
+  proposal_sent: 'Propuesta enviada',
   won: 'Ganado',
   lost: 'Perdido',
 }
@@ -56,9 +65,11 @@ const STATUS_LABELS: Record<LeadStatus, string> = {
 const STATUS_COLORS: Record<LeadStatus, { bg: string; text: string; border: string }> = {
   new:              { bg: 'rgba(100,100,100,0.12)', text: '#9ca3af', border: 'rgba(100,100,100,0.2)' },
   reviewing:        { bg: 'rgba(59,130,246,0.1)',   text: '#60a5fa', border: 'rgba(59,130,246,0.2)' },
-  contacted:        { bg: 'rgba(234,179,8,0.1)',    text: '#fbbf24', border: 'rgba(234,179,8,0.2)' },
-  qualified:        { bg: 'rgba(168,85,247,0.1)',   text: '#c084fc', border: 'rgba(168,85,247,0.2)' },
-  proposal_pending: { bg: 'rgba(249,115,22,0.1)',   text: '#fb923c', border: 'rgba(249,115,22,0.2)' },
+  pending_approval: { bg: 'rgba(234,179,8,0.1)',    text: '#fbbf24', border: 'rgba(234,179,8,0.2)' },
+  contacted:        { bg: 'rgba(16,185,129,0.1)',   text: '#34d399', border: 'rgba(16,185,129,0.2)' },
+  evaluating:       { bg: 'rgba(168,85,247,0.1)',   text: '#c084fc', border: 'rgba(168,85,247,0.2)' },
+  viable:           { bg: 'rgba(6,182,212,0.1)',    text: '#22d3ee', border: 'rgba(6,182,212,0.2)' },
+  proposal_sent:    { bg: 'rgba(249,115,22,0.1)',   text: '#fb923c', border: 'rgba(249,115,22,0.2)' },
   won:              { bg: 'rgba(34,197,94,0.1)',    text: '#4ade80', border: 'rgba(34,197,94,0.2)' },
   lost:             { bg: 'rgba(239,68,68,0.1)',    text: '#f87171', border: 'rgba(239,68,68,0.2)' },
 }
@@ -66,9 +77,11 @@ const STATUS_COLORS: Record<LeadStatus, { bg: string; text: string; border: stri
 const PIPELINE_STEPS: LeadStatus[] = [
   'new',
   'reviewing',
+  'pending_approval',
   'contacted',
-  'qualified',
-  'proposal_pending',
+  'evaluating',
+  'viable',
+  'proposal_sent',
   'won',
   'lost',
 ]
@@ -546,7 +559,7 @@ export default function LeadDetailPage() {
                 title="Clic para editar"
               >
                 <h1 className="text-xl font-semibold text-white">
-                  {lead.project_title || lead.name}
+                  {lead.project_title || lead.full_name}
                 </h1>
                 <span
                   className="text-xs opacity-0 group-hover:opacity-100 transition-opacity"
@@ -565,7 +578,7 @@ export default function LeadDetailPage() {
           <div className="flex items-center gap-3 self-start flex-wrap">
             <button
               onClick={() => {
-                const params = new URLSearchParams({ lead_id: lead.id, lead_name: lead.name })
+                const params = new URLSearchParams({ lead_id: lead.id, lead_name: lead.full_name })
                 router.push(`/propuestas?${params.toString()}`)
               }}
               className="rounded-lg px-3 py-1.5 text-sm font-medium transition-opacity hover:opacity-80"
@@ -684,11 +697,15 @@ export default function LeadDetailPage() {
             Informacion de contacto
           </p>
           <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
-            <InfoRow label="Nombre" value={lead.name} />
+            <InfoRow label="Nombre" value={lead.full_name} />
             <InfoRow label="Email" value={lead.email} />
             <InfoRow label="Telefono" value={lead.phone} />
             <InfoRow label="Empresa" value={lead.company} />
-            {lead.source && <InfoRow label="Fuente" value={lead.source} />}
+            <InfoRow label="Servicio" value={lead.service_interest} />
+            <InfoRow label="Industria" value={lead.industry} />
+            <InfoRow label="Empleados" value={lead.employee_range} />
+            <InfoRow label="Referencia" value={lead.referral_source} />
+            {lead.source && <InfoRow label="Origen" value={lead.source} />}
           </dl>
           {lead.message && (
             <div className="mt-4 pt-4" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>

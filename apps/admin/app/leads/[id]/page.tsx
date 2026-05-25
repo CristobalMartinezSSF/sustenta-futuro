@@ -30,6 +30,7 @@ interface Lead {
   status: LeadStatus
   project_title: string | null
   cristobal_input: string | null
+  enrichment_data: Record<string, unknown> | null
   created_at: string
   updated_at: string | null
 }

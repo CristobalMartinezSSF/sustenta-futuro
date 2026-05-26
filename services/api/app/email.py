@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 RESEND_API_KEY = os.getenv("RESEND_API_KEY", "")
 ADMIN_EMAIL = os.getenv("ADMIN_NOTIFICATION_EMAIL", "")
-FROM_EMAIL = os.getenv("FROM_EMAIL", "Sustenta Futuro <onboarding@resend.dev>")
+FROM_EMAIL = os.getenv("FROM_EMAIL", "Sustenta Futuro <no-reply@sustentafuturo.com>")
 RESEND_URL = "https://api.resend.com/emails"
 
 

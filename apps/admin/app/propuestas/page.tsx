@@ -10,7 +10,7 @@ type PropuestaStatus = 'reviewing' | 'sent' | 'approved' | 'rejected'
 
 interface Lead {
   id: string
-  name: string
+  full_name: string
   company: string | null
   email: string
 }
@@ -30,7 +30,7 @@ interface Propuesta {
   created_at: string
   updated_at: string | null
   leads: {
-    name: string
+    full_name: string
     company: string | null
     email: string
   } | null
@@ -345,7 +345,7 @@ function CreatePropuestaModal({
         const created: Propuesta = {
           ...data[0],
           leads: matchedLead
-            ? { name: matchedLead.name, company: matchedLead.company, email: matchedLead.email }
+            ? { full_name: matchedLead.full_name, company: matchedLead.company, email: matchedLead.email }
             : null,
         }
         onCreated(created)
@@ -429,7 +429,7 @@ function CreatePropuestaModal({
               </option>
               {leads.map((l) => (
                 <option key={l.id} value={l.id} style={{ background: '#111111' }}>
-                  {l.name}
+                  {l.full_name}
                   {l.company ? ` — ${l.company}` : ''}
                 </option>
               ))}
@@ -642,7 +642,7 @@ function PropuestasPageInner() {
 
         // Fetch leads for the create modal
         const leadsRes = await fetch(
-          `${base}/rest/v1/leads?select=id,name,company,email&order=created_at.desc`,
+          `${base}/rest/v1/leads?select=id,full_name,company,email&order=created_at.desc`,
           { headers }
         )
         if (leadsRes.ok) {
@@ -659,7 +659,7 @@ function PropuestasPageInner() {
 
         // Fetch propuestas with lead join
         const propRes = await fetch(
-          `${base}/rest/v1/propuestas?select=*,leads(name,company,email)&order=created_at.desc`,
+          `${base}/rest/v1/propuestas?select=*,leads(full_name,company,email)&order=created_at.desc`,
           { headers }
         )
 
@@ -907,7 +907,7 @@ function PropuestasPageInner() {
                       {/* Lead */}
                       <td className="px-4 py-3">
                         <p className="font-medium text-white whitespace-nowrap">
-                          {p.leads?.name ?? '—'}
+                          {p.leads?.full_name ?? '—'}
                         </p>
                         {p.leads?.company && (
                           <p className="text-xs mt-0.5" style={{ color: 'rgba(240,240,240,0.4)' }}>

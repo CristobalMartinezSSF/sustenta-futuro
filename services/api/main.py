@@ -9,7 +9,7 @@ from slowapi import Limiter
 from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
 
-from app.routers import auth, landing, leads
+from app.routers import auth, evaluations, landing, leads, proposals
 
 limiter = Limiter(key_func=get_remote_address)
 
@@ -31,7 +31,10 @@ async def rate_limit_handler(request: Request, exc: RateLimitExceeded) -> JSONRe
 
 ALLOWED_ORIGINS = os.getenv(
     "ALLOWED_ORIGINS",
-    "https://cristobalmartinezssf.github.io",
+    # Public landing + admin panel (Vercel) + local dev.
+    "https://cristobalmartinezssf.github.io,"
+    "https://admin-taupe-nu.vercel.app,"
+    "http://localhost:3000",
 ).split(",")
 
 app.add_middleware(
@@ -44,6 +47,8 @@ app.add_middleware(
 
 app.include_router(auth.router)
 app.include_router(leads.router)
+app.include_router(evaluations.router)
+app.include_router(proposals.router)
 app.include_router(landing.router)
 
 

@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
+import EvaluationSection from './EvaluationSection'
 
 type LeadStatus =
   | 'new'
@@ -828,6 +829,16 @@ export default function LeadDetailPage() {
             </button>
           </div>
         </div>
+
+        {/* Evaluation ficha (técnico-económica) + veredicto + propuesta PDF */}
+        <EvaluationSection
+          leadId={leadId}
+          accessToken={accessToken}
+          userId={userId}
+          onLeadStatusChange={(status) =>
+            setLead((prev) => (prev ? { ...prev, status: status as LeadStatus } : prev))
+          }
+        />
 
         {/* Levantamiento section — only shown when table exists */}
         {levantamientoExists && (

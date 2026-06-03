@@ -527,6 +527,13 @@ export default function DashboardPage() {
           >
             Propuestas
           </button>
+          <button
+            onClick={() => router.push('/kanban')}
+            className="text-sm transition-opacity hover:opacity-70"
+            style={{ color: 'rgba(240,240,240,0.5)' }}
+          >
+            Kanban
+          </button>
           {isAdmin && (
             <button
               onClick={() => router.push('/usuarios')}

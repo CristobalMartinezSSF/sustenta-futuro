@@ -2,7 +2,7 @@
 
 import logging
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, Request, status
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 
@@ -102,6 +102,21 @@ def _supabase_patch(path: str, data: dict, params: dict) -> dict:
 # ---------------------------------------------------------------------------
 
 
+def _enrich_in_background(lead_id: str, email: str, company: str,
+                          full_name: str | None, industry: str | None) -> None:
+    """Run enrichment and persist results. Called as a background task."""
+    try:
+        enrichment_data = enrich_lead(
+            email=email, company=company, full_name=full_name, industry=industry,
+        )
+        _supabase_patch("/leads", {"enrichment_data": enrichment_data},
+                        {"id": f"eq.{lead_id}", "select": "id"})
+        logger.info("Enrichment completed for lead %s (sources: %s)",
+                    lead_id, enrichment_data.get("sources_used"))
+    except Exception as exc:
+        logger.error("Background enrichment failed for lead %s: %s", lead_id, exc)
+
+
 @router.post(
     "/",
     status_code=status.HTTP_201_CREATED,
@@ -109,11 +124,15 @@ def _supabase_patch(path: str, data: dict, params: dict) -> dict:
     summary="Submit a new lead",
 )
 @limiter.limit("5/minute")
-def create_lead(request: Request, payload: LeadCreate) -> LeadCreateResponse:
+def create_lead(
+    request: Request,
+    payload: LeadCreate,
+    background_tasks: BackgroundTasks,
+) -> LeadCreateResponse:
     """Accept a lead submission from the public contact form.
 
     Validates all fields via Pydantic (422 on failure).
-    Inserts the record into Supabase using the service role key.
+    Inserts the record into Supabase, then triggers enrichment in the background.
     Returns the new lead id and a confirmation message (201).
     """
     row = _supabase_post(
@@ -129,6 +148,16 @@ def create_lead(request: Request, payload: LeadCreate) -> LeadCreateResponse:
         lead_company=payload.company,
         lead_service=payload.service_interest.value,
         lead_message=payload.message,
+    )
+
+    # Enrich lead data in the background (DNS, website, DDG search, LinkedIn)
+    background_tasks.add_task(
+        _enrich_in_background,
+        lead_id=row["id"],
+        email=payload.email,
+        company=payload.company,
+        full_name=payload.full_name,
+        industry=getattr(payload, "industry", None),
     )
 
     return LeadCreateResponse(

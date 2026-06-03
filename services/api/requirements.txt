@@ -8,3 +8,4 @@ slowapi
 PyJWT
 cryptography
 fpdf2
+duckduckgo-search

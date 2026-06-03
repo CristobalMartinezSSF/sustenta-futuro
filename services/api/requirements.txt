@@ -9,3 +9,4 @@ PyJWT
 cryptography
 fpdf2
 duckduckgo-search
+python-whois

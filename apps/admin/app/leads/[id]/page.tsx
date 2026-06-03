@@ -31,7 +31,7 @@ interface Lead {
   status: LeadStatus
   project_title: string | null
   cristobal_input: string | null
-  enrichment_data: Record<string, unknown> | null
+  enrichment_data: Record<string, string | number | boolean | null | undefined | Array<Record<string, string>>> | null
   created_at: string
   updated_at: string | null
 }
@@ -153,7 +153,7 @@ export default function LeadDetailPage() {
   const [inputSaved, setInputSaved] = useState(false)
 
   // Enrichment
-  const [enrichment, setEnrichment] = useState<Record<string, unknown> | null>(null)
+  const [enrichment, setEnrichment] = useState<Record<string, string | number | boolean | null | undefined | Array<Record<string, string>>> | null>(null)
 
   // Levantamiento
   const [levantamiento, setLevantamiento] = useState<LevantamientoRespuesta[]>([])
@@ -215,7 +215,7 @@ export default function LeadDetailPage() {
           setLead(fetchedLead)
           setTitleValue(fetchedLead.project_title ?? '')
           setInputValue(fetchedLead.cristobal_input ?? '')
-          setEnrichment(fetchedLead.enrichment_data as Record<string, unknown> | null)
+          setEnrichment(fetchedLead.enrichment_data)
 
           // Fetch notes
           const notesRes = await fetch(
@@ -763,29 +763,195 @@ export default function LeadDetailPage() {
           )}
         </div>
 
-        {/* Enrichment data */}
-        {enrichment && Object.keys(enrichment).length > 0 && (
-          <div
-            className="rounded-xl border p-5"
-            style={{ background: '#0a0a0a', borderColor: 'rgba(255,255,255,0.08)' }}
-          >
-            <p className="text-xs font-semibold uppercase tracking-wider mb-4" style={{ color: 'rgba(240,240,240,0.35)' }}>
-              Informe de enriquecimiento
-            </p>
-            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
-              {Object.entries(enrichment).map(([key, val]) => (
-                <div key={key} className={typeof val === 'string' && val.length > 80 ? 'sm:col-span-2' : ''}>
-                  <dt className="text-xs mb-0.5" style={{ color: 'rgba(240,240,240,0.35)' }}>
-                    {key.replace(/_/g, ' ')}
-                  </dt>
-                  <dd className="text-sm whitespace-pre-wrap" style={{ color: 'rgba(240,240,240,0.8)' }}>
-                    {typeof val === 'string' ? val : JSON.stringify(val, null, 2)}
-                  </dd>
+        {/* Enrichment — risk score + flags + data */}
+        {enrichment && Object.keys(enrichment).length > 0 && (() => {
+          const str = (v: unknown) => String(v ?? '')
+          const flags = (enrichment.flags as Array<{code:string;severity:string;detail:string;source:string}> | null) ?? []
+          const riskScore = (enrichment.risk_score as number) ?? 0
+          const riskLevel = str(enrichment.risk_level) || 'low'
+          const highFlags = flags.filter(f => f.severity === 'high')
+          const medFlags  = flags.filter(f => f.severity === 'medium')
+          const lowFlags  = flags.filter(f => f.severity === 'low')
+          const riskColor = riskLevel === 'high' ? '#f87171' : riskLevel === 'medium' ? '#fbbf24' : '#4ade80'
+          const riskBg    = riskLevel === 'high' ? 'rgba(248,113,113,0.08)' : riskLevel === 'medium' ? 'rgba(251,191,36,0.08)' : 'rgba(74,222,128,0.08)'
+          const riskBorder= riskLevel === 'high' ? 'rgba(248,113,113,0.2)' : riskLevel === 'medium' ? 'rgba(251,191,36,0.2)' : 'rgba(74,222,128,0.2)'
+          const riskLabel = riskLevel === 'high' ? 'RIESGO ALTO' : riskLevel === 'medium' ? 'RIESGO MEDIO' : 'RIESGO BAJO'
+          const sources = (enrichment.sources_used as unknown as string[]) ?? []
+
+          return (
+            <div className="rounded-xl border p-5 flex flex-col gap-5"
+              style={{ background: '#0a0a0a', borderColor: 'rgba(255,255,255,0.08)' }}>
+              {/* Header */}
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'rgba(240,240,240,0.35)' }}>
+                  Análisis de riesgo e inteligencia
+                </p>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs" style={{ color: 'rgba(240,240,240,0.3)' }}>
+                    {sources.length} fuentes · v{str(enrichment.enrichment_version)}
+                  </span>
+                  <span className="rounded-md px-2.5 py-1 text-xs font-bold"
+                    style={{ background: riskBg, color: riskColor, border: `1px solid ${riskBorder}` }}>
+                    {riskLabel} — {riskScore}/100
+                  </span>
                 </div>
-              ))}
-            </dl>
-          </div>
-        )}
+              </div>
+
+              {/* Flags */}
+              {flags.length > 0 && (
+                <div className="flex flex-col gap-2">
+                  {highFlags.map((f, i) => (
+                    <div key={i} className="rounded-lg px-3 py-2.5 flex items-start gap-2.5"
+                      style={{ background: 'rgba(248,113,113,0.07)', border: '1px solid rgba(248,113,113,0.18)' }}>
+                      <span className="text-sm mt-0.5">🔴</span>
+                      <div>
+                        <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: '#f87171' }}>
+                          {f.code.replace(/_/g, ' ')}
+                        </span>
+                        <p className="text-xs mt-0.5" style={{ color: 'rgba(240,240,240,0.7)' }}>{f.detail}</p>
+                      </div>
+                    </div>
+                  ))}
+                  {medFlags.map((f, i) => (
+                    <div key={i} className="rounded-lg px-3 py-2.5 flex items-start gap-2.5"
+                      style={{ background: 'rgba(251,191,36,0.06)', border: '1px solid rgba(251,191,36,0.16)' }}>
+                      <span className="text-sm mt-0.5">🟡</span>
+                      <div>
+                        <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: '#fbbf24' }}>
+                          {f.code.replace(/_/g, ' ')}
+                        </span>
+                        <p className="text-xs mt-0.5" style={{ color: 'rgba(240,240,240,0.7)' }}>{f.detail}</p>
+                      </div>
+                    </div>
+                  ))}
+                  {lowFlags.map((f, i) => (
+                    <div key={i} className="rounded-lg px-3 py-2.5 flex items-start gap-2.5"
+                      style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                      <span className="text-sm mt-0.5">⚪</span>
+                      <div>
+                        <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: 'rgba(240,240,240,0.45)' }}>
+                          {f.code.replace(/_/g, ' ')}
+                        </span>
+                        <p className="text-xs mt-0.5" style={{ color: 'rgba(240,240,240,0.55)' }}>{f.detail}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Key data grid */}
+              <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3">
+                {enrichment.sii_razon_social && (
+                  <div className="sm:col-span-2">
+                    <dt className="text-xs mb-0.5" style={{ color: 'rgba(240,240,240,0.35)' }}>SII — Razón social</dt>
+                    <dd className="text-sm font-medium" style={{ color: '#4ade80' }}>
+                      {str(enrichment.sii_razon_social)}
+                      {enrichment.sii_actividad && <span className="font-normal text-xs ml-2" style={{ color: 'rgba(240,240,240,0.5)' }}>· {str(enrichment.sii_actividad)}</span>}
+                    </dd>
+                  </div>
+                )}
+                {enrichment.sii_inicio_actividades && (
+                  <div>
+                    <dt className="text-xs mb-0.5" style={{ color: 'rgba(240,240,240,0.35)' }}>Inicio actividades SII</dt>
+                    <dd className="text-sm" style={{ color: 'rgba(240,240,240,0.8)' }}>{str(enrichment.sii_inicio_actividades)}</dd>
+                  </div>
+                )}
+                {enrichment.company_rut && (
+                  <div>
+                    <dt className="text-xs mb-0.5" style={{ color: 'rgba(240,240,240,0.35)' }}>RUT empresa</dt>
+                    <dd className="text-sm font-mono" style={{ color: 'rgba(240,240,240,0.8)' }}>{str(enrichment.company_rut)}</dd>
+                  </div>
+                )}
+                {enrichment.ip_country && (
+                  <div>
+                    <dt className="text-xs mb-0.5" style={{ color: 'rgba(240,240,240,0.35)' }}>IP origen</dt>
+                    <dd className="text-sm" style={{ color: 'rgba(240,240,240,0.8)' }}>
+                      {str(enrichment.ip_city)} · {str(enrichment.ip_country)}
+                      {enrichment.ip_org && <span className="text-xs ml-1" style={{ color: 'rgba(240,240,240,0.4)' }}>({str(enrichment.ip_org)})</span>}
+                    </dd>
+                  </div>
+                )}
+                {enrichment.domain_age_days !== undefined && (
+                  <div>
+                    <dt className="text-xs mb-0.5" style={{ color: 'rgba(240,240,240,0.35)' }}>Antigüedad dominio email</dt>
+                    <dd className="text-sm" style={{ color: 'rgba(240,240,240,0.8)' }}>
+                      {str(enrichment.domain_created)} ({Number(enrichment.domain_age_days)} días)
+                    </dd>
+                  </div>
+                )}
+                {enrichment.website_title && (
+                  <div className="sm:col-span-2">
+                    <dt className="text-xs mb-0.5" style={{ color: 'rgba(240,240,240,0.35)' }}>Sitio web corporativo</dt>
+                    <dd className="text-sm" style={{ color: 'rgba(240,240,240,0.8)' }}>
+                      <span className="font-medium">{str(enrichment.website_title)}</span>
+                      {enrichment.website_description && <span className="block text-xs mt-0.5" style={{ color: 'rgba(240,240,240,0.5)' }}>{str(enrichment.website_description).slice(0, 200)}</span>}
+                    </dd>
+                  </div>
+                )}
+                {enrichment.web_top_snippet && (
+                  <div className="sm:col-span-2">
+                    <dt className="text-xs mb-0.5" style={{ color: 'rgba(240,240,240,0.35)' }}>Mejor resultado web</dt>
+                    <dd className="text-sm leading-relaxed" style={{ color: 'rgba(240,240,240,0.7)' }}>
+                      {str(enrichment.web_top_snippet).slice(0, 300)}
+                    </dd>
+                  </div>
+                )}
+                {enrichment.linkedin_description && (
+                  <div className="sm:col-span-2">
+                    <dt className="text-xs mb-0.5" style={{ color: 'rgba(240,240,240,0.35)' }}>LinkedIn</dt>
+                    <dd className="text-sm leading-relaxed" style={{ color: 'rgba(240,240,240,0.7)' }}>
+                      {str(enrichment.linkedin_description)}
+                      {enrichment.linkedin_url && <a href={str(enrichment.linkedin_url)} target="_blank" rel="noreferrer" className="ml-2 text-xs underline" style={{ color: '#60a5fa' }}>ver perfil</a>}
+                    </dd>
+                  </div>
+                )}
+                {enrichment.wikipedia_extract && (
+                  <div className="sm:col-span-2">
+                    <dt className="text-xs mb-0.5" style={{ color: 'rgba(240,240,240,0.35)' }}>Wikipedia</dt>
+                    <dd className="text-sm leading-relaxed" style={{ color: 'rgba(240,240,240,0.7)' }}>
+                      {str(enrichment.wikipedia_extract).slice(0, 300)}
+                    </dd>
+                  </div>
+                )}
+                {enrichment.mercado_publico_found === true && (
+                  <div>
+                    <dt className="text-xs mb-0.5" style={{ color: 'rgba(240,240,240,0.35)' }}>Mercado Público</dt>
+                    <dd className="text-sm" style={{ color: '#4ade80' }}>
+                      Empresa registrada en ChileCompra
+                      {enrichment.mercado_publico_url && <a href={str(enrichment.mercado_publico_url)} target="_blank" rel="noreferrer" className="ml-2 text-xs underline" style={{ color: '#60a5fa' }}>ver</a>}
+                    </dd>
+                  </div>
+                )}
+                {/* Noticias */}
+                {Array.isArray(enrichment.news_results) && (enrichment.news_results as Array<{title:string;date:string;source:string;url:string}>).length > 0 && (
+                  <div className="sm:col-span-2">
+                    <dt className="text-xs mb-1.5" style={{ color: 'rgba(240,240,240,0.35)' }}>Noticias recientes</dt>
+                    <dd className="flex flex-col gap-1.5">
+                      {(enrichment.news_results as Array<{title:string;date:string;source:string;url:string}>).slice(0, 3).map((n, i) => (
+                        <a key={i} href={n.url} target="_blank" rel="noreferrer"
+                          className="text-xs underline leading-snug hover:opacity-80"
+                          style={{ color: 'rgba(240,240,240,0.65)' }}>
+                          {n.date && <span style={{ color: 'rgba(240,240,240,0.35)' }}>{n.date.slice(0, 10)} · </span>}
+                          {n.title}
+                        </a>
+                      ))}
+                    </dd>
+                  </div>
+                )}
+              </dl>
+
+              {/* Sources used */}
+              <div className="flex flex-wrap gap-1.5 pt-1" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                {sources.map((s, i) => (
+                  <span key={i} className="rounded px-1.5 py-0.5 text-xs"
+                    style={{ background: 'rgba(255,255,255,0.04)', color: 'rgba(240,240,240,0.35)' }}>
+                    {s.replace(/_/g, ' ')}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )
+        })()}
 
         {/* Input interno (propuesta de enfoque / info para revision) */}
         <div

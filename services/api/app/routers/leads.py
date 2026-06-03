@@ -102,17 +102,27 @@ def _supabase_patch(path: str, data: dict, params: dict) -> dict:
 # ---------------------------------------------------------------------------
 
 
-def _enrich_in_background(lead_id: str, email: str, company: str,
-                          full_name: str | None, industry: str | None) -> None:
-    """Run enrichment and persist results. Called as a background task."""
+def _enrich_in_background(
+    lead_id: str, email: str, company: str,
+    full_name: str | None, phone: str | None,
+    industry: str | None, ip_address: str | None,
+) -> None:
+    """Run full enrichment (v3) and persist results. Called as a background task."""
     try:
         enrichment_data = enrich_lead(
-            email=email, company=company, full_name=full_name, industry=industry,
+            email=email, company=company, full_name=full_name,
+            phone=phone, industry=industry, ip_address=ip_address,
         )
         _supabase_patch("/leads", {"enrichment_data": enrichment_data},
                         {"id": f"eq.{lead_id}", "select": "id"})
-        logger.info("Enrichment completed for lead %s (sources: %s)",
-                    lead_id, enrichment_data.get("sources_used"))
+        logger.info(
+            "Enrichment v3 done — lead=%s risk=%s/%s flags=%d sources=%d",
+            lead_id,
+            enrichment_data.get("risk_score"),
+            enrichment_data.get("risk_level"),
+            enrichment_data.get("flags_count", 0),
+            enrichment_data.get("sources_count", 0),
+        )
     except Exception as exc:
         logger.error("Background enrichment failed for lead %s: %s", lead_id, exc)
 
@@ -140,7 +150,13 @@ def create_lead(
         payload.model_dump(exclude_none=True, mode="json"),
     )
 
-    # Send emails (non-blocking — failures are logged, never block the response)
+    # Capture real IP (works behind Render's proxy)
+    ip = (
+        request.headers.get("x-forwarded-for", "").split(",")[0].strip()
+        or (request.client.host if request.client else None)
+    )
+
+    # Send emails (non-blocking)
     send_lead_confirmation(payload.full_name, payload.email)
     send_admin_notification(
         lead_name=payload.full_name,
@@ -150,14 +166,16 @@ def create_lead(
         lead_message=payload.message,
     )
 
-    # Enrich lead data in the background (DNS, website, DDG search, LinkedIn)
+    # Full enrichment + fraud signals in the background (v3 — 13 sources)
     background_tasks.add_task(
         _enrich_in_background,
         lead_id=row["id"],
         email=payload.email,
         company=payload.company,
         full_name=payload.full_name,
+        phone=getattr(payload, "phone", None),
         industry=getattr(payload, "industry", None),
+        ip_address=ip,
     )
 
     return LeadCreateResponse(

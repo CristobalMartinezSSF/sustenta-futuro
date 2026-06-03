@@ -527,13 +527,6 @@ export default function DashboardPage() {
           >
             Propuestas
           </button>
-          <button
-            onClick={() => router.push('/proyectos')}
-            className="text-sm transition-opacity hover:opacity-70"
-            style={{ color: 'rgba(240,240,240,0.5)' }}
-          >
-            Proyectos
-          </button>
           {isAdmin && (
             <button
               onClick={() => router.push('/usuarios')}

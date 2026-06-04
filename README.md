@@ -145,6 +145,47 @@ Viable → Generación PDF propuesta (FastAPI)
 | `admin` | Cristóbal | Todo — crear, editar, ejecutar, ficha, propuesta |
 | `supervisor` | Héctor | Revisar, aprobar, dejar notas |
 
+## Enrichment automático de leads
+
+Al recibir un formulario, el sistema corre **13 fuentes de enriquecimiento en background** (~30-60s) sin afectar el tiempo de respuesta al usuario.
+
+### Fuentes
+
+| # | Fuente | Entrega | Flag si falla |
+|---|--------|---------|---------------|
+| 1 | Email DNS | ¿Dominio existe? | `EMAIL_DOMAIN_INVALID` 🔴 |
+| 2 | Blocklist disposable | ¿Email desechable? | `DISPOSABLE_EMAIL` 🔴 |
+| 3 | WHOIS | Antigüedad dominio | `VERY_NEW_DOMAIN` 🔴 / `YOUNG_DOMAIN` 🟡 |
+| 4 | Teléfono | Formato +569XXXXXXXX | `INVALID_PHONE_FORMAT` ⚪ |
+| 5 | IP geolocation | País, ciudad, ISP de origen | `FOREIGN_IP` 🟡 |
+| 6 | Sitio web | Meta title + descripción | `NO_CORPORATE_WEBSITE` 🟡 |
+| 7 | DuckDuckGo web | Top 5 resultados | `NO_WEB_PRESENCE` 🟡 |
+| 8 | DuckDuckGo noticias | Últimas noticias empresa | — |
+| 9 | LinkedIn | Página pública empresa | — |
+| 10 | Wikipedia ES | Descripción si existe | — |
+| 11 | Rutificador | Nombre/empresa → RUT | — |
+| 12 | SII Chile | RUT → razón social, rubro, inicio | `COMPANY_NAME_MISMATCH` 🔴 / `RECENTLY_FORMED` 🟡 |
+| 13 | Mercado Público | Historial ChileCompra | — |
+
+### Sistema de alertas
+
+- 🔴 **Alto** (30 pts): DISPOSABLE_EMAIL, EMAIL_DOMAIN_INVALID, VERY_NEW_DOMAIN, COMPANY_NAME_MISMATCH
+- 🟡 **Medio** (15 pts): YOUNG_DOMAIN, FOREIGN_IP, NO_CORPORATE_WEBSITE, NO_WEB_PRESENCE, RECENTLY_FORMED_COMPANY
+- ⚪ **Bajo** (5 pts): INVALID_PHONE_FORMAT, GENERIC_EMAIL, NON_CHILEAN_IP
+
+**Risk score 0–100**: suma de puntos de flags. El lead **siempre se acepta** — los flags son notas para el admin, nunca bloquean.
+
+El panel admin muestra el score como badge de color, cada alerta con detalle, y todos los datos encontrados por fuente.
+
+### Re-enriquecer un lead existente
+
+```bash
+curl -X POST "https://sustenta-futuro-api.onrender.com/leads/{lead_id}/enrich" \
+  -H "Authorization: Bearer <admin_jwt>"
+```
+
+---
+
 ## Etapa 2 — Estado (junio 2026)
 
 - ✅ Fase 1: Schema BD + API CRUD + Formulario público (6+3 campos)

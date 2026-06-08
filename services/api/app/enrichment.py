@@ -24,6 +24,7 @@ from __future__ import annotations
 import logging
 import re
 import socket
+import time
 from datetime import datetime, timezone
 from typing import TypedDict
 from urllib.parse import quote_plus
@@ -31,6 +32,14 @@ from urllib.parse import quote_plus
 import httpx
 
 logger = logging.getLogger(__name__)
+
+# Per-source verification outcomes. Lets the admin distinguish
+# "verified, nothing found" from "couldn't reach / page changed".
+STATUS_OK = "ok"                  # source reached and yielded data
+STATUS_NO_DATA = "no_data"        # source reached, parsed, but found nothing
+STATUS_UNREACHABLE = "unreachable"  # network/HTTP failure
+STATUS_PARSE_FAILED = "parse_failed"  # 200 OK but expected fields not found (HTML likely changed)
+STATUS_SKIPPED = "skipped"        # not run (missing inputs)
 
 # ─── Disposable email blocklist ───────────────────────────────────────────────
 
@@ -82,15 +91,53 @@ def _flag(flags: list, code: str, severity: str, detail: str, source: str) -> No
 
 
 def _get(url: str, timeout: float = 8.0, ua: str = _UA, follow: bool = True,
-         params: dict | None = None) -> httpx.Response | None:
-    try:
-        return httpx.get(
-            url, timeout=timeout, follow_redirects=follow, params=params,
-            headers={"User-Agent": ua, "Accept-Language": "es-CL,es;q=0.9,en;q=0.8"},
-        )
-    except Exception as exc:
-        logger.debug("GET %s failed: %s", url, exc)
-        return None
+         params: dict | None = None, retries: int = 1) -> httpx.Response | None:
+    """GET with retries on transient transport/timeout errors.
+
+    Retries only network-level failures (timeouts, connection resets) — never
+    HTTP error codes, since those are deterministic. Returns None on exhaustion.
+    """
+    last_exc: Exception | None = None
+    for attempt in range(retries + 1):
+        try:
+            return httpx.get(
+                url, timeout=timeout, follow_redirects=follow, params=params,
+                headers={"User-Agent": ua, "Accept-Language": "es-CL,es;q=0.9,en;q=0.8"},
+            )
+        except (httpx.TimeoutException, httpx.TransportError) as exc:
+            last_exc = exc
+            if attempt < retries:
+                time.sleep(0.4 * (attempt + 1))
+                continue
+        except Exception as exc:
+            logger.debug("GET %s failed (non-retryable): %s", url, exc)
+            return None
+    logger.debug("GET %s failed after %d retries: %s", url, retries, last_exc)
+    return None
+
+
+# ─── RUT validation (modulo-11 check digit) ──────────────────────────────────
+
+
+def _valid_rut(rut: str) -> bool:
+    """Validate a Chilean RUT/RUN using its modulo-11 check digit.
+
+    Prevents accepting arbitrary number sequences (phones, IDs) that merely
+    look like a RUT. Accepts dotted or plain formats, with '-' before the DV.
+    """
+    clean = re.sub(r"[^0-9kK]", "", rut.upper())
+    if len(clean) < 7:  # shortest real RUTs have 7 digits + DV
+        return False
+    body, dv = clean[:-1], clean[-1]
+    if not body.isdigit():
+        return False
+    total, factor = 0, 2
+    for digit in reversed(body):
+        total += int(digit) * factor
+        factor = 2 if factor == 7 else factor + 1
+    remainder = 11 - (total % 11)
+    expected = "0" if remainder == 11 else "K" if remainder == 10 else str(remainder)
+    return dv == expected
 
 
 def _extract_meta(html: str) -> dict:
@@ -323,26 +370,29 @@ def _source_wikipedia(company: str) -> dict:
 # ─── Source 11: Rutificador (name → RUT) ─────────────────────────────────────
 
 
-def _source_rutificador(full_name: str | None, company: str | None) -> dict:
+def _source_rutificador(full_name: str | None, company: str | None) -> tuple[dict, str]:
     out: dict = {}
+    reached = False  # did we successfully reach the service at least once?
+    parsed_any = False  # did any response contain a parseable (valid) RUT?
 
     def _try_search(query: str, tipo: str) -> str | None:
-        """Try to get a RUT from nombrerutificador.com."""
-        try:
-            resp = _get(
-                "https://www.nombrerutificador.com/busqueda.php",
-                params={"tipo": tipo, "busqueda": query},
-                timeout=8.0,
-            )
-            if resp and resp.status_code == 200:
-                # RUT pattern: XXXXXXXX-X or XX.XXX.XXX-X
-                rut_matches = re.findall(
-                    r"\b\d{1,2}\.?\d{3}\.?\d{3}-[\dkK]\b", resp.text
-                )
-                if rut_matches:
-                    return rut_matches[0].replace(".", "")
-        except Exception as exc:
-            logger.debug("Rutificador search failed: %s", exc)
+        """Return the first *valid* RUT (modulo-11 checked) from nombrerutificador.com."""
+        nonlocal reached, parsed_any
+        resp = _get(
+            "https://www.nombrerutificador.com/busqueda.php",
+            params={"tipo": tipo, "busqueda": query},
+            timeout=8.0,
+        )
+        if not resp or resp.status_code != 200:
+            return None
+        reached = True
+        # RUT pattern: XXXXXXXX-X or XX.XXX.XXX-X
+        candidates = re.findall(r"\b\d{1,2}\.?\d{3}\.?\d{3}-[\dkK]\b", resp.text)
+        for cand in candidates:
+            normalized = cand.replace(".", "")
+            if _valid_rut(normalized):
+                parsed_any = True
+                return normalized
         return None
 
     if company:
@@ -357,17 +407,26 @@ def _source_rutificador(full_name: str | None, company: str | None) -> dict:
             if rut:
                 out["contact_rut"] = rut
 
-    return out
+    if out:
+        return out, STATUS_OK
+    if not reached:
+        return out, STATUS_UNREACHABLE
+    return out, STATUS_NO_DATA
 
 
 # ─── Source 12: SII Chile ─────────────────────────────────────────────────────
 
 
-def _source_sii(rut: str, declared_company: str, flags: list) -> dict:
-    """Query SII with a RUT and compare with declared company name."""
+def _source_sii(rut: str, declared_company: str, flags: list) -> tuple[dict, str]:
+    """Query SII with a RUT and compare with declared company name.
+
+    The RUT is modulo-11 validated before any request. A 200 that yields no
+    razón social is reported as PARSE_FAILED (likely captcha/HTML change), so a
+    silent scraper breakage is distinguishable from a genuine "no data".
+    """
+    if not _valid_rut(rut):
+        return {}, STATUS_SKIPPED
     clean = re.sub(r"[^0-9kK]", "", rut.upper())
-    if len(clean) < 7:
-        return {}
     # Format: 12345678-K
     formatted = f"{clean[:-1]}-{clean[-1]}"
 
@@ -377,13 +436,16 @@ def _source_sii(rut: str, declared_company: str, flags: list) -> dict:
         timeout=8.0,
     )
     if not resp or resp.status_code != 200:
-        return {}
+        return {}, STATUS_UNREACHABLE
 
     html = resp.text
-    # Extract razon social
-    razon_match = re.search(
-        r"NOM_RAZON[^>]*>([^<]+)</", html, re.I
-    ) or re.search(r"(?:Nombre|Razón Social)[:\s]+([A-ZÁÉÍÓÚÑa-záéíóúñ\s\.,&]+)", html)
+    # Extract razon social — several layouts seen over time.
+    razon_match = (
+        re.search(r"NOM_RAZON[^>]*>([^<]+)</", html, re.I)
+        or re.search(r"(?:Nombre|Razón Social|Razon Social)\s*[:\-]?\s*"
+                     r"([A-ZÁÉÍÓÚÑa-záéíóúñ0-9\s\.,&]{3,120})", html)
+        or re.search(r'razon[_-]?social["\'>\s:]+([A-ZÁÉÍÓÚÑa-záéíóúñ0-9\s\.,&]{3,120})', html, re.I)
+    )
 
     actividad_match = re.search(
         r"(?:Actividad|Giro)[:\s]+([A-ZÁÉÍÓÚÑa-záéíóúñ\s\.,]+)", html, re.I
@@ -420,33 +482,39 @@ def _source_sii(rut: str, declared_company: str, flags: list) -> dict:
         except Exception:
             pass
 
-    return out
+    # 200 OK but nothing parsed beyond the echoed RUT → page structure changed
+    # or a captcha/interstitial was served. Surface it instead of failing silently.
+    if not razon_match:
+        return out, STATUS_PARSE_FAILED
+    return out, STATUS_OK
 
 
 # ─── Source 13: Mercado Público ───────────────────────────────────────────────
 
 
-def _source_mercado_publico(company: str) -> dict:
+def _source_mercado_publico(company: str) -> tuple[dict, str]:
     """Search for company activity in ChileCompra."""
-    try:
-        resp = _get(
-            "https://www.mercadopublico.cl/Home/Empresa/BuscarEmpresa",
-            params={"nombre": company},
-            timeout=8.0,
-        )
-        if resp and resp.status_code == 200:
-            # Look for contract count or company entries
-            count_match = re.search(r"(\d+)\s+(?:resultado|empresa|proveedor)", resp.text, re.I)
-            entries = re.findall(r'<td[^>]*>\s*(\d{1,2}\.\d{3}\.\d{3}-[\dkK])\s*</td>', resp.text)
-            if entries or count_match:
-                return {
-                    "mercado_publico_found": True,
-                    "mercado_publico_ruts": entries[:3],
-                    "mercado_publico_url": f"https://www.mercadopublico.cl/Home/Empresa/BuscarEmpresa?nombre={quote_plus(company)}",
-                }
-    except Exception as exc:
-        logger.debug("Mercado Público search failed: %s", exc)
-    return {"mercado_publico_found": False}
+    resp = _get(
+        "https://www.mercadopublico.cl/Home/Empresa/BuscarEmpresa",
+        params={"nombre": company},
+        timeout=8.0,
+    )
+    if not resp or resp.status_code != 200:
+        return {"mercado_publico_found": False}, STATUS_UNREACHABLE
+
+    # Look for contract count or company entries (keep only valid RUTs)
+    count_match = re.search(r"(\d+)\s+(?:resultado|empresa|proveedor)", resp.text, re.I)
+    entries = [
+        r for r in re.findall(r'<td[^>]*>\s*(\d{1,2}\.\d{3}\.\d{3}-[\dkK])\s*</td>', resp.text)
+        if _valid_rut(r)
+    ]
+    if entries or count_match:
+        return {
+            "mercado_publico_found": True,
+            "mercado_publico_ruts": entries[:3],
+            "mercado_publico_url": f"https://www.mercadopublico.cl/Home/Empresa/BuscarEmpresa?nombre={quote_plus(company)}",
+        }, STATUS_OK
+    return {"mercado_publico_found": False}, STATUS_NO_DATA
 
 
 # ─── Risk score ───────────────────────────────────────────────────────────────
@@ -480,8 +548,14 @@ def enrich_lead(
 
     NEVER raises. All failures are caught and logged.
     """
-    result: dict = {"enrichment_version": "3.0", "sources_used": [], "flags": []}
+    result: dict = {
+        "enrichment_version": "3.1",
+        "sources_used": [],
+        "flags": [],
+        "verification": {},
+    }
     flags: list = result["flags"]
+    verification: dict = result["verification"]
 
     # ── 1-3. Email (DNS + disposable + WHOIS) ──
     r = _source_email(email, flags)
@@ -532,7 +606,8 @@ def enrich_lead(
             result["sources_used"].append("wikipedia")
 
     # ── 11. Rutificador ──
-    r = _source_rutificador(full_name, company)
+    r, status = _source_rutificador(full_name, company)
+    verification["rutificador"] = status
     if r:
         result.update(r)
         result["sources_used"].append("rutificador")
@@ -540,17 +615,25 @@ def enrich_lead(
     # ── 12. SII ──
     rut = result.get("company_rut") or result.get("contact_rut")
     if rut and company:
-        r = _source_sii(rut, company, flags)
+        r, status = _source_sii(rut, company, flags)
+        verification["sii"] = status
         if r:
             result.update(r)
             result["sources_used"].append("sii_lookup")
+        # PARSE_FAILED is an operational signal (scraper broke / captcha), not a
+        # lead-quality risk — kept in `verification`, not in the scored flags.
+    else:
+        verification["sii"] = STATUS_SKIPPED
 
     # ── 13. Mercado Público ──
     if company:
-        r = _source_mercado_publico(company)
+        r, status = _source_mercado_publico(company)
+        verification["mercado_publico"] = status
         if r:
             result.update(r)
             result["sources_used"].append("mercado_publico")
+    else:
+        verification["mercado_publico"] = STATUS_SKIPPED
 
     # ── Risk score ──
     score = _risk_score(flags)
@@ -584,10 +667,16 @@ def enrich_lead(
     if result.get("mercado_publico_found"):
         parts.append("Registrado en Mercado Público (ChileCompra).")
 
+    # Operational note: a claimed RUT we couldn't verify in SII (page changed
+    # or captcha) — flagged for manual review, separate from fraud signals.
+    if verification.get("sii") in (STATUS_PARSE_FAILED, STATUS_UNREACHABLE):
+        parts.append("ⓘ SII no verificable automáticamente — revisar a mano.")
+
     result["summary"] = " | ".join(parts) or "Sin información adicional encontrada."
 
     logger.info(
-        "Enrichment v3 done — risk=%s/%s flags=%d sources=%d",
+        "Enrichment v3.1 done — risk=%s/%s flags=%d sources=%d verification=%s",
         score, result["risk_level"], len(flags), len(result["sources_used"]),
+        verification,
     )
     return result

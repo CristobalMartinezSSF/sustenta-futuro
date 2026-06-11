@@ -257,6 +257,40 @@ def test_google_cse_used_when_configured(monkeypatch):
     assert hits and hits[0]["href"] == "https://acme.cl"
 
 
+# ─── v4: AI synthesis provider selection ──────────────────────────────────────
+
+
+def test_ai_synthesis_skipped_without_provider(monkeypatch):
+    monkeypatch.setattr(enr, "_ANTHROPIC_KEY", None)
+    monkeypatch.setattr(enr, "_LLM_URL", None)
+    assert enr._source_ai_synthesis({"company": "ACME"}) == {}
+
+
+def test_ai_synthesis_prefers_claude(monkeypatch):
+    monkeypatch.setattr(enr, "_ANTHROPIC_KEY", "sk-ant-fake")
+    called = {}
+
+    def fake_claude(prompt):
+        called["claude"] = prompt
+        return {"ai_synthesis": {"viability": "alta"}}
+
+    monkeypatch.setattr(enr, "_synthesize_claude", fake_claude)
+    monkeypatch.setattr(enr, "_synthesize_openai_compatible",
+                        lambda prompt: pytest.fail("should not use OpenAI path"))
+    out = enr._source_ai_synthesis({"company": "ACME SpA", "sii_actividad": "TI"})
+    assert out["ai_synthesis"]["viability"] == "alta"
+    assert "ACME SpA" in called["claude"]  # signals reach the prompt
+
+
+def test_ai_synthesis_falls_back_to_openai(monkeypatch):
+    monkeypatch.setattr(enr, "_ANTHROPIC_KEY", None)
+    monkeypatch.setattr(enr, "_LLM_URL", "http://localhost:11434")
+    monkeypatch.setattr(enr, "_synthesize_openai_compatible",
+                        lambda prompt: {"ai_synthesis": {"viability": "media"}})
+    out = enr._source_ai_synthesis({"company": "ACME"})
+    assert out["ai_synthesis"]["viability"] == "media"
+
+
 # ─── End-to-end: verification dict is always populated ────────────────────────
 
 

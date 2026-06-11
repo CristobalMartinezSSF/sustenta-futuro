@@ -64,6 +64,10 @@ _PROXY = os.getenv("SCRAPER_PROXY") or None
 _GOOGLE_CSE_KEY = os.getenv("GOOGLE_CSE_KEY") or None
 _GOOGLE_CSE_CX = os.getenv("GOOGLE_CSE_CX") or None
 _MP_TICKET = os.getenv("MERCADO_PUBLICO_TICKET") or None
+# AI synthesis: prefer Claude (official SDK) when an Anthropic key is present;
+# otherwise fall back to any OpenAI-compatible endpoint (Groq free tier / Ollama).
+_ANTHROPIC_KEY = os.getenv("ANTHROPIC_API_KEY") or None
+_CLAUDE_MODEL = os.getenv("ENRICH_CLAUDE_MODEL", "claude-haiku-4-5")
 _LLM_URL = os.getenv("ENRICH_LLM_URL") or None
 _LLM_MODEL = os.getenv("ENRICH_LLM_MODEL", "llama3.1")
 _LLM_KEY = os.getenv("ENRICH_LLM_KEY", "")
@@ -796,21 +800,31 @@ def _source_verifiable_links(company: str, rut: str | None) -> dict:
     return out
 
 
-# ─── Source 19: Optional AI synthesis (OpenAI-compatible / Ollama) ────────────
+# ─── Source 19: Optional AI synthesis (Claude SDK → OpenAI-compatible) ────────
+
+# Structured shape the synthesis must return.
+_SYNTHESIS_SCHEMA = {
+    "type": "object",
+    "additionalProperties": False,
+    "properties": {
+        "profile": {"type": "string"},
+        "viability": {"type": "string", "enum": ["alta", "media", "baja"]},
+        "reasons": {"type": "array", "items": {"type": "string"}},
+    },
+    "required": ["profile", "viability", "reasons"],
+}
+
+_SYNTHESIS_PROMPT = (
+    "Eres un analista de inteligencia comercial. Con SOLO los datos públicos "
+    "entregados (no inventes nada), redacta un perfil breve de la empresa y un "
+    "pre-veredicto de viabilidad (técnica, económica, legal) en JSON con las "
+    "claves: profile (string), viability (alta|media|baja), reasons (array de "
+    "strings).\nDatos:\n{facts}"
+)
 
 
-def _source_ai_synthesis(result: dict) -> dict:
-    """Reconcile collected signals into a structured profile via a local LLM.
-
-    Only runs when ENRICH_LLM_URL is configured (e.g. an Ollama server exposing
-    the OpenAI-compatible /v1/chat/completions endpoint). The model only
-    *synthesises* already-collected public data — it performs no searches
-    (rule D2). Degrades silently if unconfigured or unreachable.
-    """
-    if not _LLM_URL:
-        return {}
-
-    # Feed the model only the harvested signals, not raw HTML.
+def _build_synthesis_prompt(result: dict) -> str:
+    """Assemble the synthesis prompt from harvested signals only (never raw HTML)."""
     signal_keys = (
         "company", "sii_razon_social", "sii_actividad", "website_title",
         "website_description", "website_address", "web_top_snippet",
@@ -818,14 +832,43 @@ def _source_ai_synthesis(result: dict) -> dict:
         "boletin_concursal_found", "registro_empresas_tipo", "industry",
         "flags",
     )
-    payload_facts = {k: result.get(k) for k in signal_keys if result.get(k) is not None}
-    prompt = (
-        "Eres un analista de inteligencia comercial. Con SOLO los datos públicos "
-        "entregados (no inventes nada), redacta un perfil breve de la empresa y un "
-        "pre-veredicto de viabilidad (técnica, económica, legal) en JSON con las "
-        "claves: profile (string), viability (alta|media|baja), reasons (array). "
-        f"Datos:\n{json.dumps(payload_facts, ensure_ascii=False)}"
-    )
+    facts = {k: result.get(k) for k in signal_keys if result.get(k) is not None}
+    return _SYNTHESIS_PROMPT.format(facts=json.dumps(facts, ensure_ascii=False))
+
+
+def _synthesize_claude(prompt: str) -> dict:
+    """Synthesise via the official Anthropic SDK (Claude Haiku by default).
+
+    Haiku is cheap enough (~US$0.005/lead) for per-lead synthesis and needs no
+    self-hosted model. Uses structured outputs so the result matches the schema.
+    """
+    try:
+        import anthropic  # type: ignore
+    except ImportError:
+        logger.warning("anthropic SDK not installed — Claude synthesis skipped")
+        return {}
+    try:
+        client = anthropic.Anthropic(api_key=_ANTHROPIC_KEY)
+        resp = client.messages.create(
+            model=_CLAUDE_MODEL,
+            max_tokens=1024,
+            system="Responde únicamente con los datos entregados; no inventes nada.",
+            messages=[{"role": "user", "content": prompt}],
+            output_config={"format": {"type": "json_schema", "schema": _SYNTHESIS_SCHEMA}},
+        )
+        text = "".join(b.text for b in resp.content if getattr(b, "type", "") == "text")
+        return {"ai_synthesis": json.loads(text)}
+    except Exception as exc:
+        logger.debug("Claude synthesis skipped: %s", exc)
+        return {}
+
+
+def _synthesize_openai_compatible(prompt: str) -> dict:
+    """Synthesise via any OpenAI-compatible /v1/chat/completions endpoint.
+
+    Covers a local Ollama server or a free Groq tier. Used only when no
+    Anthropic key is configured.
+    """
     headers = {"Content-Type": "application/json"}
     if _LLM_KEY:
         headers["Authorization"] = f"Bearer {_LLM_KEY}"
@@ -848,8 +891,24 @@ def _source_ai_synthesis(result: dict) -> dict:
         parsed = json.loads(m.group(0)) if m else {"profile": content[:600]}
         return {"ai_synthesis": parsed}
     except Exception as exc:
-        logger.debug("AI synthesis skipped: %s", exc)
+        logger.debug("AI synthesis (OpenAI-compatible) skipped: %s", exc)
         return {}
+
+
+def _source_ai_synthesis(result: dict) -> dict:
+    """Reconcile collected signals into a structured profile + viability verdict.
+
+    Prefers Claude (official SDK) when ANTHROPIC_API_KEY is set; otherwise uses
+    an OpenAI-compatible endpoint (ENRICH_LLM_URL — Groq/Ollama). The model only
+    *synthesises* already-collected public data — it performs no searches
+    (rule D2). Degrades silently if no provider is configured or reachable.
+    """
+    if not (_ANTHROPIC_KEY or _LLM_URL):
+        return {}
+    prompt = _build_synthesis_prompt(result)
+    if _ANTHROPIC_KEY:
+        return _synthesize_claude(prompt)
+    return _synthesize_openai_compatible(prompt)
 
 
 # ─── Risk score ───────────────────────────────────────────────────────────────

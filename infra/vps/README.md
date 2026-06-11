@@ -1,8 +1,8 @@
 # VPS deployment — Sustenta Futuro
 
 Consolidates the **static landing** + **FastAPI backend (the enrichment bot)**
-onto a single small VPS, with TLS via Caddy. AI synthesis runs on Cristóbal's
-**local PC Ollama**, reached through a private Tailscale tunnel. LinkedIn/SII
+onto a single small VPS, with TLS via Caddy. AI synthesis runs on the
+**Anthropic API** (Claude Haiku — cheap, no self-hosted model). LinkedIn/SII
 scraping goes out through a **residential proxy**.
 
 Supabase (DB/Auth) and Resend (email) stay managed. The Vercel admin panel
@@ -12,12 +12,12 @@ stays where it is for now.
 Internet ──TLS──> Caddy ──┬─ static landing (apps/web → /var/www/sustenta/web)
    (VPS, Hetzner CX22)     └─ api.sustentafuturo.com → uvicorn 127.0.0.1:8000
                                      │
-                       ENRICH_LLM_URL│ (Tailscale)         SCRAPER_PROXY
+                     ANTHROPIC_API_KEY│ (HTTPS)          SCRAPER_PROXY
                                      ▼                            ▼
-                          Ollama on your PC            residential proxy → LinkedIn/SII
+                       Claude API (Haiku synthesis)   residential proxy → LinkedIn/SII
 ```
 
-Target cost: ~€4/mo VPS + ~cents/lead proxy + free Groq/Ollama AI.
+Target cost: ~€4/mo VPS + ~cents/lead proxy + ~US$0.005/lead Claude synthesis.
 
 ---
 
@@ -83,34 +83,26 @@ systemctl reload caddy
 `sustentafuturo.com`, `www`, `api`. Caddy issues TLS automatically once DNS
 resolves. Verify: `https://api.sustentafuturo.com/health` → `{"status":"ok"}`.
 
-## Phase 4 — Ollama bridge (AI synthesis on your PC)
+## Phase 4 — AI synthesis (Claude API — recommended)
 
-Tailscale puts your PC and the VPS on one private encrypted network — no open
-ports, free.
-
-```powershell
-# On your PC: install Tailscale (https://tailscale.com/download), then log in.
-# Expose Ollama on the tailnet interface:
-setx OLLAMA_HOST "0.0.0.0:11434"   # restart Ollama after this
-ollama pull llama3.1
-tailscale ip -4                    # note your PC's 100.x.y.z address
+Use the Anthropic API for the synthesis pass. It's cheap (~US$0.005/lead with
+Haiku), needs no self-hosted model, and keeps the VPS light — no Ollama, no
+Tailscale, no PC kept running. Just set the key in the API `.env` and restart:
+```
+ANTHROPIC_API_KEY=sk-ant-...
+ENRICH_CLAUDE_MODEL=claude-haiku-4-5
 ```
 ```bash
-# On the VPS: install + join the same tailnet
-curl -fsSL https://tailscale.com/install.sh | sh
-sudo tailscale up
+systemctl restart sustenta-api
 ```
-Add to the API `.env` and restart (`systemctl restart sustenta-api`):
-```
-ENRICH_LLM_URL=http://<PC_TAILSCALE_IP>:11434
-ENRICH_LLM_MODEL=llama3.1
-ENRICH_LLM_KEY=
-```
-If your PC is off, enrichment just skips synthesis — no errors.
+If the key is absent, enrichment simply skips synthesis — no errors.
 
-> Free alternative that needs no PC running: Groq.
-> `ENRICH_LLM_URL=https://api.groq.com/openai`, `ENRICH_LLM_MODEL=llama-3.3-70b-versatile`,
-> `ENRICH_LLM_KEY=<groq key>`.
+> **Free alternatives** (used automatically only when `ANTHROPIC_API_KEY` is empty),
+> via any OpenAI-compatible endpoint:
+> - Groq free tier: `ENRICH_LLM_URL=https://api.groq.com/openai`,
+>   `ENRICH_LLM_MODEL=llama-3.3-70b-versatile`, `ENRICH_LLM_KEY=<groq key>`.
+> - Local Ollama on your PC over Tailscale: `ENRICH_LLM_URL=http://<PC_TAILSCALE_IP>:11434`,
+>   `ENRICH_LLM_MODEL=llama3.1` (requires your PC running + `OLLAMA_HOST=0.0.0.0:11434`).
 
 ## Phase 5 — Residential proxy (LinkedIn / SII)
 

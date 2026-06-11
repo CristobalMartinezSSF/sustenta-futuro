@@ -1,0 +1,24 @@
+# systemd unit for the FastAPI backend.
+# Install: sudo cp sustenta-api.service /etc/systemd/system/
+#          sudo systemctl daemon-reload && sudo systemctl enable --now sustenta-api
+# Logs:    journalctl -u sustenta-api -f
+
+[Unit]
+Description=Sustenta Futuro FastAPI backend
+After=network.target
+
+[Service]
+User=sustenta
+Group=sustenta
+WorkingDirectory=/opt/sustenta/repo/services/api
+# Secrets and config live here (KEY=value, one per line, no quotes/export).
+EnvironmentFile=/opt/sustenta/repo/services/api/.env
+ExecStart=/opt/sustenta/venv/bin/uvicorn main:app --host 127.0.0.1 --port 8000
+Restart=always
+RestartSec=3
+# Light hardening
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

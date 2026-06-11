@@ -1,0 +1,20 @@
+# Caddy reverse proxy + static file server for Sustenta Futuro.
+# TLS certificates are obtained and renewed automatically by Caddy.
+#
+# DNS must point these names to the VPS public IP (A records) before reload:
+#   sustentafuturo.com        → <VPS_IP>
+#   www.sustentafuturo.com    → <VPS_IP>
+#   api.sustentafuturo.com    → <VPS_IP>
+
+sustentafuturo.com, www.sustentafuturo.com {
+	root * /var/www/sustenta/web
+	encode gzip
+	# Serve clean URLs (/privacidad → privacidad.html) and fall back to home.
+	try_files {path} {path}.html /index.html
+	file_server
+}
+
+api.sustentafuturo.com {
+	encode gzip
+	reverse_proxy 127.0.0.1:8000
+}

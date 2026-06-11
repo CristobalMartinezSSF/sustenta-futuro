@@ -176,6 +176,87 @@ def test_mercado_publico_unreachable(monkeypatch):
     assert status == enr.STATUS_UNREACHABLE
 
 
+# ─── v4: website contact/legal extraction (waterfall inputs) ──────────────────
+
+
+def test_extract_contacts_harvests_rut_email_phone_social():
+    html = """
+    <footer>RUT: 76.086.428-5 | contacto@acme.cl | +56 9 1234 5678
+    <a href="https://www.linkedin.com/company/acme">LinkedIn</a>
+    Dirección: Av. Siempre Viva 742, Santiago</footer>
+    """
+    out = enr._extract_contacts(html)
+    assert out["website_ruts"] == ["76086428-5"]          # invalid RUTs dropped
+    assert "contacto@acme.cl" in out["website_emails"]
+    assert "+56912345678" in out["website_phones"]
+    assert any("linkedin.com" in u for u in out["website_social_links"])
+    assert "Av. Siempre Viva" in out["website_address"]
+
+
+def test_extract_contacts_ignores_invalid_rut():
+    out = enr._extract_contacts("ruido 12.345.678-9 ruido")  # bad check digit
+    assert "website_ruts" not in out
+
+
+# ─── v4: Boletín Concursal (insolvency) ───────────────────────────────────────
+
+
+def test_boletin_concursal_flags_insolvency(monkeypatch):
+    html = "<div>Procedimiento Concursal de Liquidación vigente</div>"
+    monkeypatch.setattr(enr, "_get", lambda *a, **k: FakeResponse(200, html))
+    flags: list = []
+    out, status = enr._source_boletin_concursal("76086428-5", flags)
+    assert status == enr.STATUS_OK
+    assert out["boletin_concursal_found"] is True
+    assert any(f["code"] == "INSOLVENCY_PROCEEDING" for f in flags)
+
+
+def test_boletin_concursal_no_data(monkeypatch):
+    monkeypatch.setattr(enr, "_get", lambda *a, **k: FakeResponse(200, "sin resultados"))
+    out, status = enr._source_boletin_concursal("76086428-5", [])
+    assert out["boletin_concursal_found"] is False
+    assert status == enr.STATUS_NO_DATA
+
+
+def test_boletin_concursal_skipped_on_bad_rut(monkeypatch):
+    called = {"n": 0}
+    monkeypatch.setattr(enr, "_get", lambda *a, **k: called.__setitem__("n", called["n"] + 1))
+    out, status = enr._source_boletin_concursal("12345678-9", [])
+    assert status == enr.STATUS_SKIPPED
+    assert called["n"] == 0
+
+
+# ─── v4: Mercado Público official API path ────────────────────────────────────
+
+
+def test_mercado_publico_api_counts_orders(monkeypatch):
+    monkeypatch.setattr(enr, "_MP_TICKET", "fake-ticket")
+    monkeypatch.setattr(
+        enr, "_get",
+        lambda *a, **k: FakeResponse(200, json_data={"Cantidad": 7, "Listado": []}),
+    )
+    out, status = enr._source_mercado_publico("ACME", "76086428-5")
+    assert status == enr.STATUS_OK
+    assert out["mercado_publico_ordenes"] == 7
+    assert out["mercado_publico_found"] is True
+
+
+# ─── v4: web search prefers Google CSE when configured ────────────────────────
+
+
+def test_google_cse_used_when_configured(monkeypatch):
+    monkeypatch.setattr(enr, "_GOOGLE_CSE_KEY", "k")
+    monkeypatch.setattr(enr, "_GOOGLE_CSE_CX", "cx")
+    monkeypatch.setattr(
+        enr, "_get",
+        lambda *a, **k: FakeResponse(200, json_data={
+            "items": [{"title": "ACME", "link": "https://acme.cl", "snippet": "perfil"}]
+        }),
+    )
+    hits = enr._google_cse("ACME Chile")
+    assert hits and hits[0]["href"] == "https://acme.cl"
+
+
 # ─── End-to-end: verification dict is always populated ────────────────────────
 
 
@@ -186,7 +267,7 @@ def test_enrich_lead_populates_verification(monkeypatch, dns_ok):
         email="foo@gmail.com", company="ACME SpA", full_name="Juan Perez",
         phone="+56912345678",
     )
-    assert result["enrichment_version"] == "3.1"
+    assert result["enrichment_version"] == "4.0"
     assert "verification" in result
     # SII is skipped because no RUT was resolved (rutificador unreachable).
     assert result["verification"]["sii"] == enr.STATUS_SKIPPED

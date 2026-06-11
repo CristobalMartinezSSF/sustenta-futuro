@@ -107,7 +107,7 @@ def _enrich_in_background(
     full_name: str | None, phone: str | None,
     industry: str | None, ip_address: str | None,
 ) -> None:
-    """Run full enrichment (v3) and persist results. Called as a background task."""
+    """Run full enrichment (v4) and persist results. Called as a background task."""
     try:
         enrichment_data = enrich_lead(
             email=email, company=company, full_name=full_name,
@@ -116,7 +116,7 @@ def _enrich_in_background(
         _supabase_patch("/leads", {"enrichment_data": enrichment_data},
                         {"id": f"eq.{lead_id}", "select": "id"})
         logger.info(
-            "Enrichment v3 done — lead=%s risk=%s/%s flags=%d sources=%d",
+            "Enrichment v4 done — lead=%s risk=%s/%s flags=%d sources=%d",
             lead_id,
             enrichment_data.get("risk_score"),
             enrichment_data.get("risk_level"),
@@ -166,7 +166,7 @@ def create_lead(
         lead_message=payload.message,
     )
 
-    # Full enrichment + fraud signals in the background (v3 — 13 sources)
+    # Full enrichment + fraud signals in the background (v4 — 18 sources + AI synthesis)
     background_tasks.add_task(
         _enrich_in_background,
         lead_id=row["id"],

@@ -1,7 +1,11 @@
-"""Lead enrichment service — v3.0 comprehensive.
+"""Lead enrichment service — v4.0 comprehensive.
 
 ALL leads are accepted. Suspicious signals are recorded as flags.
 Never raises — all failures are caught and logged.
+
+Design goals (v4): extract the maximum amount of public information from the
+few fields a lead submits, using only free / official sources, and *chain*
+discovered facts so each one feeds the next query (waterfall enrichment).
 
 Sources:
   1.  Email DNS validation
@@ -9,19 +13,40 @@ Sources:
   3.  Domain age via WHOIS
   4.  Phone format validation (Chilean)
   5.  IP geolocation (ip-api.com, free, no key)
-  6.  Corporate website scraping
-  7.  DuckDuckGo web search
-  8.  DuckDuckGo news search
+  6.  Corporate website scraping (+ contact/legal extraction: RUT, emails,
+      phones, social links, address)
+  7.  Web search — Google CSE (free tier) with DuckDuckGo fallback
+  8.  News search (DuckDuckGo)
   9.  LinkedIn company page (public meta)
   10. Wikipedia ES API
   11. Rutificador — company/person name → RUT (best-effort)
   12. SII Chile — RUT → razón social, rubro, actividad
-  13. Mercado Público — company in ChileCompra (best-effort)
+  13. Mercado Público — official API (free ticket) with scraper fallback
+  14. Boletín Concursal — insolvency / bankruptcy by RUT (economic risk)
+  15. Registro de Empresas y Sociedades — partners, capital, incorporation
+  16. Diario Oficial — company incorporation / modification notices
+  17. INAPI — registered trademarks (best-effort + verifiable link)
+  18. Poder Judicial — litigation lookup (verifiable link only; public record)
+  19. Optional AI synthesis (Ollama / OpenAI-compatible) — reconciles signals
+
+Every remote source degrades gracefully and, where automated scraping is
+unreliable or gated (captcha / JS), emits a *verifiable deep link* so a human
+can confirm in one click. Only public information is used (ethics rule D4).
+
+Configuration (all optional, via environment):
+  SCRAPER_PROXY              http(s) proxy for fragile scrapers (unblocks
+                             datacenter-IP-blocked sources from Render)
+  GOOGLE_CSE_KEY / _CX       Google Custom Search (free 100/day) — DDG fallback
+  MERCADO_PUBLICO_TICKET     free ChileCompra API ticket — scraper fallback
+  ENRICH_LLM_URL / _MODEL    OpenAI-compatible chat endpoint for synthesis
+  ENRICH_LLM_KEY             bearer token for the LLM endpoint (blank for Ollama)
 """
 
 from __future__ import annotations
 
+import json
 import logging
+import os
 import re
 import socket
 import time
@@ -32,6 +57,16 @@ from urllib.parse import quote_plus
 import httpx
 
 logger = logging.getLogger(__name__)
+
+# ─── Optional configuration (env) ──────────────────────────────────────────────
+# Everything works without these; they only widen coverage when present.
+_PROXY = os.getenv("SCRAPER_PROXY") or None
+_GOOGLE_CSE_KEY = os.getenv("GOOGLE_CSE_KEY") or None
+_GOOGLE_CSE_CX = os.getenv("GOOGLE_CSE_CX") or None
+_MP_TICKET = os.getenv("MERCADO_PUBLICO_TICKET") or None
+_LLM_URL = os.getenv("ENRICH_LLM_URL") or None
+_LLM_MODEL = os.getenv("ENRICH_LLM_MODEL", "llama3.1")
+_LLM_KEY = os.getenv("ENRICH_LLM_KEY", "")
 
 # Per-source verification outcomes. Lets the admin distinguish
 # "verified, nothing found" from "couldn't reach / page changed".
@@ -97,12 +132,19 @@ def _get(url: str, timeout: float = 8.0, ua: str = _UA, follow: bool = True,
     Retries only network-level failures (timeouts, connection resets) — never
     HTTP error codes, since those are deterministic. Returns None on exhaustion.
     """
+    headers = {"User-Agent": ua, "Accept-Language": "es-CL,es;q=0.9,en;q=0.8"}
     last_exc: Exception | None = None
     for attempt in range(retries + 1):
         try:
+            if _PROXY:
+                # Route fragile scrapers through a proxy so a datacenter-IP block
+                # (LinkedIn/SII/Rutificador reject Render's IP) can be bypassed.
+                with httpx.Client(proxy=_PROXY, timeout=timeout,
+                                  follow_redirects=follow, headers=headers) as client:
+                    return client.get(url, params=params)
             return httpx.get(
                 url, timeout=timeout, follow_redirects=follow, params=params,
-                headers={"User-Agent": ua, "Accept-Language": "es-CL,es;q=0.9,en;q=0.8"},
+                headers=headers,
             )
         except (httpx.TimeoutException, httpx.TransportError) as exc:
             last_exc = exc
@@ -156,6 +198,66 @@ def _extract_meta(html: str) -> dict:
     m = re.search(r'<meta[^>]+property=["\']og:description["\'][^>]+content=["\']([^"\']{1,500})', html, re.I)
     if m:
         out["og_description"] = m.group(1).strip()
+    return out
+
+
+# Known social domains we surface when found in page links.
+_SOCIAL_HOSTS = ("linkedin.com", "facebook.com", "instagram.com", "twitter.com",
+                 "x.com", "youtube.com", "tiktok.com")
+
+
+def _extract_contacts(html: str) -> dict:
+    """Pull contact + legal identifiers from a page's HTML.
+
+    Chilean corporate sites very often print the company RUT in the footer and
+    list contact emails/phones and social handles. Harvesting these turns a
+    bare domain into a chain of new query inputs (RUT → SII, emails → people).
+    Only the visible/source markup is read — no logins, no private data (D4).
+    """
+    out: dict = {}
+
+    ruts = []
+    for cand in re.findall(r"\b\d{1,2}\.?\d{3}\.?\d{3}-[\dkK]\b", html):
+        norm = cand.replace(".", "")
+        if _valid_rut(norm) and norm not in ruts:
+            ruts.append(norm)
+    if ruts:
+        out["website_ruts"] = ruts[:3]
+
+    emails = []
+    for e in re.findall(r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}", html):
+        el = e.lower()
+        if el not in emails and not el.endswith((".png", ".jpg", ".gif", ".svg", ".webp")):
+            emails.append(el)
+    if emails:
+        out["website_emails"] = emails[:5]
+
+    phones = []
+    for p in re.findall(r"\+?56[\s\-]?9[\s\-]?\d{4}[\s\-]?\d{4}", html):
+        clean = re.sub(r"[\s\-]", "", p)
+        if clean not in phones:
+            phones.append(clean)
+    if phones:
+        out["website_phones"] = phones[:5]
+
+    socials = {}
+    for m in re.findall(r'https?://(?:www\.)?([a-z0-9.\-]+)/[^\s"\'<>]+', html, re.I):
+        host = m.lower()
+        for s in _SOCIAL_HOSTS:
+            if host.endswith(s) and s not in socials:
+                socials[s] = True
+    links = sorted({
+        u for u in re.findall(r'https?://[^\s"\'<>]+', html, re.I)
+        if any(s in u.lower() for s in _SOCIAL_HOSTS)
+    })
+    if links:
+        out["website_social_links"] = links[:6]
+
+    m = re.search(r'(?:Dirección|Direccion|Address)\s*[:\-]?\s*'
+                  r'([A-ZÁÉÍÓÚÑa-záéíóúñ0-9\s\.,#°]{8,120})', html, re.I)
+    if m:
+        out["website_address"] = m.group(1).strip()
+
     return out
 
 
@@ -275,28 +377,71 @@ def _source_website(domain: str, flags: list) -> dict:
         _flag(flags, "NO_CORPORATE_WEBSITE", "medium",
               f"El dominio {domain} no tiene sitio web accesible.", "website_scrape")
         return {"inferred_website": url, "website_accessible": False}
-    meta = _extract_meta(resp.text[:15_000])
+    body = resp.text[:120_000]  # enough to reach the footer where RUT/contacts live
+    meta = _extract_meta(body[:15_000])
     out: dict = {
         "inferred_website": url,
         "website_accessible": True,
         "website_title": meta.get("title"),
         "website_description": meta.get("description") or meta.get("og_description"),
     }
+    out.update(_extract_contacts(body))
     return {k: v for k, v in out.items() if v is not None}
 
 
-# ─── Source 7+8: DuckDuckGo web + news ───────────────────────────────────────
+# ─── Source 7+8: Web search (Google CSE → DuckDuckGo) + news ─────────────────
+
+
+def _google_cse(query: str, num: int = 5) -> list[dict]:
+    """Google Custom Search (free tier: 100 queries/day).
+
+    Unlike DuckDuckGo, this is an official key-based API that runs from any IP,
+    so it keeps working from Render's datacenter address. Returns DDG-shaped
+    dicts (title/href/body) so callers don't care which backend answered.
+    """
+    if not (_GOOGLE_CSE_KEY and _GOOGLE_CSE_CX):
+        return []
+    resp = _get(
+        "https://www.googleapis.com/customsearch/v1",
+        params={"key": _GOOGLE_CSE_KEY, "cx": _GOOGLE_CSE_CX, "q": query, "num": num},
+        timeout=8.0,
+    )
+    if not resp or resp.status_code != 200:
+        return []
+    try:
+        items = resp.json().get("items", [])
+    except Exception:
+        return []
+    return [
+        {"title": it.get("title", ""), "href": it.get("link", ""),
+         "body": it.get("snippet", "")}
+        for it in items
+    ]
 
 
 def _source_ddg(company: str, industry: str | None, flags: list) -> dict:
     out: dict = {}
+    q = f"{company} Chile {industry or ''}".strip()
+
+    # Prefer Google CSE (works from any IP); fall back to DDG (blocked on Render).
+    hits = _google_cse(q, num=5)
+    backend = "google_cse" if hits else None
+    news: list = []
     try:
         from duckduckgo_search import DDGS  # type: ignore
-        q = f"{company} Chile {industry or ''}".strip()
         with DDGS() as ddgs:
-            hits = list(ddgs.text(q, max_results=5))
+            if not hits:
+                hits = list(ddgs.text(q, max_results=5))
+                backend = "duckduckgo" if hits else backend
             news = list(ddgs.news(f"{company} Chile", max_results=3))
+    except ImportError:
+        logger.warning("duckduckgo-search not installed")
+    except Exception as exc:
+        logger.warning("DDG search error for '%s': %s", company, exc)
 
+    try:
+        if backend:
+            out["web_search_backend"] = backend
         if hits:
             out["web_search_results"] = [
                 {"title": h.get("title", ""), "url": h.get("href", ""),
@@ -315,10 +460,8 @@ def _source_ddg(company: str, industry: str | None, flags: list) -> dict:
                  "snippet": (n.get("body") or "")[:300]}
                 for n in news
             ]
-    except ImportError:
-        logger.warning("duckduckgo-search not installed")
     except Exception as exc:
-        logger.warning("DDG search error for '%s': %s", company, exc)
+        logger.warning("Web-search formatting error for '%s': %s", company, exc)
     return out
 
 
@@ -492,8 +635,39 @@ def _source_sii(rut: str, declared_company: str, flags: list) -> tuple[dict, str
 # ─── Source 13: Mercado Público ───────────────────────────────────────────────
 
 
-def _source_mercado_publico(company: str) -> tuple[dict, str]:
-    """Search for company activity in ChileCompra."""
+def _source_mercado_publico(company: str, rut: str | None = None) -> tuple[dict, str]:
+    """Look up company activity in ChileCompra.
+
+    Preferred path (when MERCADO_PUBLICO_TICKET is set and a RUT was resolved
+    upstream): the official API, which counts public-sector purchase orders —
+    a genuine signal of economic scale and an established supplier relationship.
+    Falls back to the name-based web scraper otherwise.
+    """
+    if _MP_TICKET and rut and _valid_rut(rut):
+        clean = re.sub(r"[^0-9kK]", "", rut.upper())
+        formatted = f"{clean[:-1]}-{clean[-1]}"
+        resp = _get(
+            "https://api.mercadopublico.cl/servicios/v1/publico/ordenesdecompra.json",
+            params={"proveedor": formatted, "ticket": _MP_TICKET},
+            timeout=10.0,
+        )
+        if resp and resp.status_code == 200:
+            try:
+                data = resp.json()
+                count = data.get("Cantidad", len(data.get("Listado", []) or []))
+                if count:
+                    return {
+                        "mercado_publico_found": True,
+                        "mercado_publico_rut": formatted,
+                        "mercado_publico_ordenes": count,
+                        "mercado_publico_url":
+                            f"https://www.mercadopublico.cl/Portal/Modules/Site/"
+                            f"Busquedas/ResultadosBusqueda.aspx?qs={quote_plus(company)}",
+                    }, STATUS_OK
+                return {"mercado_publico_found": False}, STATUS_NO_DATA
+            except Exception:
+                pass  # fall through to scraper
+
     resp = _get(
         "https://www.mercadopublico.cl/Home/Empresa/BuscarEmpresa",
         params={"nombre": company},
@@ -515,6 +689,167 @@ def _source_mercado_publico(company: str) -> tuple[dict, str]:
             "mercado_publico_url": f"https://www.mercadopublico.cl/Home/Empresa/BuscarEmpresa?nombre={quote_plus(company)}",
         }, STATUS_OK
     return {"mercado_publico_found": False}, STATUS_NO_DATA
+
+
+# ─── Source 14: Boletín Concursal (insolvency / bankruptcy) ───────────────────
+
+
+def _source_boletin_concursal(rut: str, flags: list) -> tuple[dict, str]:
+    """Check the Boletín Concursal (Superir) for insolvency proceedings.
+
+    A hit means the company/person is in a liquidation or reorganización
+    procedure — a strong economic-viability risk (feeds verdict rule D3).
+    Always returns a verifiable link so a human can confirm.
+    """
+    if not _valid_rut(rut):
+        return {}, STATUS_SKIPPED
+    clean = re.sub(r"[^0-9kK]", "", rut.upper())
+    formatted = f"{clean[:-1]}-{clean[-1]}"
+    link = f"https://www.boletinconcursal.cl/boletin/procedimientos?rut={formatted}"
+    out: dict = {"boletin_concursal_url": link}
+
+    resp = _get(link, timeout=8.0)
+    if not resp or resp.status_code != 200:
+        return out, STATUS_UNREACHABLE
+
+    text = resp.text
+    has_proc = bool(re.search(r"(Liquidaci[oó]n|Reorganizaci[oó]n|Procedimiento Concursal)",
+                              text, re.I))
+    no_results = bool(re.search(r"(sin resultados|no se encontraron|0 resultados)", text, re.I))
+    if has_proc and not no_results:
+        out["boletin_concursal_found"] = True
+        _flag(flags, "INSOLVENCY_PROCEEDING", "high",
+              f"RUT {formatted} aparece con procedimiento concursal (insolvencia) "
+              f"en el Boletín Concursal.", "boletin_concursal")
+        return out, STATUS_OK
+    if no_results:
+        out["boletin_concursal_found"] = False
+        return out, STATUS_NO_DATA
+    return out, STATUS_PARSE_FAILED
+
+
+# ─── Source 15: Registro de Empresas y Sociedades (RES) ───────────────────────
+
+
+def _source_registro_empresas(company: str, rut: str | None) -> tuple[dict, str]:
+    """Best-effort lookup in the Registro de Empresas y Sociedades.
+
+    The RES (Empresa en un Día) holds incorporation data: tipo societario,
+    capital, socios. The portal is JS-heavy, so this is best-effort plus a
+    verifiable search link the admin can open.
+    """
+    link = "https://www.registrodeempresasysociedades.cl/Empresa/BuscarEmpresa.aspx"
+    out: dict = {"registro_empresas_url": link}
+    query = rut if (rut and _valid_rut(rut)) else company
+    resp = _get(link, params={"q": query}, timeout=8.0)
+    if not resp or resp.status_code != 200:
+        return out, STATUS_UNREACHABLE
+    m = re.search(r"(Sociedad por Acciones|Responsabilidad Limitada|E\.I\.R\.L\.|"
+                  r"Sociedad An[oó]nima|SpA)", resp.text, re.I)
+    if m:
+        out["registro_empresas_tipo"] = m.group(1)
+        return out, STATUS_OK
+    return out, STATUS_NO_DATA
+
+
+# ─── Source 16: Diario Oficial (incorporation / modification notices) ─────────
+
+
+def _source_diario_oficial(company: str) -> tuple[dict, str]:
+    """Search the Diario Oficial for company constitution / modification notices.
+
+    Confirms the company was legally published and gives an incorporation date
+    reference. Returns a verifiable search link regardless of parse outcome.
+    """
+    link = ("https://www.diariooficial.interior.gob.cl/edicionelectronica/"
+            f"empresas_cooperativas.php?q={quote_plus(company)}")
+    out: dict = {"diario_oficial_url": link}
+    resp = _get(link, timeout=8.0)
+    if not resp or resp.status_code != 200:
+        return out, STATUS_UNREACHABLE
+    if re.search(re.escape(company.split()[0]), resp.text, re.I):
+        out["diario_oficial_found"] = True
+        return out, STATUS_OK
+    return out, STATUS_NO_DATA
+
+
+# ─── Source 17+18: INAPI (trademarks) + Poder Judicial (litigation) ───────────
+
+
+def _source_verifiable_links(company: str, rut: str | None) -> dict:
+    """Emit verifiable deep links for sources that are gated (JS/captcha).
+
+    These can't be scraped freely without risking ToS/captcha, so instead of
+    guessing we hand the admin a one-click public lookup — useful, free, and
+    fully within the public-information rule (D4).
+    """
+    out: dict = {
+        "inapi_marcas_url":
+            f"https://ion.inapi.cl/Marca/BuscarMarca.aspx?q={quote_plus(company)}",
+    }
+    if rut and _valid_rut(rut):
+        clean = re.sub(r"[^0-9kK]", "", rut.upper())
+        formatted = f"{clean[:-1]}-{clean[-1]}"
+        out["poder_judicial_url"] = (
+            "https://oficinajudicialvirtual.pjud.cl/indexN.php"
+            f"#rut={formatted}")
+    return out
+
+
+# ─── Source 19: Optional AI synthesis (OpenAI-compatible / Ollama) ────────────
+
+
+def _source_ai_synthesis(result: dict) -> dict:
+    """Reconcile collected signals into a structured profile via a local LLM.
+
+    Only runs when ENRICH_LLM_URL is configured (e.g. an Ollama server exposing
+    the OpenAI-compatible /v1/chat/completions endpoint). The model only
+    *synthesises* already-collected public data — it performs no searches
+    (rule D2). Degrades silently if unconfigured or unreachable.
+    """
+    if not _LLM_URL:
+        return {}
+
+    # Feed the model only the harvested signals, not raw HTML.
+    signal_keys = (
+        "company", "sii_razon_social", "sii_actividad", "website_title",
+        "website_description", "website_address", "web_top_snippet",
+        "linkedin_description", "wikipedia_extract", "mercado_publico_found",
+        "boletin_concursal_found", "registro_empresas_tipo", "industry",
+        "flags",
+    )
+    payload_facts = {k: result.get(k) for k in signal_keys if result.get(k) is not None}
+    prompt = (
+        "Eres un analista de inteligencia comercial. Con SOLO los datos públicos "
+        "entregados (no inventes nada), redacta un perfil breve de la empresa y un "
+        "pre-veredicto de viabilidad (técnica, económica, legal) en JSON con las "
+        "claves: profile (string), viability (alta|media|baja), reasons (array). "
+        f"Datos:\n{json.dumps(payload_facts, ensure_ascii=False)}"
+    )
+    headers = {"Content-Type": "application/json"}
+    if _LLM_KEY:
+        headers["Authorization"] = f"Bearer {_LLM_KEY}"
+    try:
+        resp = httpx.post(
+            _LLM_URL.rstrip("/") + "/v1/chat/completions",
+            json={
+                "model": _LLM_MODEL,
+                "messages": [{"role": "user", "content": prompt}],
+                "temperature": 0.2,
+                "stream": False,
+            },
+            headers=headers,
+            timeout=30.0,
+        )
+        if resp.status_code != 200:
+            return {}
+        content = resp.json()["choices"][0]["message"]["content"]
+        m = re.search(r"\{.*\}", content, re.S)
+        parsed = json.loads(m.group(0)) if m else {"profile": content[:600]}
+        return {"ai_synthesis": parsed}
+    except Exception as exc:
+        logger.debug("AI synthesis skipped: %s", exc)
+        return {}
 
 
 # ─── Risk score ───────────────────────────────────────────────────────────────
@@ -549,7 +884,7 @@ def enrich_lead(
     NEVER raises. All failures are caught and logged.
     """
     result: dict = {
-        "enrichment_version": "3.1",
+        "enrichment_version": "4.0",
         "sources_used": [],
         "flags": [],
         "verification": {},
@@ -612,8 +947,16 @@ def enrich_lead(
         result.update(r)
         result["sources_used"].append("rutificador")
 
-    # ── 12. SII ──
-    rut = result.get("company_rut") or result.get("contact_rut")
+    # ── Waterfall: resolve a single best RUT from every upstream signal ──
+    # A RUT printed in the company's own website footer bypasses the
+    # Rutificador scraper entirely (which is IP-blocked on Render).
+    website_ruts = result.get("website_ruts") or []
+    rut = (result.get("company_rut") or result.get("contact_rut")
+           or (website_ruts[0] if website_ruts else None))
+    if rut:
+        result["resolved_rut"] = rut
+
+    # ── 12. SII (fed by the resolved RUT) ──
     if rut and company:
         r, status = _source_sii(rut, company, flags)
         verification["sii"] = status
@@ -625,15 +968,54 @@ def enrich_lead(
     else:
         verification["sii"] = STATUS_SKIPPED
 
-    # ── 13. Mercado Público ──
+    # ── 13. Mercado Público (official API when RUT + ticket, else scraper) ──
     if company:
-        r, status = _source_mercado_publico(company)
+        r, status = _source_mercado_publico(company, rut)
         verification["mercado_publico"] = status
         if r:
             result.update(r)
             result["sources_used"].append("mercado_publico")
     else:
         verification["mercado_publico"] = STATUS_SKIPPED
+
+    # ── 14. Boletín Concursal (insolvency by RUT) ──
+    if rut:
+        r, status = _source_boletin_concursal(rut, flags)
+        verification["boletin_concursal"] = status
+        if r:
+            result.update(r)
+            result["sources_used"].append("boletin_concursal")
+    else:
+        verification["boletin_concursal"] = STATUS_SKIPPED
+
+    # ── 15. Registro de Empresas y Sociedades ──
+    if company:
+        r, status = _source_registro_empresas(company, rut)
+        verification["registro_empresas"] = status
+        if r:
+            result.update(r)
+            result["sources_used"].append("registro_empresas")
+
+    # ── 16. Diario Oficial ──
+    if company:
+        r, status = _source_diario_oficial(company)
+        verification["diario_oficial"] = status
+        if r:
+            result.update(r)
+            result["sources_used"].append("diario_oficial")
+
+    # ── 17+18. Verifiable links (INAPI trademarks, Poder Judicial) ──
+    if company:
+        r = _source_verifiable_links(company, rut)
+        if r:
+            result.update(r)
+            result["sources_used"].append("verifiable_links")
+
+    # ── 19. Optional AI synthesis (runs last, over collected signals) ──
+    r = _source_ai_synthesis(result)
+    if r:
+        result.update(r)
+        result["sources_used"].append("ai_synthesis")
 
     # ── Risk score ──
     score = _risk_score(flags)
@@ -665,7 +1047,13 @@ def enrich_lead(
     if result.get("wikipedia_extract"):
         parts.append(f"Wikipedia: {result['wikipedia_extract'][:200]}")
     if result.get("mercado_publico_found"):
-        parts.append("Registrado en Mercado Público (ChileCompra).")
+        ordenes = result.get("mercado_publico_ordenes")
+        parts.append("Registrado en Mercado Público (ChileCompra)" +
+                     (f" — {ordenes} órdenes de compra." if ordenes else "."))
+    if result.get("registro_empresas_tipo"):
+        parts.append(f"Sociedad: {result['registro_empresas_tipo']}")
+    if result.get("ai_synthesis", {}).get("viability"):
+        parts.append(f"IA pre-veredicto viabilidad: {result['ai_synthesis']['viability']}")
 
     # Operational note: a claimed RUT we couldn't verify in SII (page changed
     # or captcha) — flagged for manual review, separate from fraud signals.
@@ -675,7 +1063,7 @@ def enrich_lead(
     result["summary"] = " | ".join(parts) or "Sin información adicional encontrada."
 
     logger.info(
-        "Enrichment v3.1 done — risk=%s/%s flags=%d sources=%d verification=%s",
+        "Enrichment v4.0 done — risk=%s/%s flags=%d sources=%d verification=%s",
         score, result["risk_level"], len(flags), len(result["sources_used"]),
         verification,
     )

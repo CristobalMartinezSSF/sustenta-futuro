@@ -292,12 +292,40 @@ export default function EvaluationSection({
     }
   }
 
+  // ── Ensure a proposal record exists so the lead shows up in /propuestas ────────
+  // The PDF endpoint only renders the document; it does NOT create a tracked
+  // proposal. Without this, the Propuestas page stays empty. Idempotent: only
+  // creates a draft when the lead has no proposal yet.
+  async function ensureProposalRecord(): Promise<boolean> {
+    try {
+      const listRes = await fetch(`${API_URL}/leads/${leadId}/proposals`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      })
+      if (listRes.ok) {
+        const existing = await listRes.json()
+        if (Array.isArray(existing) && existing.length > 0) return true
+      }
+      const createRes = await fetch(`${API_URL}/leads/${leadId}/proposal`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${accessToken}` },
+      })
+      return createRes.ok
+    } catch {
+      return false
+    }
+  }
+
   // ── Download proposal PDF (via FastAPI — server-side render) ───────────────────
   async function handleDownloadPdf() {
     if (generatingPdf) return
     setGeneratingPdf(true)
     setPdfError(null)
     try {
+      // Register the proposal first so it appears in the Propuestas list.
+      const registered = await ensureProposalRecord()
+      if (!registered) {
+        setPdfError('La propuesta no se pudo registrar en el listado, pero igual se generó el PDF. Reintenta para que aparezca en Propuestas.')
+      }
       const res = await fetch(`${API_URL}/leads/${leadId}/proposal/pdf`, {
         headers: { Authorization: `Bearer ${accessToken}` },
       })

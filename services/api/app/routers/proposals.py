@@ -15,7 +15,14 @@ from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 
 from app.auth import AdminUser, require_admin
-from app.models.proposal import ProposalDetail, ProposalStatus, ProposalStatusUpdate
+from app.database import get_client
+from app.models.proposal import (
+    ProposalCreate,
+    ProposalDetail,
+    ProposalStatus,
+    ProposalStatusUpdate,
+    ProposalWithSnapshot,
+)
 from app.proposal_pdf import build_proposal_pdf
 from app.routers.evaluations import _advance_lead_status
 from app.routers.leads import DETAIL_FIELDS, _supabase_get, _supabase_patch, _supabase_post
@@ -25,9 +32,32 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/leads", tags=["proposals"])
 
 PROPOSAL_FIELDS = (
-    "id,lead_id,evaluation_id,pdf_storage_path,status,"
+    "id,lead_id,evaluation_id,pdf_storage_path,status,version,is_principal,title,"
     "approved_by,approved_at,sent_at,created_at"
 )
+
+
+def _build_snapshot(lead: dict, evaluation: dict, notes: list[dict]) -> dict:
+    """Freeze the lead's evaluation ficha + notes + basics into an immutable
+    snapshot. This is what makes each proposal a Git-like version: editing the
+    live ficha afterwards never changes an already-created proposal."""
+    return {
+        "evaluation": evaluation,
+        "notes": [
+            {
+                "content": n.get("content"),
+                "created_at": n.get("created_at"),
+                "created_by": n.get("created_by"),
+            }
+            for n in notes
+        ],
+        "lead": {
+            "full_name": lead.get("full_name"),
+            "company": lead.get("company"),
+            "email": lead.get("email"),
+        },
+        "captured_at": datetime.now(timezone.utc).isoformat(),
+    }
 
 
 def _get_lead_and_evaluation(lead_id: str) -> tuple[dict, dict]:
@@ -58,17 +88,46 @@ def _get_lead_and_evaluation(lead_id: str) -> tuple[dict, dict]:
     "/{lead_id}/proposal",
     response_model=ProposalDetail,
     status_code=status.HTTP_201_CREATED,
-    summary="Create a draft proposal from the lead's evaluation",
+    summary="Create a new proposal version (snapshot of the current ficha)",
 )
-def create_proposal(lead_id: str, admin: AdminUser = Depends(require_admin)) -> ProposalDetail:
-    """Create a draft proposal linked to the lead's current evaluation."""
-    _, evaluation = _get_lead_and_evaluation(lead_id)
+def create_proposal(
+    lead_id: str,
+    payload: ProposalCreate | None = None,
+    admin: AdminUser = Depends(require_admin),
+) -> ProposalDetail:
+    """Create a new proposal version for the lead.
+
+    Captures a frozen snapshot of the current evaluation ficha + notes, assigns
+    the next correlative version, and marks the very first version as principal.
+    """
+    lead, evaluation = _get_lead_and_evaluation(lead_id)
+
+    existing = _supabase_get(
+        "/lead_proposals",
+        {"select": "version", "lead_id": f"eq.{lead_id}",
+         "order": "version.desc", "limit": "1"},
+    )
+    next_version = (existing[0]["version"] + 1) if existing else 1
+    is_first = not existing
+
+    notes = _supabase_get(
+        "/lead_notes",
+        {"select": "content,created_at,created_by", "lead_id": f"eq.{lead_id}",
+         "order": "created_at.asc"},
+    )
+    snapshot = _build_snapshot(lead, evaluation, notes)
+    title = (payload.title if payload else None) or f"Versión {next_version}"
+
     row = _supabase_post(
         "/lead_proposals",
         {
             "lead_id": lead_id,
             "evaluation_id": evaluation["id"],
             "status": ProposalStatus.DRAFT.value,
+            "version": next_version,
+            "is_principal": is_first,
+            "title": title,
+            "snapshot": snapshot,
         },
     )
     return ProposalDetail(**row)
@@ -85,12 +144,53 @@ def create_proposal(lead_id: str, admin: AdminUser = Depends(require_admin)) -> 
     summary="List proposals for a lead",
 )
 def list_proposals(lead_id: str, admin: AdminUser = Depends(require_admin)) -> list[ProposalDetail]:
-    """Return all proposals for a lead, newest first."""
+    """Return all proposal versions for a lead, newest version first."""
     rows = _supabase_get(
         "/lead_proposals",
-        {"select": PROPOSAL_FIELDS, "lead_id": f"eq.{lead_id}", "order": "created_at.desc"},
+        {"select": PROPOSAL_FIELDS, "lead_id": f"eq.{lead_id}", "order": "version.desc"},
     )
     return [ProposalDetail(**r) for r in rows]
+
+
+# ---------------------------------------------------------------------------
+# PUT /leads/{lead_id}/proposal/{proposal_id}/principal  — set principal
+# ---------------------------------------------------------------------------
+
+
+@router.put(
+    "/{lead_id}/proposal/{proposal_id}/principal",
+    response_model=ProposalDetail,
+    summary="Mark a proposal version as the lead's principal",
+)
+def set_principal(
+    lead_id: str, proposal_id: str, admin: AdminUser = Depends(require_admin)
+) -> ProposalDetail:
+    """Make this version the lead's principal (the one shown by default).
+
+    Unsets the current principal first to respect the one-principal-per-lead
+    unique index, then promotes the target version.
+    """
+    # Unset any current principal for this lead (tolerates zero matches).
+    try:
+        with get_client() as client:
+            client.patch(
+                "/lead_proposals",
+                params={"lead_id": f"eq.{lead_id}", "is_principal": "eq.true"},
+                json={"is_principal": False},
+            )
+    except Exception as exc:  # pragma: no cover - network/db failure
+        logger.error("Failed to unset principal for lead %s: %s", lead_id, exc)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Could not update principal proposal.",
+        ) from exc
+
+    row = _supabase_patch(
+        "/lead_proposals",
+        {"is_principal": True},
+        {"id": f"eq.{proposal_id}", "lead_id": f"eq.{lead_id}", "select": PROPOSAL_FIELDS},
+    )
+    return ProposalDetail(**row)
 
 
 # ---------------------------------------------------------------------------
@@ -113,6 +213,31 @@ def get_proposal_pdf(lead_id: str, admin: AdminUser = Depends(require_admin)) ->
         media_type="application/pdf",
         headers={"Content-Disposition": f'inline; filename="{filename}"'},
     )
+
+
+# ---------------------------------------------------------------------------
+# GET /leads/{lead_id}/proposal/{proposal_id}  — one version with its snapshot
+# (declared after /proposal/pdf so the literal "pdf" route wins)
+# ---------------------------------------------------------------------------
+
+
+@router.get(
+    "/{lead_id}/proposal/{proposal_id}",
+    response_model=ProposalWithSnapshot,
+    summary="Get a single proposal version including its frozen snapshot",
+)
+def get_proposal(
+    lead_id: str, proposal_id: str, admin: AdminUser = Depends(require_admin)
+) -> ProposalWithSnapshot:
+    """Return one proposal version with its immutable snapshot (read-only view)."""
+    rows = _supabase_get(
+        "/lead_proposals",
+        {"select": "*", "id": f"eq.{proposal_id}",
+         "lead_id": f"eq.{lead_id}", "limit": "1"},
+    )
+    if not rows:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Proposal not found.")
+    return ProposalWithSnapshot(**rows[0])
 
 
 # ---------------------------------------------------------------------------

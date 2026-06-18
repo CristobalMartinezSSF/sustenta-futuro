@@ -769,13 +769,16 @@ export default function LeadDetailPage() {
           const flags = (enrichment.flags as Array<{code:string;severity:string;detail:string;source:string}> | null) ?? []
           const riskScore = (enrichment.risk_score as number) ?? 0
           const riskLevel = str(enrichment.risk_level) || 'low'
+          // Shown to admins as a "confianza" score (higher = better), the
+          // intuitive inverse of the internal risk score (higher = worse).
+          const confidenceScore = 100 - riskScore
           const highFlags = flags.filter(f => f.severity === 'high')
           const medFlags  = flags.filter(f => f.severity === 'medium')
           const lowFlags  = flags.filter(f => f.severity === 'low')
           const riskColor = riskLevel === 'high' ? '#f87171' : riskLevel === 'medium' ? '#fbbf24' : '#4ade80'
           const riskBg    = riskLevel === 'high' ? 'rgba(248,113,113,0.08)' : riskLevel === 'medium' ? 'rgba(251,191,36,0.08)' : 'rgba(74,222,128,0.08)'
           const riskBorder= riskLevel === 'high' ? 'rgba(248,113,113,0.2)' : riskLevel === 'medium' ? 'rgba(251,191,36,0.2)' : 'rgba(74,222,128,0.2)'
-          const riskLabel = riskLevel === 'high' ? 'RIESGO ALTO' : riskLevel === 'medium' ? 'RIESGO MEDIO' : 'RIESGO BAJO'
+          const riskLabel = riskLevel === 'high' ? 'CONFIANZA BAJA' : riskLevel === 'medium' ? 'CONFIANZA MEDIA' : 'CONFIANZA ALTA'
           const sources = (enrichment.sources_used as unknown as string[]) ?? []
 
           return (
@@ -784,7 +787,7 @@ export default function LeadDetailPage() {
               {/* Header */}
               <div className="flex items-center justify-between">
                 <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'rgba(240,240,240,0.35)' }}>
-                  Análisis de riesgo e inteligencia
+                  Análisis de confianza e inteligencia
                 </p>
                 <div className="flex items-center gap-2">
                   <span className="text-xs" style={{ color: 'rgba(240,240,240,0.3)' }}>
@@ -792,7 +795,7 @@ export default function LeadDetailPage() {
                   </span>
                   <span className="rounded-md px-2.5 py-1 text-xs font-bold"
                     style={{ background: riskBg, color: riskColor, border: `1px solid ${riskBorder}` }}>
-                    {riskLabel} — {riskScore}/100
+                    {riskLabel} — {confidenceScore}/100
                   </span>
                 </div>
               </div>

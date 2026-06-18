@@ -76,18 +76,6 @@ const STATUS_COLORS: Record<LeadStatus, { bg: string; text: string; border: stri
   lost:             { bg: 'rgba(239,68,68,0.1)',    text: '#f87171', border: 'rgba(239,68,68,0.2)' },
 }
 
-const PIPELINE_STEPS: LeadStatus[] = [
-  'new',
-  'reviewing',
-  'pending_approval',
-  'contacted',
-  'evaluating',
-  'viable',
-  'proposal_sent',
-  'won',
-  'lost',
-]
-
 const PREGUNTAS_ESTANDAR = [
   '¿Cual es el objetivo principal del sistema que necesitas?',
   '¿Quienes seran los usuarios del sistema? (roles, cantidad estimada)',
@@ -139,8 +127,6 @@ export default function LeadDetailPage() {
   const [savingTitle, setSavingTitle] = useState(false)
   const titleInputRef = useRef<HTMLInputElement>(null)
 
-  // Status update
-  const [updatingStatus, setUpdatingStatus] = useState(false)
 
   // Notes
   const [noteText, setNoteText] = useState('')
@@ -309,34 +295,6 @@ export default function LeadDetailPage() {
     } finally {
       setSavingTitle(false)
       setEditingTitle(false)
-    }
-  }
-
-  async function handleStatusChange(newStatus: LeadStatus) {
-    if (!lead || updatingStatus || lead.status === newStatus) return
-    setUpdatingStatus(true)
-    try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/leads?id=eq.${leadId}`,
-        {
-          method: 'PATCH',
-          headers: {
-            'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-            'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'application/json',
-            'Prefer': 'return=representation',
-          },
-          body: JSON.stringify({ status: newStatus }),
-        }
-      )
-      if (res.ok) {
-        const updated = await res.json()
-        if (updated && updated[0]) {
-          setLead(updated[0] as Lead)
-        }
-      }
-    } finally {
-      setUpdatingStatus(false)
     }
   }
 
@@ -653,91 +611,6 @@ export default function LeadDetailPage() {
               {STATUS_LABELS[currentStatus]}
             </span>
           </div>
-        </div>
-
-        {/* Pipeline stepper */}
-        <div
-          className="rounded-xl border p-5"
-          style={{ background: '#0a0a0a', borderColor: 'rgba(255,255,255,0.08)' }}
-        >
-          <p className="text-xs font-medium uppercase tracking-wider mb-4" style={{ color: 'rgba(240,240,240,0.35)' }}>
-            Etapa del lead
-          </p>
-          <div className="flex items-start gap-0 overflow-x-auto pb-1">
-            {PIPELINE_STEPS.map((step, idx) => {
-              const isCurrent = step === currentStatus
-              const isCompleted =
-                step !== 'lost' &&
-                currentStatus !== 'lost' &&
-                idx < PIPELINE_STEPS.indexOf(currentStatus)
-
-              return (
-                <div key={step} className="flex items-center">
-                  <button
-                    onClick={() => handleStatusChange(step)}
-                    disabled={updatingStatus}
-                    className="flex flex-col items-center gap-2 group"
-                    style={{ minWidth: '72px' }}
-                  >
-                    <div
-                      className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold transition-all"
-                      style={
-                        isCurrent
-                          ? {
-                              background: 'rgba(75,155,245,0.15)',
-                              border: '2px solid #4B9BF5',
-                              color: '#4B9BF5',
-                              boxShadow: '0 0 0 3px rgba(75,155,245,0.1)',
-                            }
-                          : isCompleted
-                          ? {
-                              background: 'rgba(92,184,92,0.15)',
-                              border: '2px solid rgba(92,184,92,0.5)',
-                              color: '#5CB85C',
-                            }
-                          : {
-                              background: 'rgba(255,255,255,0.04)',
-                              border: '1px solid rgba(255,255,255,0.1)',
-                              color: 'rgba(240,240,240,0.25)',
-                            }
-                      }
-                    >
-                      {isCompleted ? '✓' : idx + 1}
-                    </div>
-                    <span
-                      className="text-center leading-tight"
-                      style={{
-                        fontSize: '10px',
-                        color: isCurrent
-                          ? '#4B9BF5'
-                          : isCompleted
-                          ? 'rgba(92,184,92,0.8)'
-                          : 'rgba(240,240,240,0.3)',
-                        maxWidth: '68px',
-                      }}
-                    >
-                      {STATUS_LABELS[step]}
-                    </span>
-                  </button>
-                  {idx < PIPELINE_STEPS.length - 1 && (
-                    <div
-                      className="h-px w-4 flex-shrink-0 mt-[-18px]"
-                      style={{
-                        background: isCompleted
-                          ? 'rgba(92,184,92,0.3)'
-                          : 'rgba(255,255,255,0.08)',
-                      }}
-                    />
-                  )}
-                </div>
-              )
-            })}
-          </div>
-          {updatingStatus && (
-            <p className="text-xs mt-3" style={{ color: 'rgba(240,240,240,0.35)' }}>
-              Guardando cambio de estado...
-            </p>
-          )}
         </div>
 
         {/* Contact info card */}

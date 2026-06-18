@@ -257,6 +257,94 @@ def test_google_cse_used_when_configured(monkeypatch):
     assert hits and hits[0]["href"] == "https://acme.cl"
 
 
+# ─── v4.1: web-presence precision — don't flag legit companies ────────────────
+
+
+class _FakeDDGS:
+    """Stand-in for duckduckgo_search.DDGS. `text_hits` controls results;
+    pass raise_on_text=True to simulate a blocked/erroring backend."""
+
+    def __init__(self, text_hits=None, raise_on_text=False):
+        self._text_hits = text_hits or []
+        self._raise = raise_on_text
+
+    def __call__(self):
+        return self
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *a):
+        return False
+
+    def text(self, *a, **k):
+        if self._raise:
+            raise RuntimeError("blocked from datacenter IP")
+        return self._text_hits
+
+    def news(self, *a, **k):
+        return []
+
+
+def _patch_ddgs(monkeypatch, fake):
+    import duckduckgo_search
+    monkeypatch.setattr(duckduckgo_search, "DDGS", fake)
+
+
+def test_google_cse_returns_none_when_unconfigured(monkeypatch):
+    monkeypatch.setattr(enr, "_GOOGLE_CSE_KEY", None)
+    monkeypatch.setattr(enr, "_GOOGLE_CSE_CX", None)
+    assert enr._google_cse("ACME Chile") is None
+
+
+def test_no_web_presence_not_flagged_when_search_unavailable(monkeypatch):
+    # CSE off + DDG blocked → the search could not run at all.
+    monkeypatch.setattr(enr, "_GOOGLE_CSE_KEY", None)
+    monkeypatch.setattr(enr, "_GOOGLE_CSE_CX", None)
+    _patch_ddgs(monkeypatch, _FakeDDGS(raise_on_text=True))
+    flags: list = []
+    out = enr._source_ddg("HCMFront", None, flags)
+    assert not any(f["code"] == "NO_WEB_PRESENCE" for f in flags)
+    assert out.get("web_search") == "unavailable"
+
+
+def test_no_web_presence_flagged_when_search_runs_empty(monkeypatch):
+    # CSE off + DDG runs and genuinely returns nothing → real no-presence.
+    monkeypatch.setattr(enr, "_GOOGLE_CSE_KEY", None)
+    monkeypatch.setattr(enr, "_GOOGLE_CSE_CX", None)
+    _patch_ddgs(monkeypatch, _FakeDDGS(text_hits=[]))
+    flags: list = []
+    enr._source_ddg("Empresa Inexistente XYZ", None, flags)
+    assert any(f["code"] == "NO_WEB_PRESENCE" for f in flags)
+
+
+def test_known_web_presence_suppresses_flag(monkeypatch):
+    # Even if the web search comes back empty, an already-found corporate site
+    # means we must not flag the company as having no web presence.
+    monkeypatch.setattr(enr, "_GOOGLE_CSE_KEY", None)
+    monkeypatch.setattr(enr, "_GOOGLE_CSE_CX", None)
+    _patch_ddgs(monkeypatch, _FakeDDGS(text_hits=[]))
+    flags: list = []
+    enr._source_ddg("HCMFront", None, flags, known_web_presence=True)
+    assert not any(f["code"] == "NO_WEB_PRESENCE" for f in flags)
+
+
+def test_domain_from_company_finds_first_reachable_host(monkeypatch):
+    # Only home.hcmfront.com answers 200; the bare .com 404s.
+    def fake_get(url, *a, **k):
+        if url == "https://home.hcmfront.com":
+            return FakeResponse(200)
+        return FakeResponse(404)
+
+    monkeypatch.setattr(enr, "_get", fake_get)
+    assert enr._domain_from_company("HCMFront") == "home.hcmfront.com"
+
+
+def test_domain_from_company_returns_none_when_nothing_reachable(monkeypatch):
+    monkeypatch.setattr(enr, "_get", lambda *a, **k: FakeResponse(404))
+    assert enr._domain_from_company("HCMFront") is None
+
+
 # ─── v4: AI synthesis provider selection ──────────────────────────────────────
 
 
@@ -301,7 +389,7 @@ def test_enrich_lead_populates_verification(monkeypatch, dns_ok):
         email="foo@gmail.com", company="ACME SpA", full_name="Juan Perez",
         phone="+56912345678",
     )
-    assert result["enrichment_version"] == "4.0"
+    assert result["enrichment_version"] == "4.1"
     assert "verification" in result
     # SII is skipped because no RUT was resolved (rutificador unreachable).
     assert result["verification"]["sii"] == enr.STATUS_SKIPPED

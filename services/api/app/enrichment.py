@@ -393,29 +393,60 @@ def _source_website(domain: str, flags: list) -> dict:
     return {k: v for k, v in out.items() if v is not None}
 
 
+def _domain_from_company(company: str) -> str | None:
+    """Guess a company's own domain by probing hostnames built from its name.
+
+    Used when the lead wrote from a free email (gmail/hotmail/…) so we never
+    inferred a corporate domain. Probes likely ``.com``/``.cl`` hosts (plus a
+    ``home.`` subdomain — several Chilean SaaS serve their site there) and
+    returns the first host that responds 200. This is what lets us still find
+    the corporate site of a legit company whose contact used a personal email.
+    Returns the reachable host (may include a subdomain) or ``None``.
+    """
+    base = re.sub(r"[^a-z0-9]", "", company.lower())
+    if len(base) < 3:
+        return None
+    words = re.sub(r"[^a-z0-9]+", " ", company.lower()).split()
+    hyph = "-".join(words) if len(words) > 1 else ""
+    stems = [s for s in dict.fromkeys((base, hyph)) if s]
+    for stem in stems:
+        for tld in (".com", ".cl", ".com.cl"):
+            for host in (f"{stem}{tld}", f"home.{stem}{tld}"):
+                resp = _get(f"https://{host}", timeout=6.0)
+                if resp is not None and resp.status_code == 200:
+                    return host
+    return None
+
+
 # ─── Source 7+8: Web search (Google CSE → DuckDuckGo) + news ─────────────────
 
 
-def _google_cse(query: str, num: int = 5) -> list[dict]:
+def _google_cse(query: str, num: int = 5) -> list[dict] | None:
     """Google Custom Search (free tier: 100 queries/day).
 
     Unlike DuckDuckGo, this is an official key-based API that runs from any IP,
     so it keeps working from Render's datacenter address. Returns DDG-shaped
     dicts (title/href/body) so callers don't care which backend answered.
+
+    Returns ``None`` when the search could NOT be executed (not configured,
+    HTTP error, quota exceeded) so callers can tell "couldn't search" apart
+    from "searched and found nothing" (an empty list). This distinction is
+    what prevents a blocked/unconfigured backend from being misreported as a
+    company having no web presence.
     """
     if not (_GOOGLE_CSE_KEY and _GOOGLE_CSE_CX):
-        return []
+        return None
     resp = _get(
         "https://www.googleapis.com/customsearch/v1",
         params={"key": _GOOGLE_CSE_KEY, "cx": _GOOGLE_CSE_CX, "q": query, "num": num},
         timeout=8.0,
     )
     if not resp or resp.status_code != 200:
-        return []
+        return None
     try:
         items = resp.json().get("items", [])
     except Exception:
-        return []
+        return None
     return [
         {"title": it.get("title", ""), "href": it.get("link", ""),
          "body": it.get("snippet", "")}
@@ -423,21 +454,31 @@ def _google_cse(query: str, num: int = 5) -> list[dict]:
     ]
 
 
-def _source_ddg(company: str, industry: str | None, flags: list) -> dict:
+def _source_ddg(company: str, industry: str | None, flags: list,
+                known_web_presence: bool = False) -> dict:
     out: dict = {}
     q = f"{company} Chile {industry or ''}".strip()
 
     # Prefer Google CSE (works from any IP); fall back to DDG (blocked on Render).
-    hits = _google_cse(q, num=5)
+    # `search_executed` tracks whether ANY backend actually ran a query, so an
+    # empty result from a working backend ("no web presence") is never confused
+    # with a backend that couldn't run at all (unconfigured / blocked / quota).
+    cse_hits = _google_cse(q, num=5)            # None = couldn't run; [] = ran, empty
+    search_executed = cse_hits is not None
+    hits = cse_hits or []
     backend = "google_cse" if hits else None
     news: list = []
     try:
         from duckduckgo_search import DDGS  # type: ignore
         with DDGS() as ddgs:
             if not hits:
-                hits = list(ddgs.text(q, max_results=5))
-                backend = "duckduckgo" if hits else backend
+                ddg_hits = list(ddgs.text(q, max_results=5))
+                search_executed = True          # DDG ran without raising
+                if ddg_hits:
+                    hits = ddg_hits
+                    backend = "duckduckgo"
             news = list(ddgs.news(f"{company} Chile", max_results=3))
+            search_executed = True
     except ImportError:
         logger.warning("duckduckgo-search not installed")
     except Exception as exc:
@@ -453,9 +494,14 @@ def _source_ddg(company: str, industry: str | None, flags: list) -> dict:
                 for h in hits
             ]
             out["web_top_snippet"] = (hits[0].get("body") or "")[:500]
-        else:
+        elif search_executed and not known_web_presence:
+            # A working backend genuinely returned zero results AND we have no
+            # other evidence of a corporate site → real "no web presence".
             _flag(flags, "NO_WEB_PRESENCE", "medium",
                   f"No se encontraron resultados web para '{company} Chile'.", "ddg_search")
+        else:
+            # No search backend available — informational, NOT a fraud signal.
+            out["web_search"] = "unavailable"
 
         if news:
             out["news_results"] = [
@@ -943,7 +989,7 @@ def enrich_lead(
     NEVER raises. All failures are caught and logged.
     """
     result: dict = {
-        "enrichment_version": "4.0",
+        "enrichment_version": "4.1",
         "sources_used": [],
         "flags": [],
         "verification": {},
@@ -972,15 +1018,24 @@ def enrich_lead(
             result["sources_used"].append("ip_geolocation")
 
     # ── 6. Website ──
-    if domain and domain not in _GENERIC:
-        r = _source_website(domain, flags)
+    web_domain = domain if (domain and domain not in _GENERIC) else None
+    if not web_domain and company:
+        # Free email → infer the corporate domain from the company name.
+        web_domain = _domain_from_company(company)
+        if web_domain:
+            result["website_from_company_name"] = True
+    if web_domain:
+        r = _source_website(web_domain, flags)
         if r:
             result.update(r)
             result["sources_used"].append("website_scrape")
 
     # ── 7+8. DDG web + news ──
     if company:
-        r = _source_ddg(company, industry, flags)
+        # If we already reached the corporate site, a web-search miss is not a
+        # "no web presence" signal — don't let a blocked backend flag a real co.
+        known_web = bool(result.get("website_accessible"))
+        r = _source_ddg(company, industry, flags, known_web_presence=known_web)
         if r:
             result.update(r)
             result["sources_used"].append("ddg_search")
@@ -1006,12 +1061,15 @@ def enrich_lead(
         result.update(r)
         result["sources_used"].append("rutificador")
 
-    # ── Waterfall: resolve a single best RUT from every upstream signal ──
-    # A RUT printed in the company's own website footer bypasses the
-    # Rutificador scraper entirely (which is IP-blocked on Render).
-    website_ruts = result.get("website_ruts") or []
-    rut = (result.get("company_rut") or result.get("contact_rut")
-           or (website_ruts[0] if website_ruts else None))
+    # ── Waterfall: resolve a single best RUT for the verification chain ──
+    # Only RUTs from a *targeted* lookup (Rutificador, queried by company /
+    # contact name) are trusted as the entity's own RUT. RUTs merely scraped
+    # from the website body are kept as informational `website_ruts` but are
+    # NOT used to drive high-severity checks (SII / Boletín Concursal): a RUT
+    # appearing anywhere on a site is frequently a client's, an employee's, or
+    # an example — using it would raise a false insolvency flag against a real
+    # company (e.g. HCMFront's site lists a third party's RUT).
+    rut = result.get("company_rut") or result.get("contact_rut")
     if rut:
         result["resolved_rut"] = rut
 

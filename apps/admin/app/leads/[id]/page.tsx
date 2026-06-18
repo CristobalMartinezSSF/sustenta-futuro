@@ -553,7 +553,7 @@ export default function LeadDetailPage() {
           </span>
         </div>
         <div className="flex items-center gap-5">
-          <span className="text-sm font-medium" style={{ color: '#4B9BF5' }}>Leads</span>
+          <button onClick={() => router.push('/')} className="text-sm font-medium transition-opacity hover:opacity-70" style={{ color: '#4B9BF5' }}>Leads</button>
           <button onClick={() => router.push('/propuestas')} className="text-sm transition-opacity hover:opacity-70" style={{ color: 'rgba(240,240,240,0.5)' }}>Propuestas</button>
           <button onClick={() => router.push('/kanban')} className="text-sm transition-opacity hover:opacity-70" style={{ color: 'rgba(240,240,240,0.5)' }}>Kanban</button>
           {isAdmin && <button onClick={() => router.push('/usuarios')} className="text-sm transition-opacity hover:opacity-70" style={{ color: 'rgba(240,240,240,0.5)' }}>Usuarios</button>}
@@ -563,6 +563,15 @@ export default function LeadDetailPage() {
       </header>
 
       <main className="px-6 py-8 max-w-4xl mx-auto space-y-8">
+
+        {/* Back to leads list */}
+        <button
+          onClick={() => router.push('/')}
+          className="flex items-center gap-1.5 text-sm transition-opacity hover:opacity-100"
+          style={{ color: 'rgba(240,240,240,0.5)' }}
+        >
+          <span aria-hidden>←</span> Volver a leads
+        </button>
 
         {/* Header: title + status badge + actions */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">

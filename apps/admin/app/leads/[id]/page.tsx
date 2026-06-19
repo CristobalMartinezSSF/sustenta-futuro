@@ -587,10 +587,7 @@ export default function LeadDetailPage() {
           {/* Right side: status badge + Crear propuesta button */}
           <div className="flex items-center gap-3 self-start flex-wrap">
             <button
-              onClick={() => {
-                const params = new URLSearchParams({ lead_id: lead.id, lead_name: lead.full_name })
-                router.push(`/propuestas?${params.toString()}`)
-              }}
+              onClick={() => router.push(`/propuestas/${lead.id}`)}
               className="rounded-lg px-3 py-1.5 text-sm font-medium transition-opacity hover:opacity-80"
               style={{
                 background: 'rgba(255,255,255,0.06)',

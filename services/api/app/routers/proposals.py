@@ -16,6 +16,7 @@ from fastapi import APIRouter, Depends, HTTPException, Response, status
 
 from app.auth import AdminUser, require_admin
 from app.database import get_client
+from app.email import send_proposal_to_client
 from app.models.project import ProjectDetail
 from app.models.proposal import (
     ProposalCreate,
@@ -296,6 +297,72 @@ def update_proposal_status(
 
     if payload.status == ProposalStatus.SENT:
         _advance_lead_status(lead_id, "proposal_sent", "Propuesta enviada al cliente")
+
+    return ProposalDetail(**row)
+
+
+# ---------------------------------------------------------------------------
+# POST /leads/{lead_id}/proposal/{proposal_id}/send  — email proposal to client
+# ---------------------------------------------------------------------------
+
+
+@router.post(
+    "/{lead_id}/proposal/{proposal_id}/send",
+    response_model=ProposalDetail,
+    summary="Email the proposal PDF to the client and advance the lead",
+)
+def send_proposal(
+    lead_id: str, proposal_id: str, admin: AdminUser = Depends(require_admin)
+) -> ProposalDetail:
+    """Send the proposal to the client by email and mark it as sent.
+
+    Generates the institutional PDF, emails it to the lead with a meeting CTA,
+    and only on successful delivery stamps ``sent_at``, sets the proposal status
+    to ``sent`` and advances the lead to ``proposal_sent``. If the email fails
+    the proposal is left untouched so the action can be safely retried.
+    """
+    lead, evaluation = _get_lead_and_evaluation(lead_id)
+
+    # Make sure the proposal belongs to this lead before sending anything.
+    rows = _supabase_get(
+        "/lead_proposals",
+        {"select": "id,title", "id": f"eq.{proposal_id}",
+         "lead_id": f"eq.{lead_id}", "limit": "1"},
+    )
+    if not rows:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Proposal not found.")
+
+    client_email = lead.get("email")
+    if not client_email:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="The lead has no email address to send the proposal to.",
+        )
+
+    pdf_bytes = build_proposal_pdf(lead, evaluation)
+    project_title = (
+        evaluation.get("project_title") or rows[0].get("title") or lead.get("company") or ""
+    )
+
+    ok = send_proposal_to_client(
+        lead_name=lead.get("full_name") or "",
+        lead_email=client_email,
+        project_title=project_title,
+        pdf_bytes=pdf_bytes,
+    )
+    if not ok:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="No se pudo enviar el correo al cliente. Intenta nuevamente.",
+        )
+
+    now = datetime.now(timezone.utc).isoformat()
+    row = _supabase_patch(
+        "/lead_proposals",
+        {"status": ProposalStatus.SENT.value, "sent_at": now},
+        {"id": f"eq.{proposal_id}", "lead_id": f"eq.{lead_id}", "select": PROPOSAL_FIELDS},
+    )
+    _advance_lead_status(lead_id, "proposal_sent", "Propuesta enviada al cliente")
 
     return ProposalDetail(**row)
 

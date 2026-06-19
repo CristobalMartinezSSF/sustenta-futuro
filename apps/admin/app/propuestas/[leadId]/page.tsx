@@ -436,6 +436,32 @@ export default function LeadProposalsPage() {
     }
   }
 
+  async function handleSendToClient(p: Proposal) {
+    if (busy) return
+    const to = lead?.email || p.snapshot?.lead?.email
+    if (!to) { alert('Este lead no tiene un correo registrado para enviarle la propuesta.'); return }
+    if (!confirm(`Se enviará la propuesta (versión ${p.version}) al cliente: ${to}\n\nEl lead pasará a "Propuesta enviada". ¿Continuar?`)) return
+    setBusy(true)
+    try {
+      const res = await fetch(`${API_URL}/leads/${leadId}/proposal/${p.id}/send`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${accessToken}` },
+      })
+      if (!res.ok) {
+        alert(res.status === 502
+          ? 'No se pudo enviar el correo al cliente. Reintenta en unos segundos.'
+          : `No se pudo enviar la propuesta (error ${res.status}).`)
+        return
+      }
+      setProposals((prev) => prev.map((x) => (x.id === p.id ? { ...x, status: 'sent' } : x)))
+      alert(`Propuesta enviada a ${to}.`)
+    } catch {
+      alert('Error de red al enviar la propuesta. Reintenta en unos segundos (el servidor puede estar despertando).')
+    } finally {
+      setBusy(false)
+    }
+  }
+
   async function handleNewVersion() {
     if (busy) return
     setBusy(true)
@@ -463,9 +489,11 @@ export default function LeadProposalsPage() {
 
   async function handleStatusChange(p: Proposal, newStatus: ProposalStatus) {
     if (newStatus === p.status || busy) return
+    // "Enviada" must go through the real send flow (PDF + email to client),
+    // never a silent status flip.
+    if (newStatus === 'sent') { void handleSendToClient(p); return }
     setBusy(true)
     const patch: Record<string, unknown> = { status: newStatus }
-    if (newStatus === 'sent') patch.sent_at = new Date().toISOString()
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/lead_proposals?id=eq.${p.id}`,
@@ -665,6 +693,16 @@ export default function LeadProposalsPage() {
                     >
                       Descargar PDF
                     </button>
+                    {selected.status !== 'accepted' && (
+                      <button
+                        onClick={() => handleSendToClient(selected)}
+                        disabled={busy}
+                        className="rounded-lg px-3 py-1.5 text-xs font-medium transition-opacity hover:opacity-90 disabled:opacity-40"
+                        style={{ background: 'rgba(251,191,36,0.12)', border: '1px solid rgba(251,191,36,0.3)', color: '#fbbf24' }}
+                      >
+                        {selected.status === 'sent' ? 'Reenviar al cliente' : 'Enviar al cliente'}
+                      </button>
+                    )}
                     {selectedProject ? (
                       <button
                         onClick={() => router.push(`/kanban?project=${selectedProject.id}`)}

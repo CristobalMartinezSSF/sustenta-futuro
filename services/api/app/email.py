@@ -4,6 +4,7 @@ Sends confirmation emails to leads and notification emails to admins.
 Failures are logged but never block the main flow.
 """
 
+import base64
 import logging
 import os
 
@@ -14,14 +15,41 @@ logger = logging.getLogger(__name__)
 RESEND_API_KEY = os.getenv("RESEND_API_KEY", "")
 ADMIN_EMAIL = os.getenv("ADMIN_NOTIFICATION_EMAIL", "")
 FROM_EMAIL = os.getenv("FROM_EMAIL", "Sustenta Futuro <no-reply@sustentafuturo.com>")
+# Contact channel offered to the client to schedule the kickoff meeting. When
+# set (e.g. "https://wa.me/569XXXXXXXX") the proposal email shows a WhatsApp CTA.
+WHATSAPP_CONTACT_URL = os.getenv("WHATSAPP_CONTACT_URL", "")
 RESEND_URL = "https://api.resend.com/emails"
 
 
-def _send(to: str, subject: str, html: str) -> bool:
-    """Send an email via Resend. Returns True on success."""
+def _send(
+    to: str,
+    subject: str,
+    html: str,
+    attachments: list[dict] | None = None,
+) -> bool:
+    """Send an email via Resend. Returns True on success.
+
+    ``attachments`` is an optional list of ``{"filename", "content"}`` dicts
+    where ``content`` is the raw file bytes (encoded to base64 before sending).
+    """
     if not RESEND_API_KEY:
         logger.warning("RESEND_API_KEY not set, skipping email to %s", to)
         return False
+
+    payload: dict = {
+        "from": FROM_EMAIL,
+        "to": [to],
+        "subject": subject,
+        "html": html,
+    }
+    if attachments:
+        payload["attachments"] = [
+            {
+                "filename": a["filename"],
+                "content": base64.b64encode(a["content"]).decode("ascii"),
+            }
+            for a in attachments
+        ]
 
     try:
         resp = httpx.post(
@@ -30,13 +58,8 @@ def _send(to: str, subject: str, html: str) -> bool:
                 "Authorization": f"Bearer {RESEND_API_KEY}",
                 "Content-Type": "application/json",
             },
-            json={
-                "from": FROM_EMAIL,
-                "to": [to],
-                "subject": subject,
-                "html": html,
-            },
-            timeout=10.0,
+            json=payload,
+            timeout=15.0,
         )
         if resp.status_code in (200, 201):
             logger.info("Email sent to %s: %s", to, subject)
@@ -160,4 +183,60 @@ def send_project_completed_notification(
         to=ADMIN_EMAIL,
         subject=f"Proyecto terminado: {project_name}",
         html=html,
+    )
+
+
+def send_proposal_to_client(
+    lead_name: str,
+    lead_email: str,
+    project_title: str,
+    pdf_bytes: bytes,
+) -> bool:
+    """Send the proposal PDF to the client and invite them to schedule a meeting.
+
+    The PDF is attached and, when ``WHATSAPP_CONTACT_URL`` is configured, a
+    WhatsApp CTA is shown so the client can book the kickoff meeting directly.
+    """
+    title = project_title or "tu proyecto"
+    if WHATSAPP_CONTACT_URL:
+        cta = f"""
+        <a href="{WHATSAPP_CONTACT_URL}" style="display: inline-block; background: #25D366; color: #fff; text-decoration: none; font-size: 14px; font-weight: 600; padding: 12px 24px; border-radius: 8px;">
+          Agendar reunión por WhatsApp
+        </a>
+        """
+    else:
+        cta = """
+        <p style="font-size: 14px; line-height: 1.6; margin: 0;">
+          Para coordinar una reunión y resolver tus dudas, responde directamente a este correo.
+        </p>
+        """
+
+    html = f"""
+    <div style="font-family: 'Inter', Arial, sans-serif; max-width: 520px; margin: 0 auto; color: #2B3A42;">
+      <div style="background: #2B3A42; padding: 24px 32px; border-radius: 8px 8px 0 0;">
+        <h1 style="color: #fff; font-size: 20px; margin: 0;">Sustenta Futuro</h1>
+      </div>
+      <div style="padding: 32px; background: #fff; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 8px 8px;">
+        <p style="font-size: 16px; margin: 0 0 16px;">Hola <strong>{lead_name}</strong>,</p>
+        <p style="font-size: 14px; line-height: 1.6; margin: 0 0 16px;">
+          Adjuntamos nuestra propuesta para <strong>{title}</strong>. Encontrarás el
+          detalle del alcance, plazos e inversión en el documento PDF de este correo.
+        </p>
+        <p style="font-size: 14px; line-height: 1.6; margin: 0 0 24px;">
+          El siguiente paso es agendar una reunión para revisarla en conjunto y resolver
+          cualquier consulta.
+        </p>
+        <div style="margin: 0 0 24px;">{cta}</div>
+        <p style="font-size: 13px; color: #617F8A; margin: 0;">
+          Sustenta Futuro SpA<br>
+          Potencia tu operacion. Libera tu talento.
+        </p>
+      </div>
+    </div>
+    """
+    return _send(
+        to=lead_email,
+        subject="Tu propuesta — Sustenta Futuro",
+        html=html,
+        attachments=[{"filename": "propuesta-sustenta-futuro.pdf", "content": pdf_bytes}],
     )

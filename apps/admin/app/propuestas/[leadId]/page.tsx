@@ -33,6 +33,23 @@ interface Lead {
   email: string
 }
 
+interface Attachment {
+  path: string
+  name: string
+  mime: string
+  size: number
+}
+
+interface ChatMessage {
+  id: string
+  proposal_id: string
+  author_id: string | null
+  author_name: string | null
+  body: string | null
+  attachments: Attachment[] | null
+  created_at: string
+}
+
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const STATUS_LABELS: Record<ProposalStatus, string> = {
@@ -74,6 +91,231 @@ function str(v: unknown): string {
   return v == null ? '' : String(v)
 }
 
+function formatTime(iso: string): string {
+  const d = new Date(iso)
+  return `${formatDate(iso)} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+}
+
+function formatSize(bytes: number): string {
+  if (!bytes) return ''
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
+
+function safeName(name: string): string {
+  return name.replace(/[^\w.\-]+/g, '_').slice(0, 120)
+}
+
+// ─── Discussion thread (per proposal version) ──────────────────────────────────
+
+function ProposalChat({
+  proposalId,
+  currentUser,
+}: {
+  proposalId: string
+  currentUser: { id: string; name: string } | null
+}) {
+  const [messages, setMessages] = useState<ChatMessage[]>([])
+  const [urls, setUrls] = useState<Record<string, string>>({})
+  const [text, setText] = useState('')
+  const [files, setFiles] = useState<File[]>([])
+  const [loading, setLoading] = useState(true)
+  const [sending, setSending] = useState(false)
+
+  const BUCKET = 'proposal-attachments'
+
+  async function loadMessages() {
+    setLoading(true)
+    try {
+      const sb = createClient()
+      const { data: { session } } = await sb.auth.getSession()
+      const token = session?.access_token ?? ''
+      const base = process.env.NEXT_PUBLIC_SUPABASE_URL
+      const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      const res = await fetch(
+        `${base}/rest/v1/proposal_messages?proposal_id=eq.${proposalId}&order=created_at.asc`,
+        { headers: { apikey: key, Authorization: `Bearer ${token}` } }
+      )
+      const rows: ChatMessage[] = res.ok ? ((await res.json()) ?? []) : []
+      setMessages(rows)
+
+      const paths = rows.flatMap((m) => (m.attachments ?? []).map((a) => a.path))
+      if (paths.length) {
+        const { data } = await sb.storage.from(BUCKET).createSignedUrls(paths, 3600)
+        const map: Record<string, string> = {}
+        ;(data ?? []).forEach((d) => {
+          if (d.path && d.signedUrl) map[d.path] = d.signedUrl
+        })
+        setUrls(map)
+      } else {
+        setUrls({})
+      }
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    loadMessages()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [proposalId])
+
+  async function handleSend() {
+    if ((!text.trim() && files.length === 0) || sending) return
+    setSending(true)
+    try {
+      const sb = createClient()
+      const uploaded: Attachment[] = []
+      for (const f of files) {
+        const path = `${proposalId}/${crypto.randomUUID()}-${safeName(f.name)}`
+        const { error } = await sb.storage.from(BUCKET).upload(path, f, { upsert: false })
+        if (error) {
+          alert(`No se pudo subir ${f.name}: ${error.message}`)
+          continue
+        }
+        uploaded.push({ path, name: f.name, mime: f.type, size: f.size })
+      }
+
+      const { data: { session } } = await sb.auth.getSession()
+      const token = session?.access_token ?? ''
+      const base = process.env.NEXT_PUBLIC_SUPABASE_URL
+      const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      const res = await fetch(`${base}/rest/v1/proposal_messages`, {
+        method: 'POST',
+        headers: {
+          apikey: key,
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          Prefer: 'return=representation',
+        },
+        body: JSON.stringify({
+          proposal_id: proposalId,
+          author_id: currentUser?.id ?? null,
+          author_name: currentUser?.name ?? 'Equipo',
+          body: text.trim() || null,
+          attachments: uploaded,
+        }),
+      })
+      if (!res.ok) {
+        alert(`No se pudo enviar el mensaje (error ${res.status}).`)
+        return
+      }
+      setText('')
+      setFiles([])
+      await loadMessages()
+    } catch {
+      alert('Error de red al enviar el mensaje. Reintenta en unos segundos.')
+    } finally {
+      setSending(false)
+    }
+  }
+
+  return (
+    <div className="pt-4" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+      <p className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: 'rgba(240,240,240,0.35)' }}>
+        Conversación
+      </p>
+
+      {/* Messages */}
+      <div className="flex flex-col gap-3 mb-4">
+        {loading ? (
+          <p className="text-xs" style={{ color: 'rgba(240,240,240,0.35)' }}>Cargando…</p>
+        ) : messages.length === 0 ? (
+          <p className="text-xs" style={{ color: 'rgba(240,240,240,0.3)' }}>
+            Aún no hay mensajes en esta versión. Escribe el primero.
+          </p>
+        ) : (
+          messages.map((m) => (
+            <div key={m.id} className="rounded-lg px-3 py-2.5" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-xs font-semibold text-white">{m.author_name || 'Equipo'}</span>
+                <span className="text-[11px]" style={{ color: 'rgba(240,240,240,0.3)' }}>{formatTime(m.created_at)}</span>
+              </div>
+              {m.body && <p className="text-sm whitespace-pre-wrap" style={{ color: 'rgba(240,240,240,0.85)' }}>{m.body}</p>}
+              {(m.attachments ?? []).length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {(m.attachments ?? []).map((a, i) => {
+                    const url = urls[a.path]
+                    const isImg = a.mime?.startsWith('image/')
+                    if (isImg && url) {
+                      return (
+                        <a key={i} href={url} target="_blank" rel="noopener noreferrer">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={url} alt={a.name} className="rounded-lg object-cover" style={{ height: '88px', width: '88px', border: '1px solid rgba(255,255,255,0.1)' }} />
+                        </a>
+                      )
+                    }
+                    return (
+                      <a
+                        key={i}
+                        href={url ?? '#'}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs transition-opacity hover:opacity-80"
+                        style={{ background: 'rgba(75,155,245,0.08)', border: '1px solid rgba(75,155,245,0.15)', color: '#4B9BF5' }}
+                      >
+                        <span aria-hidden>📎</span>
+                        <span className="max-w-[180px] truncate">{a.name}</span>
+                        {a.size ? <span style={{ color: 'rgba(240,240,240,0.35)' }}>{formatSize(a.size)}</span> : null}
+                      </a>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Composer */}
+      <div className="rounded-lg p-3" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.08)' }}>
+        <textarea
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Escribe un mensaje…"
+          rows={2}
+          className="w-full resize-none bg-transparent outline-none text-sm"
+          style={{ color: '#F0F0F0' }}
+        />
+        {files.length > 0 && (
+          <div className="flex flex-wrap gap-2 mt-2">
+            {files.map((f, i) => (
+              <span key={i} className="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(240,240,240,0.7)' }}>
+                {f.name}
+                <button onClick={() => setFiles((prev) => prev.filter((_, j) => j !== i))} style={{ color: 'rgba(240,240,240,0.45)' }}>✕</button>
+              </span>
+            ))}
+          </div>
+        )}
+        <div className="flex items-center justify-between mt-2">
+          <label className="cursor-pointer text-xs transition-opacity hover:opacity-80" style={{ color: 'rgba(240,240,240,0.5)' }}>
+            📎 Adjuntar
+            <input
+              type="file"
+              multiple
+              accept="image/*,application/pdf,.txt,.doc,.docx,.xls,.xlsx,.csv,.zip"
+              className="hidden"
+              onChange={(e) => {
+                setFiles((prev) => [...prev, ...Array.from(e.target.files ?? [])])
+                e.target.value = ''
+              }}
+            />
+          </label>
+          <button
+            onClick={handleSend}
+            disabled={sending || (!text.trim() && files.length === 0)}
+            className="rounded-lg px-4 py-1.5 text-sm font-medium transition-opacity hover:opacity-90 disabled:opacity-40"
+            style={{ background: 'rgba(75,155,245,0.12)', border: '1px solid rgba(75,155,245,0.25)', color: '#4B9BF5' }}
+          >
+            {sending ? 'Enviando…' : 'Enviar'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function LeadProposalsPage() {
@@ -83,6 +325,7 @@ export default function LeadProposalsPage() {
 
   const [authChecked, setAuthChecked] = useState(false)
   const [accessToken, setAccessToken] = useState('')
+  const [currentUser, setCurrentUser] = useState<{ id: string; name: string } | null>(null)
   const [lead, setLead] = useState<Lead | null>(null)
   const [proposals, setProposals] = useState<Proposal[]>([])
   const [selectedId, setSelectedId] = useState<string | null>(null)
@@ -102,6 +345,14 @@ export default function LeadProposalsPage() {
         setAuthChecked(true)
         const token = refreshData.session.access_token
         setAccessToken(token)
+
+        const { data: prof } = await supabase
+          .from('admin_profiles')
+          .select('full_name')
+          .eq('user_id', user.id)
+          .limit(1)
+          .maybeSingle()
+        setCurrentUser({ id: user.id, name: (prof?.full_name as string) || user.email || 'Equipo' })
 
         const base = process.env.NEXT_PUBLIC_SUPABASE_URL
         const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -466,6 +717,9 @@ export default function LeadProposalsPage() {
                     </div>
                   </div>
                 )}
+
+                {/* Discussion thread (per version) */}
+                <ProposalChat key={selected.id} proposalId={selected.id} currentUser={currentUser} />
               </div>
             )}
           </div>

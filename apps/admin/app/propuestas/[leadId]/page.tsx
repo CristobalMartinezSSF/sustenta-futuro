@@ -150,8 +150,10 @@ export default function LeadProposalsPage() {
         method: 'PUT',
         headers: { Authorization: `Bearer ${accessToken}` },
       })
-      if (!res.ok) { alert('No se pudo marcar como principal'); return }
+      if (!res.ok) { alert(`No se pudo marcar como principal (error ${res.status}).`); return }
       setProposals((prev) => prev.map((x) => ({ ...x, is_principal: x.id === p.id })))
+    } catch {
+      alert('Error de red al marcar principal. Reintenta en unos segundos (el servidor puede estar despertando).')
     } finally {
       setBusy(false)
     }
@@ -169,12 +171,14 @@ export default function LeadProposalsPage() {
       if (!res.ok) {
         alert(res.status === 400
           ? 'Este lead no tiene ficha de evaluación. Crea la ficha antes de generar una propuesta.'
-          : 'No se pudo crear la versión')
+          : `No se pudo crear la versión (error ${res.status}).`)
         return
       }
       const created = await res.json()
       await refetchProposals()
       setSelectedId(created.id)
+    } catch {
+      alert('Error de red al crear la versión. Reintenta en unos segundos (el servidor puede estar despertando).')
     } finally {
       setBusy(false)
     }

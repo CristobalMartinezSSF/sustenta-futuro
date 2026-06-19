@@ -125,3 +125,39 @@ def send_admin_notification(
         subject=f"Nuevo lead: {lead_name} ({lead_company})",
         html=html,
     )
+
+
+def send_project_completed_notification(
+    project_name: str,
+    lead_name: str,
+    lead_company: str,
+) -> bool:
+    """Notify the team that a project was marked as completed."""
+    if not ADMIN_EMAIL:
+        logger.warning("ADMIN_NOTIFICATION_EMAIL not set, skipping project notification")
+        return False
+
+    client = lead_company or lead_name or "—"
+    html = f"""
+    <div style="font-family: 'Inter', Arial, sans-serif; max-width: 520px; margin: 0 auto; color: #2B3A42;">
+      <div style="background: #2B3A42; padding: 24px 32px; border-radius: 8px 8px 0 0;">
+        <h1 style="color: #fff; font-size: 20px; margin: 0;">Proyecto terminado</h1>
+      </div>
+      <div style="padding: 32px; background: #fff; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 8px 8px;">
+        <p style="font-size: 16px; margin: 0 0 16px;">
+          El proyecto <strong>{project_name}</strong> se marcó como <strong>terminado</strong>.
+        </p>
+        <table style="width: 100%; font-size: 14px; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 8px 0; color: #617F8A; width: 120px;">Cliente</td>
+            <td style="padding: 8px 0; font-weight: 600;">{client}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    """
+    return _send(
+        to=ADMIN_EMAIL,
+        subject=f"Proyecto terminado: {project_name}",
+        html=html,
+    )

@@ -13,6 +13,7 @@ interface Project {
   name: string
   status: ProjectStatus
   started_at: string
+  finished_at: string | null
   created_at: string
   leads: {
     full_name: string
@@ -99,7 +100,7 @@ function ProyectosPageInner() {
         const headers = { apikey: key, Authorization: `Bearer ${token}` }
 
         const res = await fetch(
-          `${base}/rest/v1/projects?select=id,name,status,started_at,created_at,leads(full_name,company)&order=created_at.desc`,
+          `${base}/rest/v1/projects?select=id,name,status,started_at,finished_at,created_at,leads(full_name,company)&order=created_at.desc`,
           { headers }
         )
 
@@ -230,6 +231,11 @@ function ProyectosPageInner() {
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap">
                         <StatusBadge status={p.status} />
+                        {p.status === 'done' && p.finished_at && (
+                          <p className="text-[11px] mt-1" style={{ color: 'rgba(240,240,240,0.4)' }}>
+                            Terminado el {formatDate(p.finished_at)}
+                          </p>
+                        )}
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap tabular-nums" style={{ color: 'rgba(240,240,240,0.45)' }}>
                         {formatDate(p.started_at)}

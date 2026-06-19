@@ -37,4 +37,5 @@ class ProjectDetail(BaseModel):
     name: str
     status: ProjectStatus
     started_at: datetime
+    finished_at: datetime | None = None
     created_at: datetime

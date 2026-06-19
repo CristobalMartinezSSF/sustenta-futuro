@@ -75,6 +75,23 @@ const COLUMNS: { status: TaskStatus; label: string; accent: string }[] = [
 
 const SB_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
 const SB_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ''
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://sustenta-futuro-api.onrender.com'
+
+type ProjectStatus = 'active' | 'paused' | 'done' | 'cancelled'
+
+const PROJECT_STATUS_LABELS: Record<ProjectStatus, string> = {
+  active: 'Activo',
+  paused: 'Pausado',
+  done: 'Terminado',
+  cancelled: 'Cancelado',
+}
+
+const PROJECT_STATUS_COLORS: Record<ProjectStatus, { bg: string; text: string; border: string }> = {
+  active:    { bg: 'rgba(74,222,128,0.12)', text: '#4ade80', border: 'rgba(74,222,128,0.3)' },
+  paused:    { bg: 'rgba(251,191,36,0.12)', text: '#fbbf24', border: 'rgba(251,191,36,0.3)' },
+  done:      { bg: 'rgba(96,165,250,0.12)', text: '#60a5fa', border: 'rgba(96,165,250,0.3)' },
+  cancelled: { bg: 'rgba(248,113,113,0.12)', text: '#f87171', border: 'rgba(248,113,113,0.3)' },
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -444,6 +461,8 @@ function KanbanPageInner() {
 
   // Project context (no ?project => show a project picker)
   const [projectName, setProjectName] = useState<string | null>(null)
+  const [projectStatus, setProjectStatus] = useState<ProjectStatus | null>(null)
+  const [projectBusy, setProjectBusy] = useState(false)
   const [projectList, setProjectList] = useState<{ id: string; name: string; status: string }[]>([])
 
   // Data
@@ -504,13 +523,13 @@ function KanbanPageInner() {
           return
         }
 
-        // Load the selected project's name for the header.
+        // Load the selected project's name + status for the header.
         const prRes = await fetch(
-          `${SB_URL}/rest/v1/projects?id=eq.${projectId}&select=name&limit=1`,
+          `${SB_URL}/rest/v1/projects?id=eq.${projectId}&select=name,status&limit=1`,
           { headers })
         if (prRes.ok) {
           const pr = await prRes.json()
-          if (pr[0]) setProjectName(pr[0].name)
+          if (pr[0]) { setProjectName(pr[0].name); setProjectStatus(pr[0].status) }
         }
 
         // Load this project's phases
@@ -559,6 +578,30 @@ function KanbanPageInner() {
     await supabase.auth.signOut()
     router.push('/login')
     router.refresh()
+  }
+
+  async function handleProjectStatus(newStatus: ProjectStatus) {
+    if (!projectId || projectBusy || newStatus === projectStatus) return
+    if (newStatus === 'done' && !confirm('¿Marcar el proyecto como terminado? Se registrará la fecha de cierre y se avisará al equipo por correo.')) return
+    setProjectBusy(true)
+    const prev = projectStatus
+    setProjectStatus(newStatus) // optimistic
+    try {
+      const res = await fetch(`${API_URL}/projects/${projectId}`, {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      })
+      if (!res.ok) {
+        setProjectStatus(prev)
+        alert(`No se pudo actualizar el estado (error ${res.status}).`)
+      }
+    } catch {
+      setProjectStatus(prev)
+      alert('Error de red al actualizar el estado. Reintenta en unos segundos (el servidor puede estar despertando).')
+    } finally {
+      setProjectBusy(false)
+    }
   }
 
   // ── Drag & Drop ──────────────────────────────────────────────────────────
@@ -691,7 +734,7 @@ function KanbanPageInner() {
         {/* ── Sidebar: Phases ── */}
         <aside className="flex flex-col border-r overflow-y-auto flex-shrink-0"
           style={{ width: '260px', borderColor: 'rgba(255,255,255,0.07)', background: '#000' }}>
-          <div className="flex flex-col gap-1 px-4 py-3"
+          <div className="flex flex-col gap-2 px-4 py-3"
             style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
             <button onClick={() => router.push('/proyectos')} className="text-xs text-left hover:opacity-80 w-fit" style={{ color: 'rgba(240,240,240,0.4)' }}>
               ← Proyectos
@@ -699,6 +742,28 @@ function KanbanPageInner() {
             <span className="text-sm font-semibold text-white line-clamp-2 leading-snug">
               {projectName ?? 'Proyecto'}
             </span>
+            <div className="flex flex-wrap gap-1">
+              {(['active', 'paused', 'done', 'cancelled'] as ProjectStatus[]).map((s) => {
+                const sc = PROJECT_STATUS_COLORS[s]
+                const active = s === projectStatus
+                return (
+                  <button
+                    key={s}
+                    onClick={() => handleProjectStatus(s)}
+                    disabled={projectBusy}
+                    className="rounded-md px-2 py-0.5 text-[11px] transition-opacity hover:opacity-90 disabled:opacity-40"
+                    style={{
+                      background: active ? sc.bg : 'transparent',
+                      color: active ? sc.text : 'rgba(240,240,240,0.4)',
+                      border: `1px solid ${active ? sc.border : 'rgba(255,255,255,0.08)'}`,
+                      fontWeight: active ? 600 : 400,
+                    }}
+                  >
+                    {PROJECT_STATUS_LABELS[s]}
+                  </button>
+                )
+              })}
+            </div>
           </div>
           <div className="flex items-center justify-between px-4 py-4"
             style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>

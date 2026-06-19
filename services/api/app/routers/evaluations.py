@@ -6,6 +6,8 @@ advances the lead to the 'viable' pipeline status.
 """
 
 import logging
+import statistics
+from collections import Counter
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -14,6 +16,7 @@ from app.auth import AdminUser, require_admin
 from app.database import get_client
 from app.models.evaluation import (
     EvaluationDetail,
+    EvaluationSuggestions,
     EvaluationUpsert,
     EvaluationVerdict,
     Verdict,
@@ -58,6 +61,81 @@ def get_evaluation(lead_id: str, admin: AdminUser = Depends(require_admin)) -> E
             detail="No evaluation exists for this lead yet.",
         )
     return EvaluationDetail(**row)
+
+
+# ---------------------------------------------------------------------------
+# GET /leads/{lead_id}/evaluation/suggestions  — historical auto-fill
+# ---------------------------------------------------------------------------
+
+
+def _median_num(values: list) -> float | None:
+    """Median of the present numeric values, or None if there are none."""
+    nums = [float(v) for v in values if isinstance(v, (int, float))]
+    return round(statistics.median(nums), 2) if nums else None
+
+
+def _most_common(values: list) -> str | None:
+    """Most frequent non-empty value, or None."""
+    present = [v for v in values if v]
+    return Counter(present).most_common(1)[0][0] if present else None
+
+
+def _compute_suggestions(evaluations: list[dict], service_type: str | None) -> EvaluationSuggestions:
+    """Build median/mode suggestions from past project evaluation snapshots."""
+    if not evaluations:
+        return EvaluationSuggestions(service_type=service_type, sample_size=0)
+
+    hours = _median_num([e.get("estimated_hours") for e in evaluations])
+    return EvaluationSuggestions(
+        service_type=service_type,
+        sample_size=len(evaluations),
+        client_price=_median_num([e.get("client_price") for e in evaluations]),
+        internal_cost=_median_num([e.get("internal_cost") for e in evaluations]),
+        estimated_hours=int(hours) if hours is not None else None,
+        monthly_maintenance=_median_num([e.get("monthly_maintenance") for e in evaluations]),
+        complexity=_most_common([e.get("complexity") for e in evaluations]),
+        price_currency=_most_common([e.get("price_currency") for e in evaluations]),
+    )
+
+
+@router.get(
+    "/{lead_id}/evaluation/suggestions",
+    response_model=EvaluationSuggestions,
+    summary="Suggest ficha values from past projects of the same service type",
+)
+def get_evaluation_suggestions(
+    lead_id: str, admin: AdminUser = Depends(require_admin)
+) -> EvaluationSuggestions:
+    """Estimate ficha values from the frozen snapshots of won projects whose
+    lead shares this lead's service_interest. Returns medians + sample size."""
+    lead_rows = _supabase_get(
+        "/leads", {"select": "service_interest", "id": f"eq.{lead_id}", "limit": "1"}
+    )
+    if not lead_rows:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Lead not found.")
+    service_type = lead_rows[0].get("service_interest")
+    if not service_type:
+        return EvaluationSuggestions(service_type=None, sample_size=0)
+
+    # Won projects carry their proposal's frozen snapshot (the delivered ficha)
+    # and link to the originating lead (for its service type).
+    projects = _supabase_get(
+        "/projects",
+        {"select": "id,leads(service_interest),lead_proposals(snapshot)"},
+    )
+
+    evaluations: list[dict] = []
+    for p in projects:
+        lead = p.get("leads") or {}
+        if lead.get("service_interest") != service_type:
+            continue
+        proposal = p.get("lead_proposals") or {}
+        snapshot = proposal.get("snapshot") or {}
+        evaluation = snapshot.get("evaluation")
+        if isinstance(evaluation, dict):
+            evaluations.append(evaluation)
+
+    return _compute_suggestions(evaluations, service_type)
 
 
 # ---------------------------------------------------------------------------

@@ -134,6 +134,8 @@ export default function EvaluationSection({
   const [settingVerdict, setSettingVerdict] = useState(false)
   const [generatingPdf, setGeneratingPdf] = useState(false)
   const [pdfError, setPdfError] = useState<string | null>(null)
+  const [suggesting, setSuggesting] = useState(false)
+  const [suggestInfo, setSuggestInfo] = useState<string | null>(null)
 
   const base = process.env.NEXT_PUBLIC_SUPABASE_URL
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -247,6 +249,61 @@ export default function EvaluationSection({
       setError('Error inesperado al guardar la ficha.')
     } finally {
       setSaving(false)
+    }
+  }
+
+  // ── Autofill from historical projects of the same service type ────────────────
+  async function handleAutofill() {
+    if (suggesting) return
+    setSuggesting(true)
+    setSuggestInfo(null)
+    setError(null)
+    try {
+      const res = await fetch(`${API_URL}/leads/${leadId}/evaluation/suggestions`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      })
+      if (!res.ok) {
+        setSuggestInfo(`No se pudieron obtener sugerencias (error ${res.status}).`)
+        return
+      }
+      const s = await res.json() as {
+        service_type: string | null
+        sample_size: number
+        client_price: number | null
+        internal_cost: number | null
+        estimated_hours: number | null
+        monthly_maintenance: number | null
+        complexity: ComplexityValue | null
+        price_currency: string | null
+      }
+
+      if (!s.service_type) {
+        setSuggestInfo('Este lead no tiene un tipo de servicio definido, así que no hay con qué comparar.')
+        return
+      }
+      if (!s.sample_size) {
+        setSuggestInfo(`Aún no hay proyectos históricos de tipo "${s.service_type}" para estimar. Se llenará automáticamente cuando cierres proyectos de ese tipo.`)
+        return
+      }
+
+      const numToStr = (n: number | null) => (n != null ? String(n) : '')
+      // Non-destructive: only fill fields that are still empty.
+      setForm((prev) => ({
+        ...prev,
+        client_price: prev.client_price || numToStr(s.client_price),
+        internal_cost: prev.internal_cost || numToStr(s.internal_cost),
+        estimated_hours: prev.estimated_hours || numToStr(s.estimated_hours),
+        monthly_maintenance: prev.monthly_maintenance || numToStr(s.monthly_maintenance),
+        complexity: prev.complexity || (s.complexity ?? ''),
+        price_currency: prev.price_currency || s.price_currency || 'UF',
+      }))
+      setSaved(false)
+      const n = s.sample_size
+      setSuggestInfo(`Autocompletado con la mediana de ${n} proyecto${n === 1 ? '' : 's'} de tipo "${s.service_type}". Solo se llenaron campos vacíos — revisa y ajusta antes de guardar.`)
+    } catch {
+      setSuggestInfo('Error de red al obtener sugerencias. Reintenta en unos segundos (el servidor puede estar despertando).')
+    } finally {
+      setSuggesting(false)
     }
   }
 
@@ -377,13 +434,27 @@ export default function EvaluationSection({
         <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'rgba(240,240,240,0.35)' }}>
           Ficha de evaluación técnico-económica
         </p>
-        <span
-          className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-medium"
-          style={{ background: VERDICT_COLORS[verdict].bg, color: VERDICT_COLORS[verdict].text, border: `1px solid ${VERDICT_COLORS[verdict].border}` }}
-        >
-          {VERDICT_LABELS[verdict]}
-        </span>
+        <div className="flex items-center gap-2">
+          <button onClick={handleAutofill} disabled={suggesting}
+            className="flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition-opacity hover:opacity-90 disabled:opacity-40"
+            style={{ background: 'rgba(168,85,247,0.12)', border: '1px solid rgba(168,85,247,0.3)', color: '#c084fc' }}>
+            {suggesting && <span className="w-3 h-3 rounded-full border-2 border-white/30 border-t-white animate-spin" />}
+            {suggesting ? 'Estimando...' : 'Autocompletar desde históricos'}
+          </button>
+          <span
+            className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-medium"
+            style={{ background: VERDICT_COLORS[verdict].bg, color: VERDICT_COLORS[verdict].text, border: `1px solid ${VERDICT_COLORS[verdict].border}` }}
+          >
+            {VERDICT_LABELS[verdict]}
+          </span>
+        </div>
       </div>
+
+      {suggestInfo && (
+        <p className="text-xs rounded px-3 py-2 mb-4" style={{ color: '#c084fc', background: 'rgba(168,85,247,0.08)', border: '1px solid rgba(168,85,247,0.2)' }}>
+          {suggestInfo}
+        </p>
+      )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Field label="Título del proyecto" full>

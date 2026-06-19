@@ -97,6 +97,24 @@ class EvaluationVerdict(BaseModel):
 # ---------------------------------------------------------------------------
 
 
+class EvaluationSuggestions(BaseModel):
+    """Suggested ficha values derived from past projects of the same type.
+
+    Numeric fields are medians (robust to outliers); complexity and currency
+    are the most frequent value. `sample_size` is how many past projects of the
+    same service type backed the suggestion.
+    """
+
+    service_type: str | None = None
+    sample_size: int = 0
+    client_price: float | None = None
+    internal_cost: float | None = None
+    estimated_hours: int | None = None
+    monthly_maintenance: float | None = None
+    complexity: str | None = None
+    price_currency: str | None = None
+
+
 class EvaluationDetail(BaseModel):
     """Full evaluation representation, including computed margin."""
 

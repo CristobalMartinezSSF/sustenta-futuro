@@ -135,6 +135,7 @@ export default function EvaluationSection({
   const [generatingPdf, setGeneratingPdf] = useState(false)
   const [pdfError, setPdfError] = useState<string | null>(null)
   const [suggesting, setSuggesting] = useState(false)
+  const [drafting, setDrafting] = useState(false)
   const [suggestInfo, setSuggestInfo] = useState<string | null>(null)
 
   const base = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -307,6 +308,50 @@ export default function EvaluationSection({
     }
   }
 
+  // ── Draft prose fields (description + functionalities) with AI ────────────────
+  async function handleAIDraft() {
+    if (drafting) return
+    if ((form.description.trim() || form.functionalities.trim()) &&
+        !confirm('Ya hay texto en Descripción o Funcionalidades. ¿Reemplazarlo con la redacción de IA?')) {
+      return
+    }
+    setDrafting(true)
+    setSuggestInfo(null)
+    setError(null)
+    try {
+      const res = await fetch(`${API_URL}/leads/${leadId}/evaluation/ai-suggestions`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      })
+      if (!res.ok) {
+        let detail = `error ${res.status}`
+        try { detail = (await res.json()).detail ?? detail } catch {}
+        setSuggestInfo(`No se pudo redactar con IA: ${detail}`)
+        return
+      }
+      const s = await res.json() as {
+        service_type: string | null
+        based_on: number
+        model: string
+        description: string
+        functionalities: string[]
+      }
+      setForm((prev) => ({
+        ...prev,
+        description: s.description || prev.description,
+        functionalities: s.functionalities.length ? s.functionalities.join('\n') : prev.functionalities,
+      }))
+      setSaved(false)
+      const base = s.based_on > 0
+        ? `basada en ${s.based_on} proyecto${s.based_on === 1 ? '' : 's'} de tipo "${s.service_type}"`
+        : 'sin proyectos históricos de referencia (borrador inicial)'
+      setSuggestInfo(`Redacción generada con IA (${s.model}), ${base}. Revisa y ajusta antes de guardar.`)
+    } catch {
+      setSuggestInfo('Error de red al redactar con IA. Reintenta en unos segundos (el servidor puede estar despertando).')
+    } finally {
+      setDrafting(false)
+    }
+  }
+
   // ── Verdict ───────────────────────────────────────────────────────────────────
   async function handleVerdict(verdict: VerdictValue) {
     if (!evaluation || settingVerdict || evaluation.verdict === verdict) return
@@ -440,6 +485,12 @@ export default function EvaluationSection({
             style={{ background: 'rgba(168,85,247,0.12)', border: '1px solid rgba(168,85,247,0.3)', color: '#c084fc' }}>
             {suggesting && <span className="w-3 h-3 rounded-full border-2 border-white/30 border-t-white animate-spin" />}
             {suggesting ? 'Estimando...' : 'Autocompletar desde históricos'}
+          </button>
+          <button onClick={handleAIDraft} disabled={drafting}
+            className="flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition-opacity hover:opacity-90 disabled:opacity-40"
+            style={{ background: 'rgba(96,165,250,0.12)', border: '1px solid rgba(96,165,250,0.3)', color: '#60a5fa' }}>
+            {drafting && <span className="w-3 h-3 rounded-full border-2 border-white/30 border-t-white animate-spin" />}
+            {drafting ? 'Redactando...' : 'Redactar con IA'}
           </button>
           <span
             className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-medium"

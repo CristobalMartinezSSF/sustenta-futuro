@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from app.proposal_ai import build_ai_prompt
 from app.routers.evaluations import _compute_suggestions, _median_num, _most_common
 
 
@@ -38,3 +39,24 @@ def test_compute_suggestions_empty_returns_zero_sample():
     assert s.sample_size == 0
     assert s.service_type == "Automatizaciones"
     assert s.client_price is None
+
+
+def test_build_ai_prompt_includes_lead_and_caps_examples():
+    lead = {
+        "service_interest": "Chatbots",
+        "company": "ACME",
+        "industry": "Retail",
+        "message": "Queremos un bot de soporte.",
+    }
+    history = [
+        {"project_title": f"P{i}", "description": f"d{i}", "functionalities": [f"f{i}"]}
+        for i in range(8)
+    ]
+    prompt = build_ai_prompt(lead, history)
+
+    assert "ACME" in prompt
+    assert "Queremos un bot de soporte." in prompt
+    assert "Chatbots" in prompt
+    # Only the first 5 examples are included; the count in the prompt reflects that.
+    assert "P4" in prompt and "P5" not in prompt
+    assert "referencia de estilo y alcance, 5" in prompt

@@ -15,12 +15,14 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from app.auth import AdminUser, require_admin
 from app.database import get_client
 from app.models.evaluation import (
+    EvaluationAIDraft,
     EvaluationDetail,
     EvaluationSuggestions,
     EvaluationUpsert,
     EvaluationVerdict,
     Verdict,
 )
+from app.proposal_ai import PROPOSAL_AI_MODEL, ProposalAIError, generate_proposal_text
 
 # Reuse the thin Supabase REST helpers defined in the leads router.
 # leads.py does not import this module, so there is no circular import.
@@ -98,6 +100,30 @@ def _compute_suggestions(evaluations: list[dict], service_type: str | None) -> E
     )
 
 
+def _same_type_evaluations(service_type: str | None) -> list[dict]:
+    """Collect evaluation snapshots of won projects whose lead shares the given
+    service type. Returns the list of frozen `evaluation` dicts."""
+    if not service_type:
+        return []
+    # Won projects carry their proposal's frozen snapshot (the delivered ficha)
+    # and link to the originating lead (for its service type).
+    projects = _supabase_get(
+        "/projects",
+        {"select": "id,leads(service_interest),lead_proposals(snapshot)"},
+    )
+    evaluations: list[dict] = []
+    for p in projects:
+        lead = p.get("leads") or {}
+        if lead.get("service_interest") != service_type:
+            continue
+        proposal = p.get("lead_proposals") or {}
+        snapshot = proposal.get("snapshot") or {}
+        evaluation = snapshot.get("evaluation")
+        if isinstance(evaluation, dict):
+            evaluations.append(evaluation)
+    return evaluations
+
+
 @router.get(
     "/{lead_id}/evaluation/suggestions",
     response_model=EvaluationSuggestions,
@@ -117,25 +143,44 @@ def get_evaluation_suggestions(
     if not service_type:
         return EvaluationSuggestions(service_type=None, sample_size=0)
 
-    # Won projects carry their proposal's frozen snapshot (the delivered ficha)
-    # and link to the originating lead (for its service type).
-    projects = _supabase_get(
-        "/projects",
-        {"select": "id,leads(service_interest),lead_proposals(snapshot)"},
+    return _compute_suggestions(_same_type_evaluations(service_type), service_type)
+
+
+@router.get(
+    "/{lead_id}/evaluation/ai-suggestions",
+    response_model=EvaluationAIDraft,
+    summary="Draft description + functionalities with AI, grounded on past projects",
+)
+def get_evaluation_ai_suggestions(
+    lead_id: str, admin: AdminUser = Depends(require_admin)
+) -> EvaluationAIDraft:
+    """Use Claude to draft the prose fields (description + functionalities),
+    grounded on the lead's context and past projects of the same type."""
+    lead_rows = _supabase_get(
+        "/leads",
+        {"select": "service_interest,company,industry,message",
+         "id": f"eq.{lead_id}", "limit": "1"},
     )
+    if not lead_rows:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Lead not found.")
+    lead = lead_rows[0]
+    service_type = lead.get("service_interest")
 
-    evaluations: list[dict] = []
-    for p in projects:
-        lead = p.get("leads") or {}
-        if lead.get("service_interest") != service_type:
-            continue
-        proposal = p.get("lead_proposals") or {}
-        snapshot = proposal.get("snapshot") or {}
-        evaluation = snapshot.get("evaluation")
-        if isinstance(evaluation, dict):
-            evaluations.append(evaluation)
+    history = _same_type_evaluations(service_type)
+    try:
+        draft = generate_proposal_text(lead, history)
+    except ProposalAIError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(exc)
+        ) from exc
 
-    return _compute_suggestions(evaluations, service_type)
+    return EvaluationAIDraft(
+        service_type=service_type,
+        based_on=len(history),
+        model=PROPOSAL_AI_MODEL,
+        description=draft["description"],
+        functionalities=draft["functionalities"],
+    )
 
 
 # ---------------------------------------------------------------------------

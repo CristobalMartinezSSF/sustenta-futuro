@@ -115,6 +115,16 @@ class EvaluationSuggestions(BaseModel):
     price_currency: str | None = None
 
 
+class EvaluationAIDraft(BaseModel):
+    """AI-drafted prose fields (description + functionalities) for the ficha."""
+
+    service_type: str | None = None
+    based_on: int = 0
+    model: str
+    description: str = ""
+    functionalities: list[str] = []
+
+
 class EvaluationDetail(BaseModel):
     """Full evaluation representation, including computed margin."""
 

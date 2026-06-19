@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useRef, Suspense } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -118,9 +118,9 @@ function PhaseBadge({ status }: { status: PhaseStatus }) {
 // ─── PhaseModal ───────────────────────────────────────────────────────────────
 
 function PhaseModal({
-  initial, maxOrder, token, onClose, onSaved,
+  initial, maxOrder, token, projectId, onClose, onSaved,
 }: {
-  initial?: Phase; maxOrder: number; token: string
+  initial?: Phase; maxOrder: number; token: string; projectId: string
   onClose: () => void; onSaved: (p: Phase) => void
 }) {
   const [name, setName]       = useState(initial?.name ?? '')
@@ -143,7 +143,7 @@ function PhaseModal({
       res = await fetch(`${SB_URL}/rest/v1/phases?id=eq.${initial.id}`,
         { method: 'PATCH', headers: hdrs(token), body: JSON.stringify(body) })
     } else {
-      body.project_id = 'sg-sustenta-futuro'
+      body.project_id = projectId
       body.order_index = maxOrder + 1
       res = await fetch(`${SB_URL}/rest/v1/phases`,
         { method: 'POST', headers: hdrs(token), body: JSON.stringify(body) })
@@ -433,12 +433,18 @@ function ReportModal({
 
 function KanbanPageInner() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const projectId = searchParams.get('project')
 
   // Auth
   const [authChecked, setAuthChecked] = useState(false)
   const [isAdmin, setIsAdmin]         = useState(false)
   const [token, setToken]             = useState('')
   const [profileId, setProfileId]     = useState('')
+
+  // Project context (no ?project => show a project picker)
+  const [projectName, setProjectName] = useState<string | null>(null)
+  const [projectList, setProjectList] = useState<{ id: string; name: string; status: string }[]>([])
 
   // Data
   const [phases, setPhases]           = useState<Phase[]>([])
@@ -488,9 +494,28 @@ function KanbanPageInner() {
           if (pData[0]) setProfileId(pData[0].id)
         }
 
-        // Load phases
+        // No project selected => load the picker list instead of a board.
+        if (!projectId) {
+          const plRes = await fetch(
+            `${SB_URL}/rest/v1/projects?select=id,name,status&order=created_at.desc`,
+            { headers })
+          if (plRes.ok) setProjectList((await plRes.json()) ?? [])
+          setLoadingPhases(false)
+          return
+        }
+
+        // Load the selected project's name for the header.
+        const prRes = await fetch(
+          `${SB_URL}/rest/v1/projects?id=eq.${projectId}&select=name&limit=1`,
+          { headers })
+        if (prRes.ok) {
+          const pr = await prRes.json()
+          if (pr[0]) setProjectName(pr[0].name)
+        }
+
+        // Load this project's phases
         const phRes = await fetch(
-          `${SB_URL}/rest/v1/phases?project_id=eq.sg-sustenta-futuro&order=order_index.asc`,
+          `${SB_URL}/rest/v1/phases?project_id=eq.${projectId}&order=order_index.asc`,
           { headers })
         if (phRes.ok) {
           const phData: Phase[] = await phRes.json()
@@ -504,7 +529,7 @@ function KanbanPageInner() {
       setLoadingPhases(false)
     }
     init()
-  }, [])
+  }, [projectId])
 
   async function loadTasksFor(phaseId: string, t: string) {
     setLoadingTasks(true)
@@ -602,6 +627,7 @@ function KanbanPageInner() {
       <div className="flex items-center gap-5">
         <button onClick={() => router.push('/')} className="text-sm hover:opacity-70" style={{ color: 'rgba(240,240,240,0.5)' }}>Leads</button>
         <button onClick={() => router.push('/propuestas')} className="text-sm hover:opacity-70" style={{ color: 'rgba(240,240,240,0.5)' }}>Propuestas</button>
+        <button onClick={() => router.push('/proyectos')} className="text-sm hover:opacity-70" style={{ color: 'rgba(240,240,240,0.5)' }}>Proyectos</button>
         <span className="text-sm font-medium" style={{ color: '#4B9BF5' }}>Kanban</span>
         {isAdmin && <button onClick={() => router.push('/usuarios')} className="text-sm hover:opacity-70" style={{ color: 'rgba(240,240,240,0.5)' }}>Usuarios</button>}
         {isAdmin && <button onClick={() => router.push('/configuracion')} className="text-sm hover:opacity-70" style={{ color: 'rgba(240,240,240,0.5)' }}>Config. Landing</button>}
@@ -609,6 +635,50 @@ function KanbanPageInner() {
       </div>
     </header>
   )
+
+  // ── Project picker (no ?project selected) ─────────────────────────────────
+
+  if (!projectId) {
+    return (
+      <div className="min-h-screen flex flex-col" style={{ background: '#000', color: '#F0F0F0' }}>
+        {Nav}
+        <main className="px-6 py-8 max-w-3xl mx-auto w-full">
+          <div className="mb-6">
+            <h1 className="text-xl font-semibold text-white">Tablero por proyecto</h1>
+            <p className="text-sm mt-0.5" style={{ color: 'rgba(240,240,240,0.4)' }}>
+              Elige un proyecto para ver sus fases, tareas y reportes.
+            </p>
+          </div>
+          {loadingPhases ? (
+            <div className="flex flex-col gap-2">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="h-14 rounded-lg animate-pulse" style={{ background: 'rgba(255,255,255,0.04)' }} />
+              ))}
+            </div>
+          ) : projectList.length === 0 ? (
+            <div className="rounded-xl border p-10 text-center text-sm"
+              style={{ background: '#0a0a0a', borderColor: 'rgba(255,255,255,0.08)', color: 'rgba(240,240,240,0.4)' }}>
+              Aún no hay proyectos. Convierte una propuesta ganada en proyecto desde{' '}
+              <button onClick={() => router.push('/propuestas')} className="underline hover:opacity-80" style={{ color: '#4B9BF5' }}>Propuestas</button>.
+            </div>
+          ) : (
+            <div className="flex flex-col gap-2">
+              {projectList.map((p) => (
+                <button
+                  key={p.id}
+                  onClick={() => router.push(`/kanban?project=${p.id}`)}
+                  className="flex items-center justify-between text-left rounded-lg border px-4 py-3 transition-colors hover:bg-white/[0.03]"
+                  style={{ background: '#0a0a0a', borderColor: 'rgba(255,255,255,0.08)' }}>
+                  <span className="text-sm font-medium text-white">{p.name}</span>
+                  <span className="text-xs" style={{ color: 'rgba(240,240,240,0.35)' }}>{p.status}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </main>
+      </div>
+    )
+  }
 
   // ── Layout ───────────────────────────────────────────────────────────────
 
@@ -621,6 +691,15 @@ function KanbanPageInner() {
         {/* ── Sidebar: Phases ── */}
         <aside className="flex flex-col border-r overflow-y-auto flex-shrink-0"
           style={{ width: '260px', borderColor: 'rgba(255,255,255,0.07)', background: '#000' }}>
+          <div className="flex flex-col gap-1 px-4 py-3"
+            style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+            <button onClick={() => router.push('/proyectos')} className="text-xs text-left hover:opacity-80 w-fit" style={{ color: 'rgba(240,240,240,0.4)' }}>
+              ← Proyectos
+            </button>
+            <span className="text-sm font-semibold text-white line-clamp-2 leading-snug">
+              {projectName ?? 'Proyecto'}
+            </span>
+          </div>
           <div className="flex items-center justify-between px-4 py-4"
             style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
             <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'rgba(240,240,240,0.35)' }}>
@@ -852,6 +931,7 @@ function KanbanPageInner() {
           initial={phaseModal.phase}
           maxOrder={phases.length}
           token={token}
+          projectId={projectId}
           onClose={() => setPhaseModal({ open: false })}
           onSaved={handlePhaseSaved}
         />

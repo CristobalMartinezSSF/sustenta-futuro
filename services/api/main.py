@@ -9,7 +9,7 @@ from slowapi import Limiter
 from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
 
-from app.routers import auth, evaluations, landing, leads, proposals
+from app.routers import auth, evaluations, landing, leads, projects, proposals
 
 limiter = Limiter(key_func=get_remote_address)
 
@@ -49,6 +49,7 @@ app.include_router(auth.router)
 app.include_router(leads.router)
 app.include_router(evaluations.router)
 app.include_router(proposals.router)
+app.include_router(projects.router)
 app.include_router(landing.router)
 
 

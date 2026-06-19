@@ -328,6 +328,7 @@ export default function LeadProposalsPage() {
   const [currentUser, setCurrentUser] = useState<{ id: string; name: string } | null>(null)
   const [lead, setLead] = useState<Lead | null>(null)
   const [proposals, setProposals] = useState<Proposal[]>([])
+  const [projects, setProjects] = useState<{ id: string; proposal_id: string | null; status: string }[]>([])
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -358,15 +359,17 @@ export default function LeadProposalsPage() {
         const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
         const headers = { apikey: key, Authorization: `Bearer ${token}` }
 
-        const [leadRes, propRes] = await Promise.all([
+        const [leadRes, propRes, projRes] = await Promise.all([
           fetch(`${base}/rest/v1/leads?id=eq.${leadId}&select=id,full_name,company,email&limit=1`, { headers }),
           fetch(`${base}/rest/v1/lead_proposals?lead_id=eq.${leadId}&select=*&order=version.desc`, { headers }),
+          fetch(`${base}/rest/v1/projects?lead_id=eq.${leadId}&select=id,proposal_id,status`, { headers }),
         ])
 
         if (leadRes.ok) {
           const rows = await leadRes.json()
           setLead(rows?.[0] ?? null)
         }
+        if (projRes.ok) setProjects((await projRes.json()) ?? [])
         if (!propRes.ok) {
           setError(`Error ${propRes.status}: ${await propRes.text()}`)
         } else {
@@ -405,6 +408,29 @@ export default function LeadProposalsPage() {
       setProposals((prev) => prev.map((x) => ({ ...x, is_principal: x.id === p.id })))
     } catch {
       alert('Error de red al marcar principal. Reintenta en unos segundos (el servidor puede estar despertando).')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function handleConvert(p: Proposal) {
+    if (busy) return
+    if (!confirm('¿Convertir esta propuesta en proyecto? El lead pasará a "Ganado" y se creará su tablero de desarrollo.')) return
+    setBusy(true)
+    try {
+      const res = await fetch(`${API_URL}/leads/${leadId}/proposal/${p.id}/convert`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${accessToken}` },
+      })
+      if (!res.ok) { alert(`No se pudo convertir en proyecto (error ${res.status}).`); return }
+      const project = await res.json()
+      setProjects((prev) =>
+        prev.some((x) => x.id === project.id) ? prev : [...prev, project]
+      )
+      setProposals((prev) => prev.map((x) => (x.id === p.id ? { ...x, status: 'accepted' } : x)))
+      router.push(`/kanban?project=${project.id}`)
+    } catch {
+      alert('Error de red al convertir en proyecto. Reintenta en unos segundos (el servidor puede estar despertando).')
     } finally {
       setBusy(false)
     }
@@ -496,6 +522,7 @@ export default function LeadProposalsPage() {
   }
 
   const selected = proposals.find((p) => p.id === selectedId) ?? null
+  const selectedProject = selected ? projects.find((pr) => pr.proposal_id === selected.id) ?? null : null
   const ev = (selected?.snapshot?.evaluation ?? {}) as Record<string, unknown>
   const notes = selected?.snapshot?.notes ?? []
 
@@ -510,6 +537,7 @@ export default function LeadProposalsPage() {
         <div className="flex items-center gap-5">
           <button onClick={() => router.push('/')} className="text-sm transition-opacity hover:opacity-70" style={{ color: 'rgba(240,240,240,0.5)' }}>Leads</button>
           <button onClick={() => router.push('/propuestas')} className="text-sm font-medium transition-opacity hover:opacity-70" style={{ color: '#4B9BF5' }}>Propuestas</button>
+          <button onClick={() => router.push('/proyectos')} className="text-sm transition-opacity hover:opacity-70" style={{ color: 'rgba(240,240,240,0.5)' }}>Proyectos</button>
           <button onClick={() => router.push('/kanban')} className="text-sm transition-opacity hover:opacity-70" style={{ color: 'rgba(240,240,240,0.5)' }}>Kanban</button>
           <button onClick={handleLogout} className="text-sm transition-opacity hover:opacity-70" style={{ color: 'rgba(240,240,240,0.5)' }}>Cerrar sesion</button>
         </div>
@@ -637,6 +665,24 @@ export default function LeadProposalsPage() {
                     >
                       Descargar PDF
                     </button>
+                    {selectedProject ? (
+                      <button
+                        onClick={() => router.push(`/kanban?project=${selectedProject.id}`)}
+                        className="rounded-lg px-3 py-1.5 text-xs font-medium transition-opacity hover:opacity-90"
+                        style={{ background: 'rgba(168,85,247,0.12)', border: '1px solid rgba(168,85,247,0.3)', color: '#c084fc' }}
+                      >
+                        Ver proyecto →
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleConvert(selected)}
+                        disabled={busy}
+                        className="rounded-lg px-3 py-1.5 text-xs font-medium transition-opacity hover:opacity-90 disabled:opacity-40"
+                        style={{ background: 'rgba(168,85,247,0.12)', border: '1px solid rgba(168,85,247,0.3)', color: '#c084fc' }}
+                      >
+                        Convertir en proyecto
+                      </button>
+                    )}
                   </div>
                 </div>
 

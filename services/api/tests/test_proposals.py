@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from app.routers.proposals import _build_snapshot
+from app.routers.proposals import _build_snapshot, _derive_project_name
 
 
 def test_build_snapshot_freezes_evaluation_notes_and_lead():
@@ -39,3 +39,27 @@ def test_build_snapshot_handles_no_notes():
     snap = _build_snapshot({"full_name": "A"}, {"id": "e"}, [])
     assert snap["notes"] == []
     assert snap["lead"]["full_name"] == "A"
+
+
+def test_derive_project_name_prefers_snapshot_project_title():
+    proposal = {
+        "title": "Versión 2",
+        "snapshot": {
+            "evaluation": {"project_title": "Onboarding Buk"},
+            "lead": {"company": "ACME"},
+        },
+    }
+    assert _derive_project_name(proposal) == "Onboarding Buk"
+
+
+def test_derive_project_name_falls_back_to_title_then_company():
+    # No project_title -> proposal title.
+    assert _derive_project_name(
+        {"title": "Versión 1", "snapshot": {"evaluation": {}, "lead": {"company": "ACME"}}}
+    ) == "Versión 1"
+    # No title either -> lead company.
+    assert _derive_project_name(
+        {"snapshot": {"evaluation": {}, "lead": {"company": "ACME"}}}
+    ) == "ACME"
+    # Nothing usable -> safe fallback.
+    assert _derive_project_name({}) == "Proyecto sin título"

@@ -193,6 +193,9 @@ function PropuestasPageInner() {
         <span className="text-sm font-medium" style={{ color: '#4B9BF5' }}>
           Propuestas
         </span>
+        <button onClick={() => router.push('/proyectos')} className="text-sm transition-opacity hover:opacity-70" style={{ color: 'rgba(240,240,240,0.5)' }}>
+          Proyectos
+        </button>
         <button onClick={() => router.push('/kanban')} className="text-sm transition-opacity hover:opacity-70" style={{ color: 'rgba(240,240,240,0.5)' }}>
           Kanban
         </button>

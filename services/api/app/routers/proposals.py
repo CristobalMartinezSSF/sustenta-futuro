@@ -16,6 +16,7 @@ from fastapi import APIRouter, Depends, HTTPException, Response, status
 
 from app.auth import AdminUser, require_admin
 from app.database import get_client
+from app.models.project import ProjectDetail
 from app.models.proposal import (
     ProposalCreate,
     ProposalDetail,
@@ -58,6 +59,23 @@ def _build_snapshot(lead: dict, evaluation: dict, notes: list[dict]) -> dict:
         },
         "captured_at": datetime.now(timezone.utc).isoformat(),
     }
+
+
+def _derive_project_name(proposal: dict) -> str:
+    """Pick a human-readable project name when converting a proposal.
+
+    Preference: snapshot's project_title -> proposal title -> lead company name
+    -> a safe fallback.
+    """
+    snapshot = proposal.get("snapshot") or {}
+    evaluation = snapshot.get("evaluation") or {}
+    lead_basics = snapshot.get("lead") or {}
+    return (
+        evaluation.get("project_title")
+        or proposal.get("title")
+        or lead_basics.get("company")
+        or "Proyecto sin título"
+    )
 
 
 def _get_lead_and_evaluation(lead_id: str) -> tuple[dict, dict]:
@@ -280,3 +298,65 @@ def update_proposal_status(
         _advance_lead_status(lead_id, "proposal_sent", "Propuesta enviada al cliente")
 
     return ProposalDetail(**row)
+
+
+# ---------------------------------------------------------------------------
+# POST /leads/{lead_id}/proposal/{proposal_id}/convert  — proposal -> project
+# ---------------------------------------------------------------------------
+
+
+@router.post(
+    "/{lead_id}/proposal/{proposal_id}/convert",
+    response_model=ProjectDetail,
+    status_code=status.HTTP_201_CREATED,
+    summary="Convert a winning proposal into a development project",
+)
+def convert_to_project(
+    lead_id: str, proposal_id: str, admin: AdminUser = Depends(require_admin)
+) -> ProjectDetail:
+    """Turn a winning proposal into a first-class project.
+
+    Marks the proposal as accepted, creates the project (name taken from the
+    snapshot's project_title), and advances the lead to 'won'. Idempotent: if a
+    project already exists for this proposal, the existing one is returned.
+    """
+    rows = _supabase_get(
+        "/lead_proposals",
+        {"select": "id,lead_id,title,snapshot", "id": f"eq.{proposal_id}",
+         "lead_id": f"eq.{lead_id}", "limit": "1"},
+    )
+    if not rows:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Proposal not found.")
+    proposal = rows[0]
+
+    # Idempotency: a proposal can back at most one project.
+    existing = _supabase_get(
+        "/projects",
+        {"select": "id,lead_id,proposal_id,name,status,started_at,created_at",
+         "proposal_id": f"eq.{proposal_id}", "limit": "1"},
+    )
+    if existing:
+        return ProjectDetail(**existing[0])
+
+    name = _derive_project_name(proposal)
+
+    # Mark the proposal as the accepted (winning) version.
+    _supabase_patch(
+        "/lead_proposals",
+        {"status": ProposalStatus.ACCEPTED.value},
+        {"id": f"eq.{proposal_id}", "lead_id": f"eq.{lead_id}", "select": "id"},
+    )
+
+    project = _supabase_post(
+        "/projects",
+        {
+            "lead_id": lead_id,
+            "proposal_id": proposal_id,
+            "name": name,
+            "status": "active",
+        },
+    )
+
+    _advance_lead_status(lead_id, "won", "Propuesta aceptada — proyecto creado")
+
+    return ProjectDetail(**project)

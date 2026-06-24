@@ -8,6 +8,8 @@ slowapi
 PyJWT
 cryptography
 fpdf2
+jinja2
+playwright
 duckduckgo-search
 python-whois
 anthropic

@@ -35,6 +35,7 @@ class ProposalDetail(BaseModel):
     id: UUID
     lead_id: UUID
     evaluation_id: UUID | None = None
+    quote_number: str | None = None
     pdf_storage_path: str | None = None
     status: ProposalStatus
     version: int

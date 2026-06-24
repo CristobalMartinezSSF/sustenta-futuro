@@ -25,7 +25,9 @@ from app.models.proposal import (
     ProposalStatusUpdate,
     ProposalWithSnapshot,
 )
+from app.proposal_context import build_proposal_context
 from app.proposal_pdf import build_proposal_pdf
+from app.proposal_render import ProposalRenderError, render_proposal_pdf
 from app.routers.evaluations import _advance_lead_status
 from app.routers.leads import DETAIL_FIELDS, _supabase_get, _supabase_patch, _supabase_post
 
@@ -34,9 +36,60 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/leads", tags=["proposals"])
 
 PROPOSAL_FIELDS = (
-    "id,lead_id,evaluation_id,pdf_storage_path,status,version,is_principal,title,"
+    "id,lead_id,evaluation_id,quote_number,pdf_storage_path,status,version,is_principal,title,"
     "approved_by,approved_at,sent_at,created_at"
 )
+
+
+def _allocate_quote_number() -> str | None:
+    """Allocate the next COT-NNN-AAAA number via the Postgres allocator.
+
+    Returns None (never raises) so proposal creation/PDF rendering is never
+    blocked by a numbering hiccup."""
+    try:
+        with get_client() as client:
+            resp = client.post("/rpc/allocate_quote_number")
+            resp.raise_for_status()
+            number = resp.json()
+            return number if isinstance(number, str) else None
+    except Exception as exc:  # noqa: BLE001 — numbering is best-effort
+        logger.warning("Could not allocate quote number: %s", exc)
+        return None
+
+
+def _quote_number_for_lead(lead_id: str) -> str | None:
+    """Return the quote number of the lead's principal/latest proposal.
+
+    Back-fills a number for legacy proposals created before the numbering
+    existed. Returns None if the lead has no proposal yet."""
+    rows = _supabase_get(
+        "/lead_proposals",
+        {"select": "id,quote_number", "lead_id": f"eq.{lead_id}",
+         "order": "is_principal.desc,version.desc", "limit": "1"},
+    )
+    if not rows:
+        return None
+    if rows[0].get("quote_number"):
+        return rows[0]["quote_number"]
+    number = _allocate_quote_number()
+    if number:
+        _supabase_patch(
+            "/lead_proposals", {"quote_number": number},
+            {"id": f"eq.{rows[0]['id']}", "select": "id"},
+        )
+    return number
+
+
+def _render_proposal_pdf(lead: dict, evaluation: dict, quote_number: str | None) -> bytes:
+    """Render the proposal PDF via the HTML/Chromium pipeline, falling back to
+    the legacy fpdf2 generator if Chromium is unavailable (e.g. on a native
+    runtime before the Docker cutover)."""
+    try:
+        context = build_proposal_context(lead, evaluation, quote_number or "COT-—")
+        return render_proposal_pdf(context)
+    except ProposalRenderError as exc:
+        logger.warning("HTML proposal render unavailable, using fpdf2 fallback: %s", exc)
+        return build_proposal_pdf(lead, evaluation)
 
 
 def _build_snapshot(lead: dict, evaluation: dict, notes: list[dict]) -> dict:
@@ -142,6 +195,7 @@ def create_proposal(
         {
             "lead_id": lead_id,
             "evaluation_id": evaluation["id"],
+            "quote_number": _allocate_quote_number(),
             "status": ProposalStatus.DRAFT.value,
             "version": next_version,
             "is_principal": is_first,
@@ -225,8 +279,9 @@ def set_principal(
 def get_proposal_pdf(lead_id: str, admin: AdminUser = Depends(require_admin)) -> Response:
     """Generate and stream the institutional proposal PDF for a lead."""
     lead, evaluation = _get_lead_and_evaluation(lead_id)
-    pdf_bytes = build_proposal_pdf(lead, evaluation)
-    filename = f"propuesta-{lead_id}.pdf"
+    quote_number = _quote_number_for_lead(lead_id)
+    pdf_bytes = _render_proposal_pdf(lead, evaluation, quote_number)
+    filename = f"{quote_number or 'propuesta'}.pdf"
     return Response(
         content=pdf_bytes,
         media_type="application/pdf",
@@ -326,7 +381,7 @@ def send_proposal(
     # Make sure the proposal belongs to this lead before sending anything.
     rows = _supabase_get(
         "/lead_proposals",
-        {"select": "id,title", "id": f"eq.{proposal_id}",
+        {"select": "id,title,quote_number", "id": f"eq.{proposal_id}",
          "lead_id": f"eq.{lead_id}", "limit": "1"},
     )
     if not rows:
@@ -339,7 +394,8 @@ def send_proposal(
             detail="The lead has no email address to send the proposal to.",
         )
 
-    pdf_bytes = build_proposal_pdf(lead, evaluation)
+    quote_number = rows[0].get("quote_number") or _quote_number_for_lead(lead_id)
+    pdf_bytes = _render_proposal_pdf(lead, evaluation, quote_number)
     project_title = (
         evaluation.get("project_title") or rows[0].get("title") or lead.get("company") or ""
     )

@@ -33,12 +33,19 @@ interface Evaluation {
   notes: string | null
 }
 
+// One row of the 3-column tech stack table (Capa / Tecnología / Justificación).
+interface StackRow {
+  layer: string
+  tech: string
+  rationale: string
+}
+
 // Local editable form shape (lists held as multiline text for simple editing).
+// `stack` is managed separately as structured StackRow[] (see stackRows state).
 interface Form {
   project_title: string
   description: string
   functionalities: string
-  stack: string
   phases: string
   estimated_hours: string
   internal_cost: string
@@ -55,7 +62,7 @@ interface Form {
 }
 
 const EMPTY_FORM: Form = {
-  project_title: '', description: '', functionalities: '', stack: '', phases: '',
+  project_title: '', description: '', functionalities: '', phases: '',
   estimated_hours: '', internal_cost: '', client_price: '', price_currency: 'UF',
   price_breakdown: '', monthly_maintenance: '', payment_method: '', total_duration: '',
   offer_validity: '15', complexity: '', risks: '', notes: '',
@@ -97,6 +104,30 @@ function textToList(value: string): string[] {
     .filter((line) => line.length > 0)
 }
 
+/** Stored stack value (dict rows or legacy strings) → editable StackRow[]. */
+function parseStackRows(value: unknown[] | null): StackRow[] {
+  if (!value || !Array.isArray(value)) return []
+  return value.map((item) => {
+    if (item && typeof item === 'object') {
+      const o = item as Record<string, unknown>
+      return {
+        layer: String(o.layer ?? ''),
+        tech: String(o.tech ?? ''),
+        rationale: String(o.rationale ?? ''),
+      }
+    }
+    // Legacy: a plain string becomes the technology, no layer/rationale.
+    return { layer: '', tech: String(item), rationale: '' }
+  })
+}
+
+/** Editable StackRow[] → stored dict rows, dropping fully-empty rows. */
+function serializeStackRows(rows: StackRow[]): Array<Record<string, string>> {
+  return rows
+    .map((r) => ({ layer: r.layer.trim(), tech: r.tech.trim(), rationale: r.rationale.trim() }))
+    .filter((r) => r.layer || r.tech || r.rationale)
+}
+
 function parseNumber(value: string): number | null {
   const cleaned = value.replace(/[^0-9.,-]/g, '').replace(/\./g, '').replace(',', '.')
   const n = parseFloat(cleaned)
@@ -127,6 +158,8 @@ export default function EvaluationSection({
 }) {
   const [evaluation, setEvaluation] = useState<Evaluation | null>(null)
   const [form, setForm] = useState<Form>(EMPTY_FORM)
+  const [stackRows, setStackRows] = useState<StackRow[]>([])
+  const [stackPrefilling, setStackPrefilling] = useState(false)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
@@ -149,6 +182,7 @@ export default function EvaluationSection({
   // ── Load existing evaluation ────────────────────────────────────────────────
   useEffect(() => {
     async function load() {
+      let hasStack = false
       try {
         const res = await fetch(
           `${base}/rest/v1/lead_evaluations?lead_id=eq.${leadId}&select=*&limit=1`,
@@ -158,10 +192,16 @@ export default function EvaluationSection({
           const data = await res.json()
           if (data && data[0]) {
             applyEvaluation(data[0] as Evaluation)
+            hasStack = Array.isArray(data[0].stack) && data[0].stack.length > 0
           }
         }
       } catch {
         // Silent — section simply shows an empty ficha.
+      }
+      // Auto-fill the stack from the service-type catalog on first open, when
+      // nothing is saved yet. Non-destructive and fully editable afterwards.
+      if (!hasStack) {
+        await prefillStackFromService()
       }
       setLoading(false)
     }
@@ -171,11 +211,11 @@ export default function EvaluationSection({
 
   function applyEvaluation(ev: Evaluation) {
     setEvaluation(ev)
+    setStackRows(parseStackRows(ev.stack))
     setForm({
       project_title: ev.project_title ?? '',
       description: ev.description ?? '',
       functionalities: listToText(ev.functionalities),
-      stack: listToText(ev.stack),
       phases: listToText(ev.phases),
       estimated_hours: ev.estimated_hours?.toString() ?? '',
       internal_cost: ev.internal_cost?.toString() ?? '',
@@ -197,6 +237,64 @@ export default function EvaluationSection({
     setSaved(false)
   }
 
+  // ── Stack table editing ───────────────────────────────────────────────────────
+  function setStackCell(index: number, key: keyof StackRow, value: string) {
+    setStackRows((prev) => prev.map((r, i) => (i === index ? { ...r, [key]: value } : r)))
+    setSaved(false)
+  }
+
+  function addStackRow() {
+    setStackRows((prev) => [...prev, { layer: '', tech: '', rationale: '' }])
+    setSaved(false)
+  }
+
+  function removeStackRow(index: number) {
+    setStackRows((prev) => prev.filter((_, i) => i !== index))
+    setSaved(false)
+  }
+
+  /** Fetch the curated default stack for the lead's service type.
+   * Non-destructive by default (only fills when the table is empty); pass
+   * `replace` to overwrite the current rows. */
+  async function prefillStackFromService(opts?: { replace?: boolean }): Promise<boolean> {
+    try {
+      const res = await fetch(`${API_URL}/leads/${leadId}/evaluation/stack-suggestions`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      })
+      if (!res.ok) return false
+      const s = (await res.json()) as { service_type: string | null; stack: StackRow[] }
+      if (!s.stack || s.stack.length === 0) return false
+      let applied = false
+      setStackRows((prev) => {
+        if (!opts?.replace && prev.length > 0) return prev
+        applied = true
+        return parseStackRows(s.stack)
+      })
+      return applied
+    } catch {
+      return false
+    }
+  }
+
+  /** Manual "auto-fill by service" button — replaces the table after confirm. */
+  async function handleStackAutofill() {
+    if (stackPrefilling) return
+    const hasContent = stackRows.some((r) => r.layer || r.tech || r.rationale)
+    if (hasContent && !confirm('¿Reemplazar el stack actual con el sugerido para el tipo de servicio del lead?')) {
+      return
+    }
+    setStackPrefilling(true)
+    setSuggestInfo(null)
+    const ok = await prefillStackFromService({ replace: true })
+    setStackPrefilling(false)
+    setSaved(false)
+    setSuggestInfo(
+      ok
+        ? 'Stack rellenado según el tipo de servicio del lead. Edita libremente antes de guardar.'
+        : 'No se pudo obtener un stack sugerido para este lead.'
+    )
+  }
+
   // ── Save (upsert) ────────────────────────────────────────────────────────────
   async function handleSave() {
     if (saving) return
@@ -208,7 +306,7 @@ export default function EvaluationSection({
       project_title: form.project_title.trim() || null,
       description: form.description.trim() || null,
       functionalities: textToList(form.functionalities),
-      stack: textToList(form.stack),
+      stack: serializeStackRows(stackRows),
       phases: textToList(form.phases),
       estimated_hours: form.estimated_hours ? parseInt(form.estimated_hours, 10) : null,
       internal_cost: parseNumber(form.internal_cost),
@@ -524,10 +622,54 @@ export default function EvaluationSection({
             className="rounded-lg px-3 py-2 text-sm outline-none w-full resize-y focus:ring-1 focus:ring-[#4B9BF5]/40" style={inputStyle} />
         </Field>
 
-        <Field label="Stack tecnológico (uno por línea)">
-          <textarea rows={4} value={form.stack} onChange={(e) => set('stack', e.target.value)}
-            placeholder={'Next.js\nFastAPI\nSupabase'}
-            className="rounded-lg px-3 py-2 text-sm outline-none w-full resize-y focus:ring-1 focus:ring-[#4B9BF5]/40" style={inputStyle} />
+        <Field label="Stack tecnológico" full>
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[11px]" style={{ color: 'rgba(240,240,240,0.35)' }}>
+                Capa · Tecnología · Justificación
+              </span>
+              <button type="button" onClick={handleStackAutofill} disabled={stackPrefilling}
+                className="flex items-center gap-1.5 rounded-md px-2 py-1 text-[11px] font-medium transition-opacity hover:opacity-90 disabled:opacity-40"
+                style={{ background: 'rgba(56,189,248,0.12)', border: '1px solid rgba(56,189,248,0.3)', color: '#38bdf8' }}>
+                {stackPrefilling && <span className="w-3 h-3 rounded-full border-2 border-white/30 border-t-white animate-spin" />}
+                {stackPrefilling ? 'Cargando...' : 'Auto-rellenar por servicio'}
+              </button>
+            </div>
+
+            {stackRows.length === 0 && (
+              <p className="text-xs" style={{ color: 'rgba(240,240,240,0.3)' }}>
+                Sin filas. Agrega una o usa “Auto-rellenar por servicio”.
+              </p>
+            )}
+
+            {stackRows.map((row, i) => (
+              <div key={i} className="flex items-start gap-2">
+                <input type="text" value={row.layer} onChange={(e) => setStackCell(i, 'layer', e.target.value)}
+                  placeholder="Capa"
+                  className="rounded-lg px-2 py-1.5 text-sm outline-none focus:ring-1 focus:ring-[#38bdf8]/40"
+                  style={{ ...inputStyle, flex: '0 0 24%' }} />
+                <input type="text" value={row.tech} onChange={(e) => setStackCell(i, 'tech', e.target.value)}
+                  placeholder="Tecnología"
+                  className="rounded-lg px-2 py-1.5 text-sm outline-none focus:ring-1 focus:ring-[#38bdf8]/40"
+                  style={{ ...inputStyle, flex: '0 0 30%' }} />
+                <input type="text" value={row.rationale} onChange={(e) => setStackCell(i, 'rationale', e.target.value)}
+                  placeholder="Justificación"
+                  className="rounded-lg px-2 py-1.5 text-sm outline-none focus:ring-1 focus:ring-[#38bdf8]/40 flex-1"
+                  style={inputStyle} />
+                <button type="button" onClick={() => removeStackRow(i)} aria-label="Eliminar fila"
+                  className="rounded-md px-2 py-1.5 text-xs leading-none transition-opacity hover:opacity-80"
+                  style={{ background: 'rgba(248,113,113,0.1)', border: '1px solid rgba(248,113,113,0.2)', color: '#f87171' }}>
+                  ✕
+                </button>
+              </div>
+            ))}
+
+            <button type="button" onClick={addStackRow}
+              className="self-start rounded-md px-2.5 py-1 text-xs font-medium transition-opacity hover:opacity-90"
+              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(240,240,240,0.7)' }}>
+              + Agregar fila
+            </button>
+          </div>
         </Field>
 
         <Field label="Fases de implementación (una por línea)">

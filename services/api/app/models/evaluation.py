@@ -51,7 +51,9 @@ class EvaluationUpsert(BaseModel):
     project_title: str | None = Field(default=None, max_length=300)
     description: str | None = Field(default=None, max_length=5000)
     functionalities: list[str] | None = None
-    stack: list[str] | None = None
+    # Stack rows are {layer, tech, rationale} dicts (3-column proposal table).
+    # Plain strings are still accepted for backward compatibility.
+    stack: list[dict] | list[str] | None = None
     phases: list[dict] | None = None
     estimated_hours: int | None = Field(default=None, ge=0, le=100000)
     internal_cost: float | None = Field(default=None, ge=0)
@@ -113,6 +115,17 @@ class EvaluationSuggestions(BaseModel):
     monthly_maintenance: float | None = None
     complexity: str | None = None
     price_currency: str | None = None
+
+
+class StackSuggestion(BaseModel):
+    """Curated default tech stack for a lead's service type.
+
+    Deterministic (no AI): the rows come from a hand-curated catalog keyed by
+    service type. Pre-fills the editable 3-column stack table of the ficha.
+    """
+
+    service_type: str | None = None
+    stack: list[dict] = []
 
 
 class EvaluationAIDraft(BaseModel):

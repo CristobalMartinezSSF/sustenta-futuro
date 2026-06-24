@@ -20,9 +20,11 @@ from app.models.evaluation import (
     EvaluationSuggestions,
     EvaluationUpsert,
     EvaluationVerdict,
+    StackSuggestion,
     Verdict,
 )
 from app.proposal_ai import PROPOSAL_AI_MODEL, ProposalAIError, generate_proposal_text
+from app.stack_catalog import default_stack_for
 
 # Reuse the thin Supabase REST helpers defined in the leads router.
 # leads.py does not import this module, so there is no circular import.
@@ -144,6 +146,31 @@ def get_evaluation_suggestions(
         return EvaluationSuggestions(service_type=None, sample_size=0)
 
     return _compute_suggestions(_same_type_evaluations(service_type), service_type)
+
+
+@router.get(
+    "/{lead_id}/evaluation/stack-suggestions",
+    response_model=StackSuggestion,
+    summary="Curated default tech stack for the lead's service type",
+)
+def get_stack_suggestions(
+    lead_id: str, admin: AdminUser = Depends(require_admin)
+) -> StackSuggestion:
+    """Return a curated default 3-column stack based on the lead's service type.
+
+    Deterministic, editable starting point for the ficha's stack table. Falls
+    back to a generic stack for unknown/missing service types.
+    """
+    lead_rows = _supabase_get(
+        "/leads", {"select": "service_interest", "id": f"eq.{lead_id}", "limit": "1"}
+    )
+    if not lead_rows:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Lead not found.")
+    service_type = lead_rows[0].get("service_interest")
+    return StackSuggestion(
+        service_type=service_type,
+        stack=default_stack_for(service_type),
+    )
 
 
 @router.get(

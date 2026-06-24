@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>{{ quote_number }} — {{ title }} | Sustenta Futuro SpA</title>
+<style>
+  /* ============================================================
+     Sustenta Futuro — Cotización / Propuesta formal
+     Print-oriented (A4). Palette: navy + cyan accent + orange callout.
+     ============================================================ */
+  @page {
+    size: A4;
+    margin: 16mm 0 0 0;
+  }
+
+  :root {
+    --navy:        #16213e;
+    --navy-2:      #1a2744;
+    --navy-deep:   #0f1b33;
+    --blue:        #0f3460;
+    --cyan:        #38bdf8;
+    --cyan-deep:   #0ea5e9;
+    --cyan-soft:   #7dd3fc;
+    --ink:         #1f2937;
+    --ink-soft:    #475569;
+    --muted:       #64748b;
+    --line:        #e5e7eb;
+    --line-soft:   #eef2f7;
+    --card:        #f8fafc;
+    --amber-bg:    #fffbeb;
+    --amber-line:  #f59e0b;
+    --green-ok:    #16a34a;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: #fff;
+    color: var(--ink);
+    font-family: 'Inter', -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-size: 11px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  h1, h2, h3, h4 { font-family: 'Montserrat', 'Inter', sans-serif; margin: 0; }
+
+  .page { padding: 0 18mm; }
+
+  /* ---------- HERO / HEADER BAND ---------- */
+  .hero {
+    position: relative;
+    margin: 0 0 10mm 0;
+    padding: 22px 22px 26px 22px;
+    border-radius: 0 0 18px 18px;
+    color: #fff;
+    background:
+      radial-gradient(120% 140% at 85% 8%, rgba(56,189,248,0.28) 0%, transparent 46%),
+      radial-gradient(90% 120% at 95% 90%, rgba(14,165,233,0.18) 0%, transparent 50%),
+      linear-gradient(135deg, var(--navy-2) 0%, var(--blue) 55%, var(--navy) 100%);
+    overflow: hidden;
+  }
+  .hero::after {
+    content: "";
+    position: absolute;
+    right: -60px; top: -70px;
+    width: 280px; height: 280px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(56,189,248,0.20) 0%, transparent 62%);
+  }
+  .hero-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    position: relative; z-index: 2;
+  }
+  .logo-chip {
+    background: #fff;
+    border-radius: 10px;
+    padding: 9px 13px;
+    display: inline-flex;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+  }
+  .logo-chip img { height: 26px; display: block; }
+  .hero-meta { text-align: right; }
+  .hero-cot {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    letter-spacing: 2px;
+    font-size: 15px;
+    color: var(--cyan-soft);
+  }
+  .hero-date { font-size: 10.5px; color: rgba(255,255,255,0.72); margin-top: 3px; }
+  .badge {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 4px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(125,211,252,0.55);
+    background: rgba(56,189,248,0.12);
+    color: var(--cyan-soft);
+    font-size: 9.5px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+  .hero-brand {
+    position: relative; z-index: 2;
+    margin-top: 16px;
+  }
+  .hero-brand .name {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+  }
+  .hero-brand .tagline {
+    font-size: 9px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.55);
+    margin-top: 2px;
+  }
+  .hero-title {
+    position: relative; z-index: 2;
+    margin-top: 18px;
+  }
+  .hero-kind {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 27px;
+    line-height: 1.08;
+    letter-spacing: -0.5px;
+  }
+  .hero-kind .hl { color: var(--cyan); }
+  .hero-sub {
+    margin-top: 9px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.78);
+    max-width: 78%;
+  }
+
+  /* ---------- PARTY CARDS ---------- */
+  .parties {
+    display: flex;
+    gap: 14px;
+    margin: 0 0 9mm 0;
+  }
+  .party {
+    flex: 1;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 15px 17px;
+  }
+  .party .role {
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--cyan-deep);
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .party .pname {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--navy);
+    margin-bottom: 6px;
+  }
+  .party .line { font-size: 10px; color: var(--ink-soft); margin: 2px 0; }
+
+  /* ---------- SECTION HEADINGS ---------- */
+  .section { margin: 0 0 7mm 0; page-break-inside: avoid; }
+  .sec-head {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--cyan-deep);
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 11px;
+  }
+  p.body { margin: 0 0 8px 0; color: var(--ink); }
+  p.body:last-child { margin-bottom: 0; }
+  em.kw { font-style: italic; color: var(--ink-soft); }
+
+  /* ---------- NUMBERED SCOPE LIST ---------- */
+  .scope-item {
+    display: flex;
+    gap: 12px;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--line-soft);
+    page-break-inside: avoid;
+  }
+  .scope-item:last-child { border-bottom: none; }
+  .scope-num {
+    flex: 0 0 22px;
+    width: 22px; height: 22px;
+    border-radius: 7px;
+    background: linear-gradient(135deg, var(--cyan-deep), var(--blue));
+    color: #fff;
+    font-weight: 700;
+    font-size: 10px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 6px rgba(14,165,233,0.35);
+  }
+  .scope-body .t {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    font-size: 11.5px;
+    color: var(--navy);
+    margin-bottom: 2px;
+  }
+  .scope-body .d { font-size: 10px; color: var(--ink-soft); }
+
+  /* ---------- TABLES ---------- */
+  table { width: 100%; border-collapse: collapse; font-size: 10px; }
+  table.grid { border-radius: 10px; overflow: hidden; box-shadow: 0 0 0 1px var(--line); }
+  table.grid thead th {
+    background: var(--navy);
+    color: #fff;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    text-align: left;
+    padding: 10px 12px;
+    font-size: 10px;
+  }
+  table.grid tbody td {
+    padding: 10px 12px;
+    border-top: 1px solid var(--line);
+    vertical-align: top;
+    color: var(--ink-soft);
+  }
+  table.grid tbody tr:nth-child(even) td { background: var(--card); }
+  table.grid td.k {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    color: var(--navy);
+  }
+
+  /* economics: value column + highlighted total */
+  td.val { text-align: right; font-weight: 700; color: var(--navy); white-space: nowrap; }
+  .econ .concept { font-weight: 700; color: var(--navy); font-family: 'Montserrat', sans-serif; }
+  .econ .detail { color: var(--muted); font-size: 9.5px; margin-top: 2px; }
+  tr.total td {
+    background: var(--navy) !important;
+    color: #fff;
+    border-top: none;
+  }
+  tr.total .concept { color: #fff; }
+  tr.total .detail { color: rgba(255,255,255,0.6); }
+  tr.total td.val { color: var(--cyan); font-size: 15px; }
+
+  /* ---------- CALLOUT ---------- */
+  .callout {
+    background: var(--amber-bg);
+    border-left: 4px solid var(--amber-line);
+    border-radius: 6px;
+    padding: 11px 14px;
+    font-size: 10px;
+    color: #7c5e10;
+    margin-top: 11px;
+  }
+  .callout b { color: #92400e; }
+
+  /* ---------- TIMELINE / PLAN ---------- */
+  .tl-item {
+    display: flex;
+    gap: 13px;
+    padding: 8px 0;
+    page-break-inside: avoid;
+  }
+  .tl-dot {
+    flex: 0 0 16px;
+    margin-top: 2px;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, var(--cyan), var(--cyan-deep));
+    box-shadow: 0 0 0 4px rgba(56,189,248,0.16);
+  }
+  .tl-week {
+    font-size: 8.5px; font-weight: 700; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--cyan-deep);
+  }
+  .tl-title {
+    font-family: 'Montserrat', sans-serif; font-weight: 600;
+    font-size: 11.5px; color: var(--navy); margin: 1px 0 2px;
+  }
+  .tl-desc { font-size: 10px; color: var(--ink-soft); }
+
+  /* ---------- CONDITIONS GRID ---------- */
+  .cond-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 13px 22px;
+  }
+  .cond {
+    display: flex; gap: 10px;
+    page-break-inside: avoid;
+  }
+  .cond .ic { font-size: 15px; line-height: 1; flex: 0 0 18px; }
+  .cond .ct {
+    font-family: 'Montserrat', sans-serif; font-weight: 600;
+    font-size: 11px; color: var(--navy); margin-bottom: 2px;
+  }
+  .cond .cd { font-size: 10px; color: var(--ink-soft); }
+
+  /* ---------- SIGNATURES ---------- */
+  .accept-text { margin-bottom: 16mm; color: var(--ink); }
+  .signs { display: flex; gap: 40px; justify-content: center; }
+  .sign { flex: 1; max-width: 230px; text-align: center; }
+  .sign .ln { border-top: 1px solid var(--ink-soft); margin-bottom: 6px; }
+  .sign .sn { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 11px; color: var(--navy); }
+  .sign .so { font-size: 10px; color: var(--ink-soft); }
+  .sign .sr { font-size: 9px; color: var(--muted); }
+
+  /* ---------- FOOTER BAND ---------- */
+  .footer {
+    margin-top: 12mm;
+    background: var(--navy);
+    color: rgba(255,255,255,0.72);
+    padding: 16px 18mm;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 9.5px;
+  }
+  .footer .fname { font-family: 'Montserrat', sans-serif; font-weight: 700; color: #fff; font-size: 12px; letter-spacing: 0.4px; }
+  .footer .fright { text-align: right; line-height: 1.5; }
+</style>
+</head>
+<body>
+
+  <!-- ================= HERO ================= -->
+  <div class="hero">
+    <div class="hero-top">
+      <div class="logo-chip"><img src="{{ logo_src }}" alt="Sustenta Futuro"></div>
+      <div class="hero-meta">
+        <div class="hero-cot">{{ quote_number }}</div>
+        <div class="hero-date">{{ city }}, {{ issued_date_label }}</div>
+        <div><span class="badge">Válida por {{ validity_days }} días</span></div>
+      </div>
+    </div>
+
+    <div class="hero-brand">
+      <div class="name">{{ provider.name }}</div>
+      <div class="tagline">Potencia tu operación. Libera tu talento.</div>
+    </div>
+
+    <div class="hero-title">
+      <div class="hero-kind">{{ doc_kind }}<br><span class="hl">{{ title_highlight }}</span> {{ title_rest }}</div>
+      {% if subtitle %}<div class="hero-sub">{{ subtitle }}</div>{% endif %}
+    </div>
+  </div>
+
+  <div class="page">
+
+    <!-- ================= PARTIES ================= -->
+    <div class="parties">
+      <div class="party">
+        <div class="role">Proveedor</div>
+        <div class="pname">{{ provider.name }}</div>
+        {% if provider.email %}<div class="line">{{ provider.email }}</div>{% endif %}
+        {% if provider.rut %}<div class="line">RUT: {{ provider.rut }}</div>{% endif %}
+        {% if provider.giro %}<div class="line">Giro: {{ provider.giro }}</div>{% endif %}
+        {% if provider.bank %}<div class="line">{{ provider.bank }}</div>{% endif %}
+      </div>
+      <div class="party">
+        <div class="role">Cliente</div>
+        <div class="pname">{{ client.company or "Por definir" }}</div>
+        {% if client.attention %}<div class="line">Atención: {{ client.attention }}</div>{% endif %}
+        {% if client.country %}<div class="line">{{ client.country }}</div>{% endif %}
+      </div>
+    </div>
+
+    <!-- ================= DESCRIPCIÓN ================= -->
+    <div class="section">
+      <div class="sec-head">Descripción del Proyecto</div>
+      {% for para in description %}<p class="body">{{ para }}</p>{% else %}<p class="body">Por definir.</p>{% endfor %}
+    </div>
+
+    <!-- ================= ALCANCE TÉCNICO ================= -->
+    <div class="section">
+      <div class="sec-head">Alcance Técnico</div>
+      {% for item in scope %}
+      <div class="scope-item">
+        <div class="scope-num">{{ loop.index }}</div>
+        <div class="scope-body">
+          <div class="t">{{ item.title }}</div>
+          <div class="d">{{ item.desc }}</div>
+        </div>
+      </div>
+      {% else %}<p class="body">Por definir.</p>{% endfor %}
+    </div>
+
+    <!-- ================= STACK ================= -->
+    <div class="section">
+      <div class="sec-head">Stack Tecnológico</div>
+      <table class="grid">
+        <thead><tr><th>Capa</th><th>Tecnología</th><th>Justificación</th></tr></thead>
+        <tbody>
+          {% for s in stack %}
+          <tr><td class="k">{{ s.layer }}</td><td>{{ s.tech }}</td><td>{{ s.rationale }}</td></tr>
+          {% else %}
+          <tr><td class="k">Por definir</td><td>Por definir</td><td>Por definir</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ================= COMPARATIVA ================= -->
+    <div class="section">
+      <div class="sec-head">{{ comparison.heading or "Comparativa Técnica" }}</div>
+      <table class="grid">
+        <thead><tr><th>Factor</th><th>{{ comparison.col_a or "Alternativa" }}</th><th>{{ comparison.col_b or "Solución propuesta" }}</th></tr></thead>
+        <tbody>
+          {% for r in comparison.rows %}
+          <tr><td class="k">{{ r.factor }}</td><td>{{ r.a }}</td><td>{{ r.b }}</td></tr>
+          {% else %}
+          <tr><td class="k">Por definir</td><td>Por definir</td><td>Por definir</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% if comparison.conclusion %}<div class="callout"><b>Conclusión:</b> {{ comparison.conclusion }}</div>{% endif %}
+    </div>
+
+    <!-- ================= PROPUESTA ECONÓMICA ================= -->
+    <div class="section econ">
+      <div class="sec-head">Propuesta Económica</div>
+      <table class="grid">
+        <thead><tr><th>Concepto</th><th style="text-align:right">Valor ({{ economics.currency }})</th></tr></thead>
+        <tbody>
+          {% for it in economics['items'] %}
+          <tr>
+            <td><div class="concept">{{ it.concept }}</div>{% if it.detail %}<div class="detail">{{ it.detail }}</div>{% endif %}</td>
+            <td class="val">{{ it.value }}</td>
+          </tr>
+          {% else %}
+          <tr><td><div class="concept">Por definir</div></td><td class="val">—</td></tr>
+          {% endfor %}
+          {% if economics.total %}
+          <tr class="total">
+            <td><div class="concept">{{ economics.total.concept }}</div>{% if economics.total.detail %}<div class="detail">{{ economics.total.detail }}</div>{% endif %}</td>
+            <td class="val">{{ economics.total.value }}</td>
+          </tr>
+          {% endif %}
+        </tbody>
+      </table>
+
+      {% if economics.monthly %}
+      <div class="sec-head" style="margin-top:14px">Mantenimiento Mensual (Recurrente)</div>
+      <table class="grid">
+        <thead><tr><th>Concepto</th><th style="text-align:right">Valor ({{ economics.currency }})</th></tr></thead>
+        <tbody>
+          {% for m in economics.monthly %}
+          <tr>
+            <td><div class="concept">{{ m.concept }}</div>{% if m.detail %}<div class="detail">{{ m.detail }}</div>{% endif %}</td>
+            <td class="val">{{ m.value }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% endif %}
+      {% if economics.note %}<div class="callout">{{ economics.note }}</div>{% endif %}
+    </div>
+
+    <!-- ================= PLAN ================= -->
+    <div class="section">
+      <div class="sec-head">{{ plan_heading or "Plan de Implementación" }}</div>
+      {% for ph in plan %}
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div>
+          <div class="tl-week">{{ ph.week }}</div>
+          <div class="tl-title">{{ ph.title }}</div>
+          <div class="tl-desc">{{ ph.desc }}</div>
+        </div>
+      </div>
+      {% else %}<p class="body">Por definir.</p>{% endfor %}
+    </div>
+
+    <!-- ================= CONDICIONES ================= -->
+    <div class="section">
+      <div class="sec-head">Condiciones Comerciales</div>
+      <div class="cond-grid">
+        {% for c in conditions %}
+        <div class="cond">
+          <div class="ic">{{ c.icon }}</div>
+          <div><div class="ct">{{ c.title }}</div><div class="cd">{{ c.text }}</div></div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- ================= ROI ================= -->
+    <div class="section">
+      <div class="sec-head">Retorno de Inversión Estimado</div>
+      <table class="grid">
+        <thead><tr><th>Indicador</th><th>{{ roi.col_a or "Situación actual" }}</th><th>{{ roi.col_b or "Con la solución" }}</th></tr></thead>
+        <tbody>
+          {% for r in roi.rows %}
+          <tr><td class="k">{{ r.indicator }}</td><td>{{ r.a }}</td><td>{{ r.b }}</td></tr>
+          {% else %}
+          <tr><td class="k">Por definir</td><td>Por definir</td><td>Por definir</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% if roi.note %}<div class="callout">{{ roi.note }}</div>{% endif %}
+    </div>
+
+    <!-- ================= ACEPTACIÓN ================= -->
+    <div class="section">
+      <div class="sec-head">Aceptación</div>
+      <p class="body accept-text">{{ acceptance_text }}</p>
+      <div class="signs">
+        <div class="sign">
+          <div class="ln"></div>
+          <div class="sn">{{ signatures.provider.name }}</div>
+          <div class="so">{{ signatures.provider.org }}</div>
+          <div class="sr">{{ signatures.provider.role }}</div>
+        </div>
+        <div class="sign">
+          <div class="ln"></div>
+          <div class="sn">{{ signatures.client.name }}</div>
+          <div class="so">{{ signatures.client.org }}</div>
+          <div class="sr">{{ signatures.client.role }}</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ================= FOOTER ================= -->
+  <div class="footer">
+    <div class="fname">{{ provider.name }}</div>
+    <div class="fright">
+      {{ quote_number }} · Emitida el {{ issued_date_short }}<br>
+      {{ provider.email }}
+    </div>
+  </div>
+
+</body>
+</html>

@@ -2875,84 +2875,40 @@
     .chat-typing span:nth-child(2) { animation-delay: 0.18s; }
     .chat-typing span:nth-child(3) { animation-delay: 0.36s; }
 
-    .chat-input-area {
-      display: flex;
-      gap: 0.5rem;
-      padding: 0.9rem 1.2rem;
-      border-top: 1px solid var(--glass-border);
-      flex-shrink: 0;
-      position: relative;
-    }
+    .chat-bubble b { color: var(--text); font-weight: 700; }
 
-    .chat-input-wrap {
-      flex: 1;
-      position: relative;
-      overflow: hidden;
-      border-radius: 100px;
+    /* Scripted quick-reply options */
+    .chat-quick {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      padding: 0.1rem 0 0.3rem;
+      animation: msg-in 280ms var(--ease-out) both;
+    }
+    .chat-opt {
+      text-align: left;
+      width: 100%;
       background: rgba(255,255,255,0.05);
       border: 1px solid var(--glass-border);
-      transition: border-color 200ms ease, box-shadow 200ms ease;
-    }
-
-    .chat-input-wrap::before {
-      content: '';
-      position: absolute;
-      top: 50%; left: 50%;
-      width: 160%; aspect-ratio: 1;
-      background: conic-gradient(from 0deg, transparent 0%, rgba(255,255,255,0.55) 30%, transparent 60%);
-      animation: shimmer-spin 2.5s linear infinite;
-      transform: translate(-50%, -50%) rotate(0deg);
-      opacity: 0;
-      transition: opacity 250ms ease;
-      pointer-events: none;
-      will-change: transform;
-    }
-
-    .chat-input-wrap:focus-within::before { opacity: 1; }
-
-    .chat-input-wrap:focus-within {
-      border-color: transparent;
-      box-shadow: 0 0 0 1px rgba(255,255,255,0.20);
-    }
-
-    .chat-input {
-      width: 100%;
-      background: transparent;
-      border: none;
-      outline: none;
-      padding: 0.55rem 1rem;
-      font-family: 'Inter', sans-serif;
-      font-size: 0.82rem;
       color: var(--text);
-      position: relative;
-      z-index: 1;
-    }
-
-    .chat-input::placeholder { color: var(--text-subtle); }
-
-    .chat-send {
-      width: 34px; height: 34px;
-      border-radius: 50%;
-      background: var(--accent);
-      border: none;
+      border-radius: 12px;
+      padding: 0.6rem 0.85rem;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 500;
       cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
-      transition: background 180ms ease, transform 150ms ease;
-      align-self: center;
+      transition: background 180ms ease, border-color 180ms ease, transform 120ms ease;
+      text-decoration: none;
+      display: block;
     }
-
     @media (hover: hover) and (pointer: fine) {
-      .chat-send:hover { background: rgba(240,240,240,1); }
+      .chat-opt:hover {
+        background: rgba(255,255,255,0.12);
+        border-color: rgba(255,255,255,0.28);
+        transform: translateX(2px);
+      }
     }
-
-    .chat-send:active { transform: scale(0.92); }
-
-    .chat-send svg {
-      width: 14px; height: 14px;
-      stroke: #000; fill: none;
-      stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round;
-    }
+    .chat-opt:active { transform: scale(0.985); }
 
     @media (max-width: 480px) {
       .chat-panel { width: calc(100vw - 2rem); left: 1rem; }
@@ -5140,51 +5096,216 @@
     </div>
 
     <div class="chat-messages" id="chat-messages" aria-live="polite"></div>
-
-    <div class="chat-input-area">
-      <div class="chat-input-wrap">
-        <input
-          type="text"
-          class="chat-input"
-          id="chat-input"
-          placeholder="Escribe tu consulta..."
-          autocomplete="off"
-          maxlength="300"
-        />
-      </div>
-      <button class="chat-send" id="chat-send" aria-label="Enviar mensaje">
-        <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-      </button>
-    </div>
   </div>
 
   <script>
   (function() {
-    const fab     = document.getElementById('chat-fab');
-    const panel   = document.getElementById('chat-panel');
-    const msgs    = document.getElementById('chat-messages');
-    const input   = document.getElementById('chat-input');
-    const sendBtn = document.getElementById('chat-send');
+    const fab   = document.getElementById('chat-fab');
+    const panel = document.getElementById('chat-panel');
+    const msgs  = document.getElementById('chat-messages');
     if (!fab || !panel) return;
 
-    let isOpen = false;
-    let greeted = false;
+    const CONTACT_EMAIL  = 'contacto@sustentafuturo.com';
+    const CONTACT_ANCHOR = '#contacto';
+    const TYPING_MS = 480;
 
-    const RESPONSES = [
-      'Podemos automatizar cualquier proceso repetitivo: facturación, nómina, reportes, integración con SII o AFC. ¿Cuál es el proceso que más tiempo consume en tu empresa?',
-      'El ROI suele verse desde el primer mes. Comenzamos con una evaluación detallada de tu operación antes de cualquier inversión. ¿Te gustaría agendar una consulta?',
-      'Trabajamos con Python, GSAP, UiPath y herramientas propias. Todo adaptado a las plataformas que ya usas, sin reemplazar tu stack actual.',
-      'Cumplimos con la Ley 19.628 de Protección de Datos y la Ley 19.223 de Delitos Informáticos. Tus datos nunca salen de Chile sin autorización.',
-      'Para darte una propuesta técnica personalizada, el primer paso es una evaluación de tu operación. Puedes solicitarla llenando el formulario de contacto en esta misma página.',
-    ];
-    let rIdx = 0;
+    let isOpen  = false;
+    let started = false;
+    let busy    = false;
+
+    /* Scripted decision tree — no AI, no tokens.
+       Node: { bot: string|string[], options: [{label, next?, action?, href?}] }
+       Add a node and point an option's `next` to its id to extend. */
+    const TREE = {
+      start: {
+        bot: [
+          '¡Hola! 👋 Soy el asistente de Sustenta Futuro.',
+          'Resuelvo tus dudas al instante. ¿Qué te gustaría saber?'
+        ],
+        options: [
+          { label: '🔧 Qué servicios ofrecen', next: 'servicios' },
+          { label: '💰 Precios y forma de pago', next: 'precios' },
+          { label: '⏱️ Cuánto demora un proyecto', next: 'tiempos' },
+          { label: '🧭 Cómo trabajan (proceso)', next: 'proceso' },
+          { label: '🔌 Integración con mis sistemas', next: 'integracion' },
+          { label: '🔒 Seguridad y datos', next: 'seguridad' },
+          { label: '🛠️ Soporte y garantía', next: 'soporte' },
+          { label: '🏢 ¿Trabajan con mi empresa?', next: 'empresas' },
+          { label: '📅 Quiero hablar con el equipo', next: 'contacto' }
+        ]
+      },
+
+      servicios: {
+        bot: 'Tenemos cinco áreas de especialización. ¿Cuál te interesa?',
+        options: [
+          { label: 'Diseño y Desarrollo Web', next: 'svc_web' },
+          { label: 'Desarrollo de Software', next: 'svc_software' },
+          { label: 'Aplicaciones Móviles', next: 'svc_movil' },
+          { label: 'Automatizaciones (IA / RPA)', next: 'svc_auto' },
+          { label: 'Chatbots y Landing Pages', next: 'svc_chatbot' }
+        ]
+      },
+      svc_web: {
+        bot: '🌐 *Diseño y Desarrollo Web*\n\nPlataformas web corporativas de alto rendimiento, enfocadas en velocidad, seguridad y conversión.',
+        options: [
+          { label: '💬 Cotizar este servicio', action: 'contact' },
+          { label: 'Ver otros servicios', next: 'servicios' }
+        ]
+      },
+      svc_software: {
+        bot: '💻 *Desarrollo de Software*\n\nArquitecturas a medida que se integran a tu operación actual, eliminando silos y preparadas para escalar.',
+        options: [
+          { label: '💬 Cotizar este servicio', action: 'contact' },
+          { label: 'Ver otros servicios', next: 'servicios' }
+        ]
+      },
+      svc_movil: {
+        bot: '📱 *Aplicaciones Móviles*\n\nEcosistemas móviles nativos para iOS y Android que llevan tu operación directamente a las manos de tu equipo.',
+        options: [
+          { label: '💬 Cotizar este servicio', action: 'contact' },
+          { label: 'Ver otros servicios', next: 'servicios' }
+        ]
+      },
+      svc_auto: {
+        bot: '⚙️ *Automatizaciones (IA y RPA)*\n\nConectamos tus sistemas y eliminamos el trabajo repetitivo para que tu equipo se enfoque en lo que genera valor.',
+        options: [
+          { label: '¿Se integra con lo que ya uso?', next: 'integracion' },
+          { label: '💬 Cotizar este servicio', action: 'contact' },
+          { label: 'Ver otros servicios', next: 'servicios' }
+        ]
+      },
+      svc_chatbot: {
+        bot: '🤖 *Chatbots y Landing Pages*\n\nAgentes conversacionales 24/7 y plataformas de captura estratégicas para optimizar tu adquisición de clientes.',
+        options: [
+          { label: '💬 Cotizar este servicio', action: 'contact' },
+          { label: 'Ver otros servicios', next: 'servicios' }
+        ]
+      },
+
+      precios: {
+        bot: [
+          '💰 El costo varía según el alcance y la complejidad de cada proyecto.',
+          'Comenzamos con una *evaluación detallada* para definir un plan y un precio cerrado, sin sorpresas.'
+        ],
+        options: [
+          { label: '¿Cómo es la forma de pago?', next: 'precios_pago' },
+          { label: 'Quiero una cotización', action: 'contact' },
+          { label: '¿Cuánto demora?', next: 'tiempos' }
+        ]
+      },
+      precios_pago: {
+        bot: 'Trabajamos con un modelo *50% / 50%*:\n\n• 50% al inicio del proyecto\n• 50% contra entrega y pruebas exitosas en tu entorno\n\nAsí compartimos el compromiso con el resultado.',
+        options: [
+          { label: 'Quiero una cotización', action: 'contact' },
+          { label: '↩️ Otras dudas', next: 'start' }
+        ]
+      },
+
+      tiempos: {
+        bot: [
+          '⏱️ Un desarrollo a medida suele tomar entre *6 y 12 semanas*, según la complejidad.',
+          'Definimos plazos realistas desde la evaluación inicial, con hitos visibles y entregas parciales para que tengas control total del avance.'
+        ],
+        options: [
+          { label: '¿Cómo es el proceso?', next: 'proceso' },
+          { label: 'Quiero empezar', action: 'contact' }
+        ]
+      },
+
+      proceso: {
+        bot: '🧭 Nuestro método tiene un camino claro y probado:\n\n1️⃣ *Evaluación* — entendemos tu proceso y el alcance\n2️⃣ *Desarrollo* a medida con hitos visibles\n3️⃣ *Pruebas* automatizadas y control de calidad\n4️⃣ *Despliegue* + soporte 24/7',
+        options: [
+          { label: '¿Qué seguridad tienen mis datos?', next: 'seguridad' },
+          { label: 'Quiero agendar la evaluación', action: 'contact' }
+        ]
+      },
+
+      integracion: {
+        bot: [
+          '🔌 No necesitas cambiar tus sistemas actuales.',
+          'Nos integramos con lo que ya usas — ERP, correo corporativo, portales web, archivos Excel o PDF — sin modificar tu infraestructura existente.'
+        ],
+        options: [
+          { label: 'Ver automatizaciones', next: 'svc_auto' },
+          { label: 'Quiero conversarlo', action: 'contact' }
+        ]
+      },
+
+      seguridad: {
+        bot: [
+          '🔒 La seguridad de tus datos y los de tus clientes es prioridad.',
+          '• Operamos bajo la *Ley 19.628* de protección de datos personales\n• Firmamos *NDA y DPA* con cada cliente\n• Despliegue *on-premise* o en la nube con región en *Chile*\n• Cada acción ejecutada queda en *logs auditables*'
+        ],
+        options: [
+          { label: '¿Qué pasa si algo falla?', next: 'soporte_falla' },
+          { label: 'Tengo otra consulta', action: 'contact' }
+        ]
+      },
+
+      soporte: {
+        bot: '🛠️ ¿Qué te gustaría saber sobre soporte y garantía?',
+        options: [
+          { label: '¿Hay soporte post-entrega?', next: 'soporte_post' },
+          { label: '¿Y si falla en producción?', next: 'soporte_falla' },
+          { label: '¿Puedo pedir cambios después?', next: 'soporte_cambios' }
+        ]
+      },
+      soporte_post: {
+        bot: '✅ Sí. Cada proyecto incluye un período de acompañamiento post-entrega con soporte técnico dedicado. Además ofrecemos planes de mantenimiento continuo.',
+        options: [
+          { label: '¿Y si falla en producción?', next: 'soporte_falla' },
+          { label: 'Quiero hablar con el equipo', action: 'contact' }
+        ]
+      },
+      soporte_falla: {
+        bot: '🛡️ Contamos con monitoreo continuo y un *SLA del 99% de uptime*. Ante cualquier incidencia respondemos en *menos de 4 horas hábiles*, y cada acción queda registrada en logs auditables.',
+        options: [
+          { label: '¿Hay soporte post-entrega?', next: 'soporte_post' },
+          { label: 'Quiero hablar con el equipo', action: 'contact' }
+        ]
+      },
+      soporte_cambios: {
+        bot: '🔁 Sí. Las actualizaciones y mejoras están incluidas durante toda la relación comercial, sin costos adicionales sorpresa.',
+        options: [
+          { label: 'Ver forma de pago', next: 'precios_pago' },
+          { label: 'Quiero conversarlo', action: 'contact' }
+        ]
+      },
+
+      empresas: {
+        bot: '🏢 Trabajamos con empresas medianas y grandes de distintos rubros. Si tienes un proceso repetitivo que quieres automatizar, podemos ayudarte.',
+        options: [
+          { label: 'Ver servicios', next: 'servicios' },
+          { label: 'Quiero una evaluación', action: 'contact' }
+        ]
+      },
+
+      contacto: {
+        bot: [
+          '📅 ¡Genial! Demos el siguiente paso.',
+          'Déjanos tus datos en el formulario o escríbenos directo. Te respondemos a la brevedad.'
+        ],
+        options: [
+          { label: '📝 Ir al formulario de contacto', href: CONTACT_ANCHOR },
+          { label: '✉️ Escribir un correo', href: 'mailto:' + CONTACT_EMAIL },
+          { label: '↩️ Volver al inicio', next: 'start' }
+        ]
+      }
+    };
+
+    /* Minimal safe markdown: *bold* only. */
+    function fmt(text) {
+      const esc = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      return esc.replace(/\*([^*]+)\*/g, '<b>$1</b>');
+    }
 
     function addMsg(text, role) {
       const wrap = document.createElement('div');
-      wrap.className = `chat-msg chat-msg-${role}`;
+      wrap.className = 'chat-msg chat-msg-' + role;
       const bubble = document.createElement('div');
       bubble.className = 'chat-bubble';
-      bubble.textContent = text;
+      if (role === 'bot') bubble.innerHTML = fmt(text);
+      else bubble.textContent = text;
       wrap.appendChild(bubble);
       msgs.appendChild(wrap);
       msgs.scrollTop = msgs.scrollHeight;
@@ -5197,19 +5318,61 @@
       t.innerHTML = '<div class="chat-typing"><span></span><span></span><span></span></div>';
       msgs.appendChild(t);
       msgs.scrollTop = msgs.scrollHeight;
+      return t;
     }
 
-    function removeTyping() {
-      const t = document.getElementById('chat-typing-indicator');
-      if (t) t.remove();
+    function go(id) {
+      const node = TREE[id];
+      if (!node) return;
+      const oldOpts = msgs.querySelector('.chat-quick');
+      if (oldOpts) oldOpts.remove();
+
+      const queue = Array.isArray(node.bot) ? node.bot.slice() : [node.bot];
+      busy = true;
+      (function next() {
+        if (!queue.length) { renderOptions(id, node); busy = false; return; }
+        const typing = showTyping();
+        setTimeout(() => {
+          typing.remove();
+          addMsg(queue.shift(), 'bot');
+          next();
+        }, TYPING_MS);
+      })();
     }
 
-    function botReply(text) {
-      showTyping();
-      setTimeout(() => {
-        removeTyping();
-        addMsg(text, 'bot');
-      }, 1000 + Math.random() * 600);
+    function renderOptions(id, node) {
+      const opts = (node.options || []).slice();
+      if (id !== 'start') opts.push({ label: '🏠 Menú principal', next: 'start' });
+
+      const wrap = document.createElement('div');
+      wrap.className = 'chat-quick';
+      opts.forEach(opt => {
+        let btn;
+        if (opt.href) {
+          btn = document.createElement('a');
+          btn.className = 'chat-opt';
+          btn.href = opt.href;
+          btn.innerHTML = fmt(opt.label);
+          btn.addEventListener('click', () => {
+            addMsg(opt.label, 'user');
+            if (opt.href.charAt(0) === '#') toggleChat();
+          });
+        } else {
+          btn = document.createElement('button');
+          btn.className = 'chat-opt';
+          btn.type = 'button';
+          btn.innerHTML = fmt(opt.label);
+          btn.addEventListener('click', () => {
+            if (busy) return;
+            addMsg(opt.label, 'user');
+            if (opt.action === 'contact') go('contacto');
+            else if (opt.next) go(opt.next);
+          });
+        }
+        wrap.appendChild(btn);
+      });
+      msgs.appendChild(wrap);
+      msgs.scrollTop = msgs.scrollHeight;
     }
 
     function toggleChat() {
@@ -5218,31 +5381,10 @@
       panel.classList.toggle('open', isOpen);
       fab.setAttribute('aria-expanded', isOpen);
       panel.setAttribute('aria-hidden', !isOpen);
-
-      if (isOpen && !greeted) {
-        greeted = true;
-        setTimeout(() => {
-          addMsg('¡Hola! Soy el asistente de Sustenta Futuro. Puedo responder tus dudas sobre automatización RPA, IA y nuestros servicios. ¿En qué puedo ayudarte hoy?', 'bot');
-        }, 320);
-      }
-      if (isOpen) setTimeout(() => input.focus(), 350);
-    }
-
-    function sendMessage() {
-      const text = input.value.trim();
-      if (!text) return;
-      addMsg(text, 'user');
-      input.value = '';
-      botReply(RESPONSES[rIdx % RESPONSES.length]);
-      rIdx++;
+      if (isOpen && !started) { started = true; setTimeout(() => go('start'), 280); }
     }
 
     fab.addEventListener('click', toggleChat);
-    sendBtn.addEventListener('click', sendMessage);
-    input.addEventListener('keydown', e => {
-      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
-    });
-
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape' && isOpen) toggleChat();
     });

@@ -181,7 +181,7 @@ def get_stack_suggestions(
 def get_evaluation_ai_suggestions(
     lead_id: str, admin: AdminUser = Depends(require_admin)
 ) -> EvaluationAIDraft:
-    """Use Claude to draft the prose fields (description + functionalities),
+    """Use Gemini to draft the prose fields (description + functionalities),
     grounded on the lead's context and past projects of the same type."""
     lead_rows = _supabase_get(
         "/leads",

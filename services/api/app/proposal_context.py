@@ -237,9 +237,9 @@ def build_proposal_context(
         },
         "economics": _economics(evaluation, currency),
         "plan_heading": (
-            f"Plan de Implementación — {evaluation['total_duration']}"
+            f"Fases de Implementación — {evaluation['total_duration']}"
             if evaluation.get("total_duration")
-            else "Plan de Implementación"
+            else "Fases de Implementación"
         ),
         "plan": _plan_items(evaluation.get("phases")),
         "conditions": _conditions(evaluation, currency, validity),

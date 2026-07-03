@@ -3,8 +3,8 @@
 import logging
 
 import httpx
-from fastapi import APIRouter, HTTPException, Request, status
-from pydantic import BaseModel, EmailStr
+from fastapi import APIRouter, HTTPException, Path, Request, status
+from pydantic import BaseModel, EmailStr, Field
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 
@@ -18,6 +18,7 @@ limiter = Limiter(key_func=get_remote_address)
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 GOTRUE_URL = f"{settings.supabase_url}/auth/v1"
+GOTRUE_ADMIN_URL = f"{GOTRUE_URL}/admin"
 
 
 class LoginRequest(BaseModel):
@@ -172,3 +173,68 @@ async def get_me(admin: AdminUser = Depends(require_admin)) -> dict:
         "role": admin.role,
         "full_name": admin.full_name,
     }
+
+
+class AdminResetPasswordRequest(BaseModel):
+    """New password chosen by an admin for another user."""
+
+    # bcrypt (used by GoTrue) truncates at 72 bytes; keep the cap explicit.
+    new_password: str = Field(min_length=8, max_length=72)
+
+
+@router.post(
+    "/users/{user_id}/reset-password",
+    summary="Admin: set a new password for a user",
+)
+@limiter.limit("10/minute")
+async def admin_reset_password(
+    request: Request,
+    payload: AdminResetPasswordRequest,
+    user_id: str = Path(..., description="Supabase auth user id (UUID)."),
+    admin: AdminUser = Depends(require_admin),
+) -> dict:
+    """Set a new password for any user, using the Supabase Admin API.
+
+    Restricted to callers with the ``admin`` role — a ``supervisor``/``user``
+    cannot reset other people's passwords. Runs server-side with the service
+    role key, which never reaches the browser.
+    """
+    if admin.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only administrators can reset passwords.",
+        )
+
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            resp = await client.put(
+                f"{GOTRUE_ADMIN_URL}/users/{user_id}",
+                json={"password": payload.new_password},
+                headers={
+                    "apikey": settings.supabase_service_role_key,
+                    "Authorization": f"Bearer {settings.supabase_service_role_key}",
+                    "Content-Type": "application/json",
+                },
+            )
+    except httpx.RequestError as exc:
+        logger.error("GoTrue admin request failed: %s", exc)
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="Authentication service unavailable.",
+        )
+
+    if resp.status_code == 404:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found.",
+        )
+    if resp.status_code != 200:
+        logger.error("Password reset failed (%s): %s", resp.status_code, resp.text)
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="Could not update the password.",
+        )
+
+    # Do not log or echo the password. Audit only who did it, for whom.
+    logger.info("Admin %s reset password for user %s", admin.email, user_id)
+    return {"ok": True, "user_id": user_id}

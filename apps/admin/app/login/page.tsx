@@ -10,10 +10,13 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [resetLoading, setResetLoading] = useState(false)
+  const [resetSent, setResetSent] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
+    setResetSent(false)
     setLoading(true)
 
     const supabase = createClient()
@@ -29,6 +32,24 @@ export default function LoginPage() {
     }
 
     window.location.href = '/'
+  }
+
+  async function handleForgotPassword() {
+    setError(null)
+    setResetSent(false)
+    if (!email.trim()) {
+      setError('Ingresa tu correo electrónico para enviarte el enlace de recuperación.')
+      return
+    }
+    setResetLoading(true)
+    const supabase = createClient()
+    // We do not surface whether the email exists (avoids account enumeration):
+    // the success message is shown regardless of the result.
+    await supabase.auth.resetPasswordForEmail(email.trim(), {
+      redirectTo: `${window.location.origin}/reset-password`,
+    })
+    setResetLoading(false)
+    setResetSent(true)
   }
 
   return (
@@ -124,6 +145,19 @@ export default function LoginPage() {
               </p>
             )}
 
+            {resetSent && (
+              <p
+                className="text-sm rounded-lg px-3.5 py-2.5"
+                style={{
+                  color: '#5CB85C',
+                  background: 'rgba(92,184,92,0.08)',
+                  border: '1px solid rgba(92,184,92,0.15)',
+                }}
+              >
+                Si el correo está registrado, te enviamos un enlace para restablecer tu contraseña. Revisa tu bandeja (y spam).
+              </p>
+            )}
+
             <button
               type="submit"
               disabled={loading}
@@ -134,6 +168,16 @@ export default function LoginPage() {
               }}
             >
               {loading ? 'Ingresando...' : 'Ingresar'}
+            </button>
+
+            <button
+              type="button"
+              onClick={handleForgotPassword}
+              disabled={resetLoading}
+              className="text-xs text-center transition-opacity hover:opacity-80 disabled:opacity-50"
+              style={{ color: 'rgba(240,240,240,0.45)' }}
+            >
+              {resetLoading ? 'Enviando enlace...' : '¿Olvidaste tu contraseña?'}
             </button>
           </form>
         </div>

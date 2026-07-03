@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://sustenta-futuro-api.onrender.com'
+
 interface AdminProfile {
   id: string
   email: string
@@ -19,6 +21,7 @@ interface CreateUserForm {
   email: string
   password: string
   role: UserRole
+  phone: string
 }
 
 function formatDate(iso: string): string {
@@ -48,7 +51,7 @@ function RoleBadge({ role }: { role: 'admin' | 'user' }) {
 function SkeletonRow() {
   return (
     <tr>
-      {[140, 180, 60, 90].map((w, i) => (
+      {[140, 180, 60, 90, 80].map((w, i) => (
         <td key={i} className="px-4 py-3">
           <div
             className="h-4 rounded animate-pulse"
@@ -76,6 +79,7 @@ function AddUserModal({
     email: '',
     password: '',
     role: 'user',
+    phone: '',
   })
   const [submitting, setSubmitting] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
@@ -131,6 +135,7 @@ function AddUserModal({
           email: trimmedEmail,
           full_name: trimmedName,
           role: form.role,
+          phone: form.phone.trim() || null,
         }),
       })
 
@@ -215,6 +220,24 @@ function AddUserModal({
             />
           </div>
 
+          {/* Teléfono (opcional — puente WhatsApp) */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs" style={labelStyle}>
+              Teléfono <span style={{ color: 'rgba(240,240,240,0.35)' }}>(opcional)</span>
+            </label>
+            <input
+              type="tel"
+              value={form.phone}
+              onChange={(e) => set('phone', e.target.value)}
+              className="rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-[#4B9BF5]/40"
+              style={inputStyle}
+              placeholder="+56912345678"
+            />
+            <p className="text-[11px]" style={{ color: 'rgba(240,240,240,0.35)' }}>
+              Formato internacional. Se usará para recuperación por WhatsApp (próximamente).
+            </p>
+          </div>
+
           {/* Contraseña */}
           <div className="flex flex-col gap-1.5">
             <label className="text-xs" style={labelStyle}>
@@ -292,6 +315,171 @@ function AddUserModal({
   )
 }
 
+// --- Reset Password Modal ---
+
+function ResetPasswordModal({
+  user,
+  accessToken,
+  onClose,
+}: {
+  user: AdminProfile
+  accessToken: string
+  onClose: () => void
+}) {
+  const [password, setPassword] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [done, setDone] = useState(false)
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (password.length < 8) {
+      setError('La contraseña debe tener al menos 8 caracteres.')
+      return
+    }
+    setError(null)
+    setSubmitting(true)
+    try {
+      const res = await fetch(`${API_URL}/auth/users/${user.id}/reset-password`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ new_password: password }),
+      })
+      if (!res.ok) {
+        let detail = `error ${res.status}`
+        try { detail = (await res.json()).detail ?? detail } catch {}
+        setError(`No se pudo resetear la clave: ${detail}`)
+        return
+      }
+      setDone(true)
+    } catch {
+      setError('No se pudo conectar con el servicio de autenticación.')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const inputStyle = {
+    background: '#111111',
+    border: '1px solid rgba(255,255,255,0.08)',
+    color: '#F0F0F0',
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center px-4"
+      style={{ background: 'rgba(0,0,0,0.75)' }}
+      onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
+    >
+      <div
+        className="w-full max-w-md rounded-xl border p-6 shadow-2xl"
+        style={{ background: '#0a0a0a', borderColor: 'rgba(255,255,255,0.1)' }}
+      >
+        <div className="flex items-center justify-between mb-1">
+          <h2 className="text-base font-semibold text-white">Resetear contraseña</h2>
+          <button
+            onClick={onClose}
+            className="text-lg leading-none transition-opacity hover:opacity-60"
+            style={{ color: 'rgba(240,240,240,0.4)' }}
+            aria-label="Cerrar"
+          >
+            &#x2715;
+          </button>
+        </div>
+        <p className="text-xs mb-5" style={{ color: 'rgba(240,240,240,0.45)' }}>
+          {user.full_name ?? user.email} · {user.email}
+        </p>
+
+        {done ? (
+          <div className="flex flex-col gap-4">
+            <p
+              className="text-sm rounded px-3 py-2"
+              style={{
+                color: '#5CB85C',
+                background: 'rgba(92,184,92,0.08)',
+                border: '1px solid rgba(92,184,92,0.15)',
+              }}
+            >
+              Contraseña actualizada. Comunícasela al usuario por un canal seguro.
+            </p>
+            <div className="flex justify-end">
+              <button
+                onClick={onClose}
+                className="rounded-lg px-4 py-2 text-sm font-medium transition-opacity hover:opacity-85"
+                style={{ background: '#4B9BF5', color: '#ffffff' }}
+              >
+                Listo
+              </button>
+            </div>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs" style={{ color: 'rgba(240,240,240,0.6)' }}>
+                Nueva contraseña <span style={{ color: '#f87171' }}>*</span>
+              </label>
+              <input
+                type="text"
+                autoFocus
+                autoComplete="new-password"
+                required
+                minLength={8}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-[#4B9BF5]/40"
+                style={inputStyle}
+                placeholder="Min. 8 caracteres"
+              />
+              <p className="text-[11px]" style={{ color: 'rgba(240,240,240,0.35)' }}>
+                Se muestra en claro para que puedas copiarla y entregarla al usuario.
+              </p>
+            </div>
+
+            {error && (
+              <p
+                className="text-xs rounded px-3 py-2"
+                style={{
+                  color: '#f87171',
+                  background: 'rgba(248,113,113,0.08)',
+                  border: '1px solid rgba(248,113,113,0.15)',
+                }}
+              >
+                {error}
+              </p>
+            )}
+
+            <div className="flex justify-end gap-2 pt-1">
+              <button
+                type="button"
+                onClick={onClose}
+                className="rounded-lg px-4 py-2 text-sm transition-opacity hover:opacity-70"
+                style={{
+                  background: 'rgba(255,255,255,0.06)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  color: 'rgba(240,240,240,0.7)',
+                }}
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                disabled={submitting || password.length < 8}
+                className="rounded-lg px-4 py-2 text-sm font-medium transition-opacity disabled:opacity-40"
+                style={{ background: '#4B9BF5', color: '#ffffff' }}
+              >
+                {submitting ? 'Guardando...' : 'Resetear clave'}
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
+    </div>
+  )
+}
+
 // --- Users Page ---
 
 export default function UsuariosPage() {
@@ -303,6 +491,7 @@ export default function UsuariosPage() {
   const [currentRole, setCurrentRole] = useState<'admin' | 'user' | null>(null)
   const [accessToken, setAccessToken] = useState('')
   const [showAddModal, setShowAddModal] = useState(false)
+  const [resetUser, setResetUser] = useState<AdminProfile | null>(null)
 
   useEffect(() => {
     async function init() {
@@ -506,7 +695,7 @@ export default function UsuariosPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                  {['Nombre', 'Email', 'Rol', 'Fecha de creacion'].map((col) => (
+                  {['Nombre', 'Email', 'Rol', 'Fecha de creacion', ''].map((col) => (
                     <th
                       key={col}
                       className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider"
@@ -527,7 +716,7 @@ export default function UsuariosPage() {
                 ) : profiles.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={4}
+                      colSpan={5}
                       className="px-4 py-16 text-center text-sm"
                       style={{ color: 'rgba(240,240,240,0.3)' }}
                     >
@@ -565,6 +754,19 @@ export default function UsuariosPage() {
                       >
                         {formatDate(profile.created_at)}
                       </td>
+                      <td className="px-4 py-3 whitespace-nowrap text-right">
+                        <button
+                          onClick={() => setResetUser(profile)}
+                          className="rounded-md px-2.5 py-1 text-xs transition-opacity hover:opacity-80"
+                          style={{
+                            background: 'rgba(255,255,255,0.06)',
+                            border: '1px solid rgba(255,255,255,0.1)',
+                            color: 'rgba(240,240,240,0.75)',
+                          }}
+                        >
+                          Resetear clave
+                        </button>
+                      </td>
                     </tr>
                   ))
                 )}
@@ -580,6 +782,15 @@ export default function UsuariosPage() {
           onClose={() => setShowAddModal(false)}
           onCreated={handleUserCreated}
           accessToken={accessToken}
+        />
+      )}
+
+      {/* Reset password modal */}
+      {resetUser && (
+        <ResetPasswordModal
+          user={resetUser}
+          accessToken={accessToken}
+          onClose={() => setResetUser(null)}
         />
       )}
     </div>

@@ -71,8 +71,11 @@ def _pdf_via_playwright(html: str) -> bytes | None:
             browser = p.chromium.launch(args=["--no-sandbox"])
             page = browser.new_page()
             page.set_content(html, wait_until="networkidle")
+            # Match the template's @page margins (top 16mm / bottom 15mm) so the
+            # production Playwright output is identical to the Chrome-CLI fallback.
+            # Left/right stay 0 because the layout handles side padding via .page.
             pdf = page.pdf(format="A4", print_background=True,
-                           margin={"top": "0", "right": "0", "bottom": "0", "left": "0"})
+                           margin={"top": "16mm", "right": "0", "bottom": "15mm", "left": "0"})
             browser.close()
             return pdf
     except Exception as exc:  # pragma: no cover - runtime/launch failure

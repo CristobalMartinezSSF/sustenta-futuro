@@ -1,9 +1,9 @@
 registro/
 
-# Secrets
+# Secrets — ignore every .env variant, keep the example
 .env
-.env.local
-.env.production
+.env.*
+!.env.example
 
 # Python
 __pycache__/

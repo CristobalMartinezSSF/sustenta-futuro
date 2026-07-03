@@ -29,6 +29,7 @@ from app.stack_catalog import default_stack_for
 # Reuse the thin Supabase REST helpers defined in the leads router.
 # leads.py does not import this module, so there is no circular import.
 from app.routers.leads import _supabase_get, _supabase_patch, _supabase_post
+from app.routers.leads import UuidStr
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +38,7 @@ router = APIRouter(prefix="/leads", tags=["evaluations"])
 EVAL_FIELDS = "*"
 
 
-def _get_evaluation_row(lead_id: str) -> dict | None:
+def _get_evaluation_row(lead_id: UuidStr) -> dict | None:
     """Return the single evaluation row for a lead, or None if absent."""
     rows = _supabase_get(
         "/lead_evaluations",
@@ -56,7 +57,7 @@ def _get_evaluation_row(lead_id: str) -> dict | None:
     response_model=EvaluationDetail,
     summary="Get the technical-economic evaluation of a lead",
 )
-def get_evaluation(lead_id: str, admin: AdminUser = Depends(require_admin)) -> EvaluationDetail:
+def get_evaluation(lead_id: UuidStr, admin: AdminUser = Depends(require_admin)) -> EvaluationDetail:
     """Return the evaluation ficha for a lead (404 if not yet created)."""
     row = _get_evaluation_row(lead_id)
     if row is None:
@@ -132,7 +133,7 @@ def _same_type_evaluations(service_type: str | None) -> list[dict]:
     summary="Suggest ficha values from past projects of the same service type",
 )
 def get_evaluation_suggestions(
-    lead_id: str, admin: AdminUser = Depends(require_admin)
+    lead_id: UuidStr, admin: AdminUser = Depends(require_admin)
 ) -> EvaluationSuggestions:
     """Estimate ficha values from the frozen snapshots of won projects whose
     lead shares this lead's service_interest. Returns medians + sample size."""
@@ -154,7 +155,7 @@ def get_evaluation_suggestions(
     summary="Curated default tech stack for the lead's service type",
 )
 def get_stack_suggestions(
-    lead_id: str, admin: AdminUser = Depends(require_admin)
+    lead_id: UuidStr, admin: AdminUser = Depends(require_admin)
 ) -> StackSuggestion:
     """Return a curated default 3-column stack based on the lead's service type.
 
@@ -179,7 +180,7 @@ def get_stack_suggestions(
     summary="Draft description + functionalities with AI, grounded on past projects",
 )
 def get_evaluation_ai_suggestions(
-    lead_id: str, admin: AdminUser = Depends(require_admin)
+    lead_id: UuidStr, admin: AdminUser = Depends(require_admin)
 ) -> EvaluationAIDraft:
     """Use Gemini to draft the prose fields (description + functionalities),
     grounded on the lead's context and past projects of the same type."""
@@ -221,7 +222,7 @@ def get_evaluation_ai_suggestions(
     summary="Create or update the evaluation ficha",
 )
 def upsert_evaluation(
-    lead_id: str,
+    lead_id: UuidStr,
     payload: EvaluationUpsert,
     admin: AdminUser = Depends(require_admin),
 ) -> EvaluationDetail:
@@ -273,7 +274,7 @@ def upsert_evaluation(
     summary="Record the viability verdict (supervisor action)",
 )
 def set_verdict(
-    lead_id: str,
+    lead_id: UuidStr,
     payload: EvaluationVerdict,
     admin: AdminUser = Depends(require_admin),
 ) -> EvaluationDetail:
@@ -317,7 +318,7 @@ def set_verdict(
 # ---------------------------------------------------------------------------
 
 
-def _advance_lead_status(lead_id: str, new_status: str, note: str) -> None:
+def _advance_lead_status(lead_id: UuidStr, new_status: str, note: str) -> None:
     """Update a lead's status and stamp the history note. Never fatal."""
     try:
         _supabase_patch(

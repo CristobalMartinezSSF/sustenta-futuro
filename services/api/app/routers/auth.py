@@ -1,6 +1,7 @@
 """Router for authentication endpoints."""
 
 import logging
+from typing import Literal
 
 import httpx
 from fastapi import APIRouter, HTTPException, Path, Request, status
@@ -10,6 +11,7 @@ from slowapi.util import get_remote_address
 
 from app.auth import AdminUser, require_admin
 from app.config import settings
+from app.database import get_client
 from fastapi import Depends
 
 logger = logging.getLogger(__name__)
@@ -238,3 +240,117 @@ async def admin_reset_password(
     # Do not log or echo the password. Audit only who did it, for whom.
     logger.info("Admin %s reset password for user %s", admin.email, user_id)
     return {"ok": True, "user_id": user_id}
+
+
+class AdminCreateUserRequest(BaseModel):
+    """New internal user created by an administrator."""
+
+    full_name: str = Field(min_length=1, max_length=200)
+    email: EmailStr
+    password: str = Field(min_length=8, max_length=72)
+    role: Literal["admin", "user"] = "user"
+    phone: str | None = Field(default=None, max_length=50)
+
+
+@router.post(
+    "/users",
+    status_code=status.HTTP_201_CREATED,
+    summary="Admin: create an internal user",
+)
+@limiter.limit("10/minute")
+async def admin_create_user(
+    request: Request,
+    payload: AdminCreateUserRequest,
+    admin: AdminUser = Depends(require_admin),
+) -> dict:
+    """Create an internal user (auth account + admin_profiles row).
+
+    Uses the Supabase Admin API with ``email_confirm=true`` so the account is
+    immediately usable — no confirmation email round-trip. Restricted to the
+    ``admin`` role. The service role key never reaches the browser.
+    """
+    if admin.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only administrators can create users.",
+        )
+
+    # 1. Create the auth user (pre-confirmed).
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            resp = await client.post(
+                f"{GOTRUE_ADMIN_URL}/users",
+                json={
+                    "email": payload.email,
+                    "password": payload.password,
+                    "email_confirm": True,
+                },
+                headers={
+                    "apikey": settings.supabase_service_role_key,
+                    "Authorization": f"Bearer {settings.supabase_service_role_key}",
+                    "Content-Type": "application/json",
+                },
+            )
+    except httpx.RequestError as exc:
+        logger.error("GoTrue admin create failed: %s", exc)
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="Authentication service unavailable.",
+        )
+
+    if resp.status_code in (409, 422) or (
+        resp.status_code >= 400 and "already" in resp.text.lower()
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="A user with that email already exists.",
+        )
+    if resp.status_code not in (200, 201):
+        logger.error("User create failed (%s): %s", resp.status_code, resp.text)
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="Could not create the user.",
+        )
+
+    user_id = resp.json().get("id")
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="Auth service returned no user id.",
+        )
+
+    # 2. Insert the admin_profiles row (service role bypasses RLS).
+    profile_body = {
+        "id": user_id,
+        "email": payload.email,
+        "full_name": payload.full_name,
+        "role": payload.role,
+        "phone": payload.phone,
+    }
+    try:
+        with get_client() as client:
+            pr = client.post("/admin_profiles", json=profile_body)
+            pr.raise_for_status()
+            rows = pr.json()
+    except Exception as exc:
+        # The auth user now exists without a profile. Best-effort cleanup so a
+        # retry with the same email does not hit the 409 above.
+        logger.error("Profile insert failed for %s, rolling back auth user: %s", payload.email, exc)
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                await client.delete(
+                    f"{GOTRUE_ADMIN_URL}/users/{user_id}",
+                    headers={
+                        "apikey": settings.supabase_service_role_key,
+                        "Authorization": f"Bearer {settings.supabase_service_role_key}",
+                    },
+                )
+        except Exception:  # noqa: BLE001 — cleanup is best-effort
+            logger.error("Rollback of auth user %s failed", user_id)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="User created but profile could not be saved. Please retry.",
+        )
+
+    logger.info("Admin %s created user %s (%s)", admin.email, payload.email, payload.role)
+    return rows[0] if rows else profile_body

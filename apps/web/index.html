@@ -3297,6 +3297,10 @@
 </head>
 <body>
 
+  <!-- Single source of truth for the backend API base URL. Override by setting
+       window.SF_API_BASE before this tag (e.g. when moving off Render). -->
+  <script>window.SF_API_BASE = window.SF_API_BASE || 'https://sustenta-futuro-api.onrender.com';</script>
+
   <!-- NAV -->
   <div class="nav-wrap" id="navbar">
     <nav role="navigation" aria-label="Navegación principal">
@@ -4173,8 +4177,9 @@
     // ── GSAP scroll animations (loaded via CDN below) ──
     window.addEventListener('load', () => { initOrganicNet(); initGSAP(); });
     // ── Form submit ──
-    // Sends leads to FastAPI backend on Render (no direct DB access)
-    const API_URL = 'https://sustenta-futuro-api.onrender.com';
+    // Sends leads to FastAPI backend (no direct DB access). Base URL centralized
+    // in window.SF_API_BASE (set at the top of <body>).
+    const API_URL = window.SF_API_BASE;
 
     async function handleSubmit(e) {
       e.preventDefault();
@@ -5394,7 +5399,7 @@
   <!-- ── TEXTURE LOADER ── -->
   <script>
   (function () {
-    const TEXTURE_API = 'https://sustenta-futuro-api.onrender.com/landing/textures';
+    const TEXTURE_API = window.SF_API_BASE + '/landing/textures';
 
     // Maps element-specific color keys to their CSS selectors
     const ELEMENT_SELECTORS = {

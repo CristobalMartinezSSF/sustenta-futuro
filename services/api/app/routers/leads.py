@@ -1,10 +1,29 @@
 """Router for lead-related endpoints."""
 
 import logging
+from typing import Annotated
+from uuid import UUID
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, Request, status
+from pydantic import AfterValidator
 from slowapi import Limiter
 from slowapi.util import get_remote_address
+
+
+def _as_uuid_str(value: str) -> str:
+    """Validate that a path id is a UUID, returning it as a string.
+
+    Kept as ``str`` (not ``UUID``) so it flows unchanged into PostgREST query
+    params and JSON bodies. A malformed id raises 422 instead of a raw 500.
+    """
+    try:
+        return str(UUID(str(value)))
+    except (ValueError, AttributeError, TypeError) as exc:
+        raise ValueError("Invalid id: must be a UUID.") from exc
+
+
+# Reusable path-param type shared across the lead-scoped routers.
+UuidStr = Annotated[str, AfterValidator(_as_uuid_str)]
 
 from app.auth import AdminUser, require_admin
 from app.database import get_client
@@ -245,7 +264,7 @@ def list_leads(
     response_model=LeadDetail,
     summary="Get lead detail",
 )
-def get_lead(lead_id: str, admin: AdminUser = Depends(require_admin)) -> LeadDetail:
+def get_lead(lead_id: UuidStr, admin: AdminUser = Depends(require_admin)) -> LeadDetail:
     """Return full details of a single lead."""
     rows = _supabase_get(
         "/leads",
@@ -269,7 +288,7 @@ def get_lead(lead_id: str, admin: AdminUser = Depends(require_admin)) -> LeadDet
     response_model=LeadDetail,
     summary="Update lead fields",
 )
-def update_lead(lead_id: str, payload: LeadUpdate, admin: AdminUser = Depends(require_admin)) -> LeadDetail:
+def update_lead(lead_id: UuidStr, payload: LeadUpdate, admin: AdminUser = Depends(require_admin)) -> LeadDetail:
     """Update editable fields on a lead (admin action)."""
     data = payload.model_dump(exclude_none=True, mode="json")
     if not data:
@@ -295,7 +314,7 @@ def update_lead(lead_id: str, payload: LeadUpdate, admin: AdminUser = Depends(re
     response_model=LeadDetail,
     summary="Change lead status",
 )
-def update_lead_status(lead_id: str, payload: LeadStatusUpdate, admin: AdminUser = Depends(require_admin)) -> LeadDetail:
+def update_lead_status(lead_id: UuidStr, payload: LeadStatusUpdate, admin: AdminUser = Depends(require_admin)) -> LeadDetail:
     """Change the status of a lead. Requires a mandatory note explaining the change.
 
     The status transition is recorded in lead_status_history via a DB trigger,
@@ -342,7 +361,7 @@ def update_lead_status(lead_id: str, payload: LeadStatusUpdate, admin: AdminUser
     response_model=list[StatusHistoryEntry],
     summary="Get lead status history",
 )
-def get_lead_history(lead_id: str, admin: AdminUser = Depends(require_admin)) -> list[StatusHistoryEntry]:
+def get_lead_history(lead_id: UuidStr, admin: AdminUser = Depends(require_admin)) -> list[StatusHistoryEntry]:
     """Return the full status change history for a lead, newest first."""
     rows = _supabase_get(
         "/lead_status_history",
@@ -365,7 +384,7 @@ def get_lead_history(lead_id: str, admin: AdminUser = Depends(require_admin)) ->
     response_model=LeadDetail,
     summary="Enrich lead data",
 )
-def enrich_lead_endpoint(lead_id: str, admin: AdminUser = Depends(require_admin)) -> LeadDetail:
+def enrich_lead_endpoint(lead_id: UuidStr, admin: AdminUser = Depends(require_admin)) -> LeadDetail:
     """Run enrichment (email validation, company search, website scrape) on a lead.
 
     Stores results in enrichment_data and returns the updated lead.

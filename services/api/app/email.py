@@ -7,6 +7,7 @@ Failures are logged but never block the main flow.
 import base64
 import logging
 import os
+from html import escape as _esc
 
 import httpx
 
@@ -79,7 +80,7 @@ def send_lead_confirmation(lead_name: str, lead_email: str) -> bool:
         <h1 style="color: #fff; font-size: 20px; margin: 0;">Sustenta Futuro</h1>
       </div>
       <div style="padding: 32px; background: #fff; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 8px 8px;">
-        <p style="font-size: 16px; margin: 0 0 16px;">Hola <strong>{lead_name}</strong>,</p>
+        <p style="font-size: 16px; margin: 0 0 16px;">Hola <strong>{_esc(lead_name)}</strong>,</p>
         <p style="font-size: 14px; line-height: 1.6; margin: 0 0 16px;">
           Recibimos tu solicitud correctamente. Nuestro equipo la revisara y te contactaremos pronto.
         </p>
@@ -121,24 +122,24 @@ def send_admin_notification(
         <table style="width: 100%; font-size: 14px; border-collapse: collapse;">
           <tr>
             <td style="padding: 8px 0; color: #617F8A; width: 120px;">Nombre</td>
-            <td style="padding: 8px 0; font-weight: 600;">{lead_name}</td>
+            <td style="padding: 8px 0; font-weight: 600;">{_esc(lead_name)}</td>
           </tr>
           <tr>
             <td style="padding: 8px 0; color: #617F8A;">Email</td>
-            <td style="padding: 8px 0;">{lead_email}</td>
+            <td style="padding: 8px 0;">{_esc(lead_email)}</td>
           </tr>
           <tr>
             <td style="padding: 8px 0; color: #617F8A;">Empresa</td>
-            <td style="padding: 8px 0;">{lead_company}</td>
+            <td style="padding: 8px 0;">{_esc(lead_company)}</td>
           </tr>
           <tr>
             <td style="padding: 8px 0; color: #617F8A;">Servicio</td>
-            <td style="padding: 8px 0;">{lead_service}</td>
+            <td style="padding: 8px 0;">{_esc(lead_service)}</td>
           </tr>
         </table>
         <div style="margin-top: 16px; padding: 16px; background: #f7f8fa; border-radius: 6px;">
           <p style="font-size: 12px; color: #617F8A; margin: 0 0 8px; text-transform: uppercase; letter-spacing: 0.5px;">Mensaje</p>
-          <p style="font-size: 14px; line-height: 1.5; margin: 0; white-space: pre-wrap;">{lead_message}</p>
+          <p style="font-size: 14px; line-height: 1.5; margin: 0; white-space: pre-wrap;">{_esc(lead_message)}</p>
         </div>
       </div>
     </div>
@@ -168,12 +169,12 @@ def send_project_completed_notification(
       </div>
       <div style="padding: 32px; background: #fff; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 8px 8px;">
         <p style="font-size: 16px; margin: 0 0 16px;">
-          El proyecto <strong>{project_name}</strong> se marcó como <strong>terminado</strong>.
+          El proyecto <strong>{_esc(project_name)}</strong> se marcó como <strong>terminado</strong>.
         </p>
         <table style="width: 100%; font-size: 14px; border-collapse: collapse;">
           <tr>
             <td style="padding: 8px 0; color: #617F8A; width: 120px;">Cliente</td>
-            <td style="padding: 8px 0; font-weight: 600;">{client}</td>
+            <td style="padding: 8px 0; font-weight: 600;">{_esc(client)}</td>
           </tr>
         </table>
       </div>
@@ -197,7 +198,8 @@ def send_proposal_to_client(
     The PDF is attached and, when ``WHATSAPP_CONTACT_URL`` is configured, a
     WhatsApp CTA is shown so the client can book the kickoff meeting directly.
     """
-    title = project_title or "tu proyecto"
+    title = _esc(project_title or "tu proyecto")
+    safe_name = _esc(lead_name)
     if WHATSAPP_CONTACT_URL:
         cta = f"""
         <a href="{WHATSAPP_CONTACT_URL}" style="display: inline-block; background: #25D366; color: #fff; text-decoration: none; font-size: 14px; font-weight: 600; padding: 12px 24px; border-radius: 8px;">
@@ -217,7 +219,7 @@ def send_proposal_to_client(
         <h1 style="color: #fff; font-size: 20px; margin: 0;">Sustenta Futuro</h1>
       </div>
       <div style="padding: 32px; background: #fff; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 8px 8px;">
-        <p style="font-size: 16px; margin: 0 0 16px;">Hola <strong>{lead_name}</strong>,</p>
+        <p style="font-size: 16px; margin: 0 0 16px;">Hola <strong>{safe_name}</strong>,</p>
         <p style="font-size: 14px; line-height: 1.6; margin: 0 0 16px;">
           Adjuntamos nuestra propuesta para <strong>{title}</strong>. Encontrarás el
           detalle del alcance, plazos e inversión en el documento PDF de este correo.

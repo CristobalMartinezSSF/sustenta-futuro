@@ -30,6 +30,7 @@ from app.proposal_pdf import build_proposal_pdf
 from app.proposal_render import ProposalRenderError, render_proposal_pdf
 from app.routers.evaluations import _advance_lead_status
 from app.routers.leads import DETAIL_FIELDS, _supabase_get, _supabase_patch, _supabase_post
+from app.routers.leads import UuidStr
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +58,7 @@ def _allocate_quote_number() -> str | None:
         return None
 
 
-def _quote_number_for_lead(lead_id: str) -> str | None:
+def _quote_number_for_lead(lead_id: UuidStr) -> str | None:
     """Return the quote number of the lead's principal/latest proposal.
 
     Back-fills a number for legacy proposals created before the numbering
@@ -132,7 +133,7 @@ def _derive_project_name(proposal: dict) -> str:
     )
 
 
-def _get_lead_and_evaluation(lead_id: str) -> tuple[dict, dict]:
+def _get_lead_and_evaluation(lead_id: UuidStr) -> tuple[dict, dict]:
     """Fetch a lead and its evaluation, raising 404 if either is missing."""
     lead_rows = _supabase_get(
         "/leads", {"select": DETAIL_FIELDS, "id": f"eq.{lead_id}", "limit": "1"}
@@ -163,7 +164,7 @@ def _get_lead_and_evaluation(lead_id: str) -> tuple[dict, dict]:
     summary="Create a new proposal version (snapshot of the current ficha)",
 )
 def create_proposal(
-    lead_id: str,
+    lead_id: UuidStr,
     payload: ProposalCreate | None = None,
     admin: AdminUser = Depends(require_admin),
 ) -> ProposalDetail:
@@ -176,11 +177,14 @@ def create_proposal(
 
     existing = _supabase_get(
         "/lead_proposals",
-        {"select": "version", "lead_id": f"eq.{lead_id}",
+        {"select": "version,quote_number", "lead_id": f"eq.{lead_id}",
          "order": "version.desc", "limit": "1"},
     )
     next_version = (existing[0]["version"] + 1) if existing else 1
     is_first = not existing
+    # One COT per lead: reuse the existing quote number across versions; only the
+    # first version (or a legacy one without a number) allocates a new correlative.
+    quote_number = (existing[0].get("quote_number") if existing else None) or _allocate_quote_number()
 
     notes = _supabase_get(
         "/lead_notes",
@@ -195,7 +199,7 @@ def create_proposal(
         {
             "lead_id": lead_id,
             "evaluation_id": evaluation["id"],
-            "quote_number": _allocate_quote_number(),
+            "quote_number": quote_number,
             "status": ProposalStatus.DRAFT.value,
             "version": next_version,
             "is_principal": is_first,
@@ -216,7 +220,7 @@ def create_proposal(
     response_model=list[ProposalDetail],
     summary="List proposals for a lead",
 )
-def list_proposals(lead_id: str, admin: AdminUser = Depends(require_admin)) -> list[ProposalDetail]:
+def list_proposals(lead_id: UuidStr, admin: AdminUser = Depends(require_admin)) -> list[ProposalDetail]:
     """Return all proposal versions for a lead, newest version first."""
     rows = _supabase_get(
         "/lead_proposals",
@@ -236,7 +240,7 @@ def list_proposals(lead_id: str, admin: AdminUser = Depends(require_admin)) -> l
     summary="Mark a proposal version as the lead's principal",
 )
 def set_principal(
-    lead_id: str, proposal_id: str, admin: AdminUser = Depends(require_admin)
+    lead_id: UuidStr, proposal_id: UuidStr, admin: AdminUser = Depends(require_admin)
 ) -> ProposalDetail:
     """Make this version the lead's principal (the one shown by default).
 
@@ -276,7 +280,7 @@ def set_principal(
     summary="Render the proposal PDF for a lead",
     response_class=Response,
 )
-def get_proposal_pdf(lead_id: str, admin: AdminUser = Depends(require_admin)) -> Response:
+def get_proposal_pdf(lead_id: UuidStr, admin: AdminUser = Depends(require_admin)) -> Response:
     """Generate and stream the institutional proposal PDF for a lead."""
     lead, evaluation = _get_lead_and_evaluation(lead_id)
     quote_number = _quote_number_for_lead(lead_id)
@@ -301,7 +305,7 @@ def get_proposal_pdf(lead_id: str, admin: AdminUser = Depends(require_admin)) ->
     summary="Get a single proposal version including its frozen snapshot",
 )
 def get_proposal(
-    lead_id: str, proposal_id: str, admin: AdminUser = Depends(require_admin)
+    lead_id: UuidStr, proposal_id: UuidStr, admin: AdminUser = Depends(require_admin)
 ) -> ProposalWithSnapshot:
     """Return one proposal version with its immutable snapshot (read-only view)."""
     rows = _supabase_get(
@@ -325,8 +329,8 @@ def get_proposal(
     summary="Update a proposal's status",
 )
 def update_proposal_status(
-    lead_id: str,
-    proposal_id: str,
+    lead_id: UuidStr,
+    proposal_id: UuidStr,
     payload: ProposalStatusUpdate,
     admin: AdminUser = Depends(require_admin),
 ) -> ProposalDetail:
@@ -367,7 +371,7 @@ def update_proposal_status(
     summary="Email the proposal PDF to the client and advance the lead",
 )
 def send_proposal(
-    lead_id: str, proposal_id: str, admin: AdminUser = Depends(require_admin)
+    lead_id: UuidStr, proposal_id: UuidStr, admin: AdminUser = Depends(require_admin)
 ) -> ProposalDetail:
     """Send the proposal to the client by email and mark it as sent.
 
@@ -435,7 +439,7 @@ def send_proposal(
     summary="Convert a winning proposal into a development project",
 )
 def convert_to_project(
-    lead_id: str, proposal_id: str, admin: AdminUser = Depends(require_admin)
+    lead_id: UuidStr, proposal_id: UuidStr, admin: AdminUser = Depends(require_admin)
 ) -> ProjectDetail:
     """Turn a winning proposal into a first-class project.
 

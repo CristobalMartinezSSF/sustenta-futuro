@@ -14,6 +14,7 @@ from app.auth import AdminUser, require_admin
 from app.email import send_project_completed_notification
 from app.models.project import ProjectDetail, ProjectStatus, ProjectUpdate
 from app.routers.leads import _supabase_get, _supabase_patch
+from app.routers.leads import UuidStr
 
 logger = logging.getLogger(__name__)
 
@@ -58,7 +59,7 @@ def list_projects(admin: AdminUser = Depends(require_admin)) -> list[ProjectDeta
     response_model=ProjectDetail,
     summary="Get a single project",
 )
-def get_project(project_id: str, admin: AdminUser = Depends(require_admin)) -> ProjectDetail:
+def get_project(project_id: UuidStr, admin: AdminUser = Depends(require_admin)) -> ProjectDetail:
     """Return one project by id."""
     rows = _supabase_get(
         "/projects",
@@ -75,7 +76,7 @@ def get_project(project_id: str, admin: AdminUser = Depends(require_admin)) -> P
     summary="Update a project's name and/or status",
 )
 def update_project(
-    project_id: str,
+    project_id: UuidStr,
     payload: ProjectUpdate,
     admin: AdminUser = Depends(require_admin),
 ) -> ProjectDetail:

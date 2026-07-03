@@ -104,53 +104,35 @@ function AddUserModal({
     setSubmitting(true)
 
     try {
-      // Step 1: Create auth user via signUp (uses anon key, safe for browser)
-      // A separate client instance is used to avoid overwriting the admin's session.
-      const signupClient = createClient()
-      const { data: signupData, error: signupError } = await signupClient.auth.signUp({
-        email: trimmedEmail,
-        password: trimmedPassword,
-      })
-
-      if (signupError || !signupData.user) {
-        setFormError(`Error al crear usuario: ${signupError?.message ?? 'Sin respuesta'}`)
-        return
-      }
-
-      const newUserId = signupData.user.id
-
-      // Step 2: Insert admin_profiles row using admin's JWT
-      const url = process.env.NEXT_PUBLIC_SUPABASE_URL!
-      const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      const profileRes = await fetch(`${url}/rest/v1/admin_profiles`, {
+      // Create the user server-side (auth account pre-confirmed + profile) so
+      // there is no email-confirmation round-trip and the service role stays
+      // on the backend. Requires the admin's JWT.
+      const res = await fetch(`${API_URL}/auth/users`, {
         method: 'POST',
         headers: {
-          'apikey': anonKey,
-          'Authorization': `Bearer ${accessToken}`,
+          Authorization: `Bearer ${accessToken}`,
           'Content-Type': 'application/json',
-          'Prefer': 'return=representation',
         },
         body: JSON.stringify({
-          id: newUserId,
-          email: trimmedEmail,
           full_name: trimmedName,
+          email: trimmedEmail,
+          password: trimmedPassword,
           role: form.role,
           phone: form.phone.trim() || null,
         }),
       })
 
-      if (!profileRes.ok) {
-        const body = await profileRes.text()
-        setFormError(`Usuario creado pero error al guardar perfil: ${body}`)
+      if (!res.ok) {
+        let detail = `error ${res.status}`
+        try { detail = (await res.json()).detail ?? detail } catch {}
+        setFormError(`No se pudo crear el usuario: ${detail}`)
         return
       }
 
-      const profileData = await profileRes.json()
-      if (profileData && profileData[0]) {
-        onCreated(profileData[0] as AdminProfile)
-      }
+      const profile = await res.json()
+      onCreated(profile as AdminProfile)
     } catch {
-      setFormError('Error inesperado. Intenta nuevamente.')
+      setFormError('No se pudo conectar con el servicio de autenticación.')
     } finally {
       setSubmitting(false)
     }

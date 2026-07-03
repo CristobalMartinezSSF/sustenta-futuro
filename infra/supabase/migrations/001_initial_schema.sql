@@ -148,6 +148,7 @@ COMMENT ON FUNCTION public.fn_record_lead_status_change() IS
     'Trigger function: appends a row to lead_status_history on every lead INSERT '
     'and on every UPDATE where the status column value changes.';
 
+DROP TRIGGER IF EXISTS trg_lead_status_history ON public.leads;
 CREATE TRIGGER trg_lead_status_history
     AFTER INSERT OR UPDATE ON public.leads
     FOR EACH ROW

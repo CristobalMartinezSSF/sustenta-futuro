@@ -33,6 +33,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS landing_config_updated_at ON landing_config;
 CREATE TRIGGER landing_config_updated_at
   BEFORE UPDATE ON landing_config
   FOR EACH ROW EXECUTE FUNCTION update_landing_config_updated_at();

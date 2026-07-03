@@ -123,6 +123,10 @@ Ver la lista completa y comentada en `services/api/.env.example`. Las claves:
 
 ## 6. Base de datos y migraciones
 
+> Para levantar la base **desde cero** en un proyecto Supabase nuevo, sigue
+> [`SETUP-BASE-DATOS.md`](./SETUP-BASE-DATOS.md): un solo archivo
+> `infra/supabase/schema.sql` para pegar y ejecutar, + primer admin.
+
 - El esquema vive en `infra/supabase/migrations/` (`001` … `013`), incremental e
   **idempotente** (se puede reejecutar sin romper nada).
 - Migraciones destacadas: `005` (esquema Etapa 2), `008/009` (propuestas

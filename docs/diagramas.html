@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Diagramas — SG Sustenta Futuro</title>
+  <style>
+    :root { color-scheme: light; }
+    body { font-family: -apple-system, Segoe UI, Roboto, sans-serif; margin: 0; background: #f6f7f8; color: #1a1a1a; }
+    header { background: #0a0a0a; color: #fff; padding: 20px 32px; }
+    header h1 { margin: 0; font-size: 18px; font-weight: 600; }
+    header p { margin: 4px 0 0; font-size: 13px; color: rgba(255,255,255,0.6); }
+    main { max-width: 1100px; margin: 0 auto; padding: 24px; }
+    section { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; margin-bottom: 24px; }
+    h2 { font-size: 15px; margin: 0 0 16px; }
+    .mermaid { text-align: center; }
+    nav { display: flex; gap: 16px; margin-top: 12px; font-size: 13px; }
+    nav a { color: #4B9BF5; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Diagramas — Sistema de Gestión Sustenta Futuro</h1>
+    <p>Modelo relacional, flujo funcional y arquitectura de despliegue.</p>
+    <nav>
+      <a href="#er">Modelo de datos</a>
+      <a href="#flujo">Flujo principal</a>
+      <a href="#auth">Usuarios</a>
+      <a href="#deploy">Despliegue</a>
+    </nav>
+  </header>
+  <main>
+    <section id="er">
+      <h2>1. Modelo relacional (base de datos)</h2>
+      <pre class="mermaid">
+erDiagram
+    admin_profiles { uuid id PK text email text role text phone }
+    leads { uuid id PK text email text status uuid assigned_to }
+    lead_status_history { uuid id PK uuid lead_id FK text new_status }
+    lead_notes { uuid id PK uuid lead_id FK text content }
+    lead_evaluations { uuid id PK uuid lead_id FK text verdict numeric client_price }
+    lead_proposals { uuid id PK uuid lead_id FK text quote_number int version }
+    proposal_counters { int year PK int last_seq }
+    proposal_messages { uuid id PK uuid proposal_id FK text body }
+    projects { uuid id PK uuid lead_id FK uuid proposal_id FK text status }
+    phases { uuid id PK uuid project_id FK text status }
+    tasks { uuid id PK uuid phase_id FK text status }
+    task_notes { uuid id PK uuid task_id FK text content }
+    phase_files { uuid id PK uuid phase_id FK text filename }
+    daily_reports { uuid id PK uuid phase_id FK date report_date }
+    activity_log { uuid id PK uuid actor_id text action }
+    landing_config { uuid id PK text section text key }
+
+    admin_profiles ||--o{ lead_evaluations : "evalua"
+    admin_profiles ||--o{ lead_proposals : "aprueba"
+    leads ||--o{ lead_status_history : "historial"
+    leads ||--o{ lead_notes : "notas"
+    leads ||--o{ lead_evaluations : "ficha"
+    leads ||--o{ lead_proposals : "propuestas"
+    leads ||--o{ projects : "proyecto"
+    lead_evaluations ||--o{ lead_proposals : "origina"
+    lead_proposals ||--o{ proposal_messages : "discusion"
+    lead_proposals ||--o| projects : "convierte"
+    projects ||--o{ phases : "fases"
+    phases ||--o{ tasks : "tareas"
+    phases ||--o{ phase_files : "archivos"
+    phases ||--o{ daily_reports : "reportes"
+    tasks ||--o{ task_notes : "notas"
+      </pre>
+    </section>
+
+    <section id="flujo">
+      <h2>2. Flujo principal: de visitante a proyecto entregado</h2>
+      <pre class="mermaid">
+flowchart TD
+    A[Visitante en landing] --> B[POST /leads]
+    B --> C[(leads status=new)]
+    C --> D[Enrichment IA]
+    D --> E[Panel admin - Leads]
+    E --> F{Revision}
+    F -->|descartar| G[(status=lost)]
+    F -->|avanzar| H[Ficha de evaluacion]
+    H --> I[(lead_evaluations)]
+    I --> J{Veredicto}
+    J -->|no viable| G
+    J -->|viable| K[Generar propuesta]
+    K --> L[Numero COT-NNN-AAAA]
+    L --> M[Render PDF HTML a Chromium]
+    M --> N[(lead_proposals versionada)]
+    N --> P[Enviar al cliente - Resend]
+    P --> Q{Acepta?}
+    Q -->|no| G
+    Q -->|si| R[Convertir en proyecto]
+    R --> S[(projects)]
+    S --> T[Fases + Tareas Kanban]
+    T --> V[(status=won entregado)]
+      </pre>
+    </section>
+
+    <section id="auth">
+      <h2>3. Autenticacion y gestion de usuarios</h2>
+      <pre class="mermaid">
+flowchart TD
+    L1[Login] --> L2{Credenciales OK?}
+    L2 -->|no| L3[Olvidaste tu clave]
+    L2 -->|si| L4[Panel admin]
+    L3 --> L5[Email recuperacion Supabase+Resend]
+    L5 --> L6[reset-password fija nueva clave]
+    L6 --> L1
+    L4 -->|rol admin| M1[Pagina Usuarios]
+    M1 --> M2[Crear usuario]
+    M1 --> M3[Resetear clave POST auth reset-password]
+    M3 -.->|puente futuro| M4[[WhatsApp Meta Cloud API]]
+      </pre>
+    </section>
+
+    <section id="deploy">
+      <h2>4. Arquitectura de despliegue</h2>
+      <pre class="mermaid">
+flowchart LR
+    W[Landing estatica] --> API[FastAPI Render]
+    AD[Panel admin Next.js] --> API
+    AD --> SB[(Supabase Postgres+Auth)]
+    API --> SB
+    API --> RS[Resend email]
+    API --> GE[Gemini propuestas]
+    API --> CH[Chromium PDF]
+      </pre>
+    </section>
+  </main>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true, theme: 'neutral' });
+  </script>
+</body>
+</html>
